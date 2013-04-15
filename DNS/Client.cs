@@ -8,21 +8,6 @@ using System.Net.Sockets;
 using DNS.Protocol;
 
 namespace DNS {
-    /*public class Driver {
-        public static void Main(string[] args) {
-            Client client = new Client("8.8.8.8");
-            //IList<IPAddress> ips = client.Lookup("google.com", RecordType.AAAA);
-
-            //Console.WriteLine(Marshalling.Object.Dump(ips));
-
-            IPAddress ip4 = IPAddress.Parse("173.194.69.138");
-            IPAddress ip6 = IPAddress.Parse("2a00:1450:4008:c01::65");
-
-            Console.WriteLine(ip6);
-            Console.WriteLine(client.Reverse(ip4));
-        }
-    }*/
-
     public class Client {
         private const int DEFAULT_PORT = 53;
         private static readonly Random RANDOM = new Random();

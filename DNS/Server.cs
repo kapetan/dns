@@ -15,7 +15,7 @@ namespace DNS {
             Server server = null;
 
             (new Thread(() => {
-                server = new Server();
+                server = new Server("8.8.8.8");
 
                 server.Responded += (request, response) => Console.WriteLine("{0} => {1}", request, response);
 
@@ -26,17 +26,22 @@ namespace DNS {
 
             Thread.Sleep(2000);
 
-            Client client = new Client("127.0.0.1", 8000);
+            Client client = new Client("127.0.0.1");
 
             Console.WriteLine(DNS.Marshalling.Object.Dump(client.Lookup("google.com")));
             Console.WriteLine(DNS.Marshalling.Object.Dump(client.Lookup("dr.dk")));
+
+            server.Close();
         }
 
-        private const int PORT = 8000;
+        private const int DEFAULT_PORT = 53;
         private const int UDP_TIMEOUT = 2000;
 
         public delegate void RequestedEventHandler(IRequest request);
         public delegate void RespondedEventHandler(IRequest request, IResponse response);
+
+        private IPEndPoint endServer;
+        private int port;
 
         private UdpClient udp;
         private EventEmitter emitter;
@@ -45,12 +50,23 @@ namespace DNS {
         public event RequestedEventHandler Requested;
         public event RespondedEventHandler Responded;
 
+        public Server(IPEndPoint endServer, int listenOnPort = DEFAULT_PORT) {
+            this.endServer = endServer;
+            this.port = listenOnPort;
+        }
+
+        public Server(IPAddress endServer, int listenOnPort = DEFAULT_PORT) : 
+            this(new IPEndPoint(endServer, DEFAULT_PORT), listenOnPort) {}
+
+        public Server(string endServerIp, int listenOnPort = DEFAULT_PORT) : 
+            this(IPAddress.Parse(endServerIp), listenOnPort) {}
+
         public void Run() {
             emitter = new EventEmitter();
-            udp = new UdpClient(PORT);
-            client = new Client("8.8.8.8");
+            udp = new UdpClient(port);
+            client = new Client(endServer);
 
-            IPEndPoint local = new IPEndPoint(IPAddress.Any, PORT);
+            IPEndPoint local = new IPEndPoint(IPAddress.Any, port);
 
             emitter.Run();
             udp.Client.SendTimeout = UDP_TIMEOUT;
@@ -117,6 +133,9 @@ namespace DNS {
                         emit();
                     }
                 } catch (OperationCanceledException) { }
+
+                queue = null;
+                tokenSource = null;
             })).Start();
         }
 

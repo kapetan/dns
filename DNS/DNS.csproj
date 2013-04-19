@@ -63,6 +63,7 @@
     <Compile Include="Client.cs" />
     <Compile Include="Domain.cs" />
     <Compile Include="Header.cs" />
+    <Compile Include="MasterFile.cs" />
     <Compile Include="Message.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Marshalling.cs" />

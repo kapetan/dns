@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 
 namespace DNS.Protocol {
-    public class Domain {
+    public class Domain : IComparable<Domain> {
         private string[] labels;
 
         public static Domain FromArray(byte[] message, int offset) {
@@ -79,6 +79,25 @@ namespace DNS.Protocol {
 
         public override string ToString() {
             return string.Join(".", labels);
+        }
+
+        public int CompareTo(Domain other) {
+            return ToString().CompareTo(other.ToString());
+        }
+
+        public override bool Equals(object obj) {
+            if (obj == null) {
+                return false;
+            }
+            if (!(obj is Domain)) {
+                return false;
+            }
+
+            return CompareTo(obj as Domain) == 0;
+        }
+
+        public override int GetHashCode() {
+            return ToString().GetHashCode();
         }
     }
 }

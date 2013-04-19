@@ -96,6 +96,11 @@ namespace DNS.Protocol {
     }
 
     public class IPAddressResourceRecord : ResourceRecordBase {
+        public static IPAddressResourceRecord FromArray(byte[] message, int offset, out int endOffset) {
+            endOffset = 0;
+            return null;
+        }
+
         public IPAddressResourceRecord(IResourceRecord record) : base(record) {
             IPAddress = new IPAddress(Data);
         }

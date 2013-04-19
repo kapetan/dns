@@ -74,8 +74,8 @@ namespace DNS.Protocol {
             return new ResourceRecord(question.Name, data, question.Type, question.Class, ttl);
         }
 
-        public ResourceRecord(Domain domain, byte[] data,
-                RecordType type = RecordType.A, RecordClass klass = RecordClass.IN, TimeSpan ttl = default(TimeSpan)) {
+        public ResourceRecord(Domain domain, byte[] data, RecordType type, 
+                RecordClass klass = RecordClass.IN, TimeSpan ttl = default(TimeSpan)) {
             this.domain = domain;
             this.type = type;
             this.klass = klass;
@@ -83,8 +83,8 @@ namespace DNS.Protocol {
             this.data = data;
         }
 
-        public ResourceRecord(string domain, byte[] data,
-                RecordType type = RecordType.A, RecordClass klass = RecordClass.IN, TimeSpan ttl = default(TimeSpan)) : 
+        public ResourceRecord(string domain, byte[] data, RecordType type, 
+            RecordClass klass = RecordClass.IN, TimeSpan ttl = default(TimeSpan)) : 
                     this(new Domain(domain), data, type, klass, ttl) {}
 
         public Domain Name {

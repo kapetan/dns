@@ -26,6 +26,8 @@ Response response = Response.FromArray(buffer);
 Console.WriteLine(response);
 ```
 
+### Client
+
 The libray also includes a small client and a proxy server. Using the `ClientRequest` or the `Client` class it is possible to send a request to a Domain Name Server.
 
 ```C#
@@ -55,8 +57,12 @@ Client client = new Client("8.8.8.8");
 ClientRequest request = client.Create();
 
 // Returns a list of IPs
-client.Resolve("foo.com");
+IList<IPAddress> ips = client.Resolve("foo.com");
 
 // Get the domain name belonging to the IP (google.com)
-client.Reverse("173.194.69.100");
+string domain = client.Reverse("173.194.69.100");
 ```
+
+### Server
+
+The `Server` class exposes a proxy Domain Name Server. You can intercept domain name resolution requests and route them to specified IPs. The server is multi-threaded and spawns a thread for every request. It also emits an event on every request and every successful resolution. All the events are executed in the same separate thread.

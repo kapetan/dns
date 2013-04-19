@@ -21,7 +21,7 @@ namespace DNS {
 
                 Console.WriteLine("Starting");
 
-                server.Run();
+                server.Listen();
             })).Start();
 
             Thread.Sleep(2000);
@@ -41,7 +41,6 @@ namespace DNS {
         public delegate void RespondedEventHandler(IRequest request, IResponse response);
 
         private IPEndPoint endServer;
-        private int port;
 
         private UdpClient udp;
         private EventEmitter emitter;
@@ -50,18 +49,14 @@ namespace DNS {
         public event RequestedEventHandler Requested;
         public event RespondedEventHandler Responded;
 
-        public Server(IPEndPoint endServer, int listenOnPort = DEFAULT_PORT) {
+        public Server(IPEndPoint endServer) {
             this.endServer = endServer;
-            this.port = listenOnPort;
         }
 
-        public Server(IPAddress endServer, int listenOnPort = DEFAULT_PORT) : 
-            this(new IPEndPoint(endServer, DEFAULT_PORT), listenOnPort) {}
+        public Server(IPAddress endServer, int port = DEFAULT_PORT) : this(new IPEndPoint(endServer, port)) {}
+        public Server(string endServerIp, int port = DEFAULT_PORT) : this(IPAddress.Parse(endServerIp), port) {}
 
-        public Server(string endServerIp, int listenOnPort = DEFAULT_PORT) : 
-            this(IPAddress.Parse(endServerIp), listenOnPort) {}
-
-        public void Run() {
+        public void Listen(int port = DEFAULT_PORT) {
             emitter = new EventEmitter();
             udp = new UdpClient(port);
             client = new Client(endServer);
@@ -133,9 +128,6 @@ namespace DNS {
                         emit();
                     }
                 } catch (OperationCanceledException) { }
-
-                queue = null;
-                tokenSource = null;
             })).Start();
         }
 

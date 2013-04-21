@@ -11,29 +11,6 @@ using DNS.Protocol;
 
 namespace DNS {
     public class Server {
-        public static void Main(string[] args) {
-            Server server = null;
-
-            (new Thread(() => {
-                server = new Server("8.8.8.8");
-
-                server.Responded += (request, response) => Console.WriteLine("{0} => {1}", request, response);
-
-                Console.WriteLine("Starting");
-
-                server.Listen();
-            })).Start();
-
-            Thread.Sleep(2000);
-
-            Client client = new Client("127.0.0.1");
-
-            Console.WriteLine(DNS.Marshalling.Object.Dump(client.Lookup("google.com")));
-            Console.WriteLine(DNS.Marshalling.Object.Dump(client.Lookup("dr.dk")));
-
-            server.Close();
-        }
-
         private const int DEFAULT_PORT = 53;
         private const int UDP_TIMEOUT = 2000;
 
@@ -41,6 +18,7 @@ namespace DNS {
         public delegate void RespondedEventHandler(IRequest request, IResponse response);
 
         private IPEndPoint endServer;
+        private MasterFile masterFile;
 
         private UdpClient udp;
         private EventEmitter emitter;
@@ -51,6 +29,7 @@ namespace DNS {
 
         public Server(IPEndPoint endServer) {
             this.endServer = endServer;
+            this.masterFile = new MasterFile();
         }
 
         public Server(IPAddress endServer, int port = DEFAULT_PORT) : this(new IPEndPoint(endServer, port)) {}
@@ -74,9 +53,17 @@ namespace DNS {
                         ClientRequest request = client.FromArray(clientMessage);
                         emitter.Schedule(() => OnRequested(request));
 
-                        ClientResponse response = request.Resolve();
-                        emitter.Schedule(() => Responded(request, response));
+                        ClientResponse response = Resolve(request);
 
+                        if (request.Questions.Count > 0) {
+                            ClientResponse remote = request.Resolve();
+
+                            Merge(response.AnswerRecords, remote.AnswerRecords);
+                            Merge(response.AuthorityRecords, remote.AuthorityRecords);
+                            Merge(response.AdditionalRecords, remote.AdditionalRecords);
+                        }
+
+                        emitter.Schedule(() => Responded(request, response));
                         udp.Send(response.OriginalMessage, response.OriginalMessage.Length, local);
                     } 
                     catch(SocketException) {}
@@ -94,6 +81,10 @@ namespace DNS {
             }
         }
 
+        public MasterFile MasterFile {
+            get { return masterFile; }
+        }
+
         protected virtual void OnRequested(ClientRequest request) {
             RequestedEventHandler handlers = Requested;
             if (handlers != null) handlers(request);
@@ -102,6 +93,27 @@ namespace DNS {
         protected virtual void OnResponded(ClientRequest request, Response response) {
             RespondedEventHandler handlers = Responded;
             if (handlers != null) handlers(request, response);
+        }
+
+        private ClientResponse Resolve(ClientRequest request) {
+            ClientResponse response = new ClientResponse(request);
+
+            foreach (Question question in request.Questions.ToArray()) {
+                IList<IResourceRecord> answers = masterFile.Get(question);
+
+                if (answers.Count > 0) {
+                    request.Questions.Remove(question);
+                    Merge(response.AnswerRecords, answers);
+                }
+            }
+
+            return response;
+        }
+
+        private static void Merge<T>(IList<T> l1, IList<T> l2) {
+            foreach (T obj in l2) {
+                l1.Add(obj);
+            }
         }
     }
 

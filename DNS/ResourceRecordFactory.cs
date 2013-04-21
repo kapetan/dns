@@ -12,7 +12,7 @@ namespace DNS.Protocol {
         }
 
         public static IList<IResourceRecord> GetAllFromArray(byte[] message, int offset, int count, out int endOffset) { 
-            IList<IResourceRecord> result = new List<IResourceRecord>();
+            IList<IResourceRecord> result = new List<IResourceRecord>(count);
 
             for (int i = 0; i < count; i++) {
                 result.Add(FromArray(message, offset, out offset));
@@ -96,13 +96,20 @@ namespace DNS.Protocol {
     }
 
     public class IPAddressResourceRecord : ResourceRecordBase {
-        public static IPAddressResourceRecord FromArray(byte[] message, int offset, out int endOffset) {
-            endOffset = 0;
-            return null;
+        private static IResourceRecord Create(Domain domain, IPAddress ip, TimeSpan ttl) {
+            byte[] data = ip.GetAddressBytes();
+            RecordType type = data.Length == 4 ? RecordType.A : RecordType.AAAA;
+
+            return new ResourceRecord(domain, data, type, RecordClass.IN, ttl);
         }
 
         public IPAddressResourceRecord(IResourceRecord record) : base(record) {
             IPAddress = new IPAddress(Data);
+        }
+
+        public IPAddressResourceRecord(Domain domain, IPAddress ip, TimeSpan ttl = default(TimeSpan)) :
+                base(Create(domain, ip, ttl)) {
+            IPAddress = ip;
         }
 
         public IPAddress IPAddress {
@@ -120,6 +127,11 @@ namespace DNS.Protocol {
             NSDomainName = Domain.FromArray(message, dataOffset);
         }
 
+        public NameServerResourceRecord(Domain domain, Domain nsDomain, TimeSpan ttl = default(TimeSpan)) : 
+                base(new ResourceRecord(domain, nsDomain.ToArray(), RecordType.NS, RecordClass.IN, ttl)) {
+            NSDomainName = nsDomain;
+        }
+
         public Domain NSDomainName {
             get;
             private set;
@@ -133,6 +145,11 @@ namespace DNS.Protocol {
     public class CanonicalNameResourceRecord : ResourceRecordBase {
         public CanonicalNameResourceRecord(IResourceRecord record, byte[] message, int dataOffset) : base(record) {
             CanonicalDomainName = Domain.FromArray(message, dataOffset);
+        }
+
+        public CanonicalNameResourceRecord(Domain domain, Domain cname, TimeSpan ttl = default(TimeSpan)) : 
+                base(new ResourceRecord(domain, cname.ToArray(), RecordType.CNAME, RecordClass.IN, ttl)) {
+            CanonicalDomainName = cname;
         }
 
         public Domain CanonicalDomainName {
@@ -150,6 +167,11 @@ namespace DNS.Protocol {
             PointerDomainName = Domain.FromArray(message, dataOffset);
         }
 
+        public PointerResourceRecord(Domain domain, Domain pointer, TimeSpan ttl = default(TimeSpan)) :
+                base(new ResourceRecord(domain, pointer.ToArray(), RecordType.PTR, RecordClass.IN, ttl)) {
+            PointerDomainName = pointer;
+        }
+
         public Domain PointerDomainName {
             get;
             private set;
@@ -163,6 +185,20 @@ namespace DNS.Protocol {
     public class MailExchangeResourceRecord : ResourceRecordBase {
         private const int PREFERENCE_SIZE = 2;
 
+        private static IResourceRecord Create(Domain domain, int preference, Domain exchange, TimeSpan ttl) { 
+            byte[] pref = BitConverter.GetBytes((ushort) preference);
+            byte[] data = new byte[pref.Length + exchange.Size];
+
+            if (BitConverter.IsLittleEndian) {
+                Array.Reverse(pref);
+            }
+
+            pref.CopyTo(data, 0);
+            exchange.ToArray().CopyTo(data, pref.Length);
+
+            return new ResourceRecord(domain, data, RecordType.MX, RecordClass.IN, ttl);
+        }
+
         public MailExchangeResourceRecord(IResourceRecord record, byte[] message, int dataOffset) : base(record) { 
             byte[] preference = new byte[MailExchangeResourceRecord.PREFERENCE_SIZE];
             Array.Copy(message, dataOffset, preference, 0, preference.Length);
@@ -175,6 +211,12 @@ namespace DNS.Protocol {
 
             Preference = BitConverter.ToUInt16(preference, 0);
             ExchangeDomainName = Domain.FromArray(message, dataOffset);
+        }
+
+        public MailExchangeResourceRecord(Domain domain, int preference, Domain exchange, TimeSpan ttl = default(TimeSpan)) :
+                base(Create(domain, preference, exchange, ttl)) {
+            Preference = preference;
+            ExchangeDomainName = exchange;
         }
 
         public int Preference {
@@ -193,11 +235,30 @@ namespace DNS.Protocol {
     }
 
     public class StartOfAuthorityResourceRecord : ResourceRecordBase {
+        private static IResourceRecord Create(Domain domain, Domain master, Domain responsible, long serial,
+                TimeSpan refresh, TimeSpan retry, TimeSpan expire, TimeSpan minTtl, TimeSpan ttl) {
+            Marshalling.ByteStream data = new Marshalling.ByteStream(Options.SIZE + master.Size + responsible.Size);
+            Options tail = new Options() { 
+                SerialNumber = serial,
+                RefreshInterval = refresh,
+                RetryInterval = retry,
+                ExpireInterval = expire,
+                MinimumTimeToLive = minTtl
+            };
+
+            data
+                .Append(master.ToArray())
+                .Append(responsible.ToArray())
+                .Append(Marshalling.Struct.GetBytes(tail));
+
+            return new ResourceRecord(domain, data.ToArray(), RecordType.SOA, RecordClass.IN, ttl);
+        }
+
         public StartOfAuthorityResourceRecord(IResourceRecord record, byte[] message, int dataOffset) : base(record) {
             MasterDomainName = Domain.FromArray(message, dataOffset, out dataOffset);
             ResponsibleDomainName = Domain.FromArray(message, dataOffset, out dataOffset);
 
-            Tail tail = Marshalling.Struct.GetStruct<Tail>(message, dataOffset, Tail.SIZE);
+            Options tail = Marshalling.Struct.GetStruct<Options>(message, dataOffset, Options.SIZE);
 
             SerialNumber = tail.SerialNumber;
             RefreshInterval = tail.RefreshInterval;
@@ -205,6 +266,24 @@ namespace DNS.Protocol {
             ExpireInterval = tail.ExpireInterval;
             MinimumTimeToLive = tail.MinimumTimeToLive;
         }
+
+        public StartOfAuthorityResourceRecord(Domain domain, Domain master, Domain responsible, long serial,
+                TimeSpan refresh, TimeSpan retry, TimeSpan expire, TimeSpan minTtl, TimeSpan ttl = default(TimeSpan)) :
+                base(Create(domain, master, responsible, serial, refresh, retry, expire, minTtl, ttl)) {
+            MasterDomainName = master;
+            ResponsibleDomainName = responsible;
+
+            SerialNumber = serial;
+            RefreshInterval = refresh;
+            RetryInterval = retry;
+            ExpireInterval = expire;
+            MinimumTimeToLive = minTtl;
+        }
+
+        public StartOfAuthorityResourceRecord(Domain domain, Domain master, Domain responsible,
+                Options options = default(Options), TimeSpan ttl = default(TimeSpan)) : 
+                this(domain, master, responsible, options.SerialNumber, options.RefreshInterval, options.RetryInterval,
+                    options.ExpireInterval, options.MinimumTimeToLive, ttl) {}
 
         public Domain MasterDomainName {
             get;
@@ -243,7 +322,7 @@ namespace DNS.Protocol {
 
         [Marshalling.Endian(Marshalling.Endianness.Big)]
         [StructLayout(LayoutKind.Sequential, Pack = 4)]
-        private struct Tail {
+        public struct Options {
             public const int SIZE = 20;
 
             private uint serialNumber;
@@ -254,22 +333,27 @@ namespace DNS.Protocol {
 
             public long SerialNumber {
                 get { return serialNumber; }
+                set { serialNumber = (uint) value; }
             }
 
             public TimeSpan RefreshInterval {
                 get { return TimeSpan.FromSeconds(refreshInterval); }
+                set { refreshInterval = (uint) value.TotalSeconds; }
             }
 
             public TimeSpan RetryInterval {
                 get { return TimeSpan.FromSeconds(retryInterval); }
+                set { retryInterval = (uint) value.TotalSeconds; }
             }
 
             public TimeSpan ExpireInterval {
                 get { return TimeSpan.FromSeconds(expireInterval); }
+                set { expireInterval = (uint) value.TotalSeconds; }
             }
 
             public TimeSpan MinimumTimeToLive {
                 get { return TimeSpan.FromSeconds(ttl); }
+                set { ttl = (uint) value.TotalSeconds; }
             }
         }
     }

@@ -8,11 +8,11 @@ namespace DNS.Protocol {
     public interface IResponse : IMessage {
         int Id { get; set; }
         IList<IResourceRecord> AnswerRecords { get; }
-        void AddAnswerRecord(IResourceRecord record);
+        //void AddAnswerRecord(IResourceRecord record);
         IList<IResourceRecord> AuthorityRecords { get; }
-        void AddAuthorityRecord(IResourceRecord record);
+        //void AddAuthorityRecord(IResourceRecord record);
         IList<IResourceRecord> AdditionalRecords { get; }
-        void AddAdditionalRecord(IResourceRecord record);
+        //void AddAdditionalRecord(IResourceRecord record);
         bool RecursionAvailable { get; set; }
         bool AuthorativeServer { get; set; }
         OperationCode OperationCode { get; set; }
@@ -66,35 +66,35 @@ namespace DNS.Protocol {
         }
 
         public IList<Question> Questions {
-            get { return new ReadOnlyCollection<Question>(questions); }
+            get { return questions; }
         }
 
         public IList<IResourceRecord> AnswerRecords {
-            get { return new ReadOnlyCollection<IResourceRecord>(answers); }
+            get { return answers; }
         }
 
-        public void AddAnswerRecord(IResourceRecord record) {
+        /*public void AddAnswerRecord(IResourceRecord record) {
             answers.Add(record);
             header.AnswerRecordCount = answers.Count;
-        }
+        }*/
 
         public IList<IResourceRecord> AuthorityRecords {
-            get { return new ReadOnlyCollection<IResourceRecord>(authority); }
+            get { return authority; }
         }
 
-        public void AddAuthorityRecord(IResourceRecord record) {
+        /*public void AddAuthorityRecord(IResourceRecord record) {
             authority.Add(record);
             header.AuthorityRecordCount = authority.Count;
-        }
+        }*/
 
         public IList<IResourceRecord> AdditionalRecords {
-            get { return new ReadOnlyCollection<IResourceRecord>(additional); }
+            get { return additional; }
         }
 
-        public void AddAdditionalRecord(IResourceRecord record) {
+        /*public void AddAdditionalRecord(IResourceRecord record) {
             additional.Add(record);
             header.AdditionalRecordCount = additional.Count;
-        }
+        }*/
 
         public int Id {
             get { return header.Id; }
@@ -132,6 +132,7 @@ namespace DNS.Protocol {
         }
 
         public byte[] ToArray() {
+            UpdateHeader();
             Marshalling.ByteStream result = new Marshalling.ByteStream(Size);
 
             result
@@ -145,10 +146,19 @@ namespace DNS.Protocol {
         }
 
         public override string ToString() {
+            UpdateHeader();
+
             return Marshalling.Object.New(this)
                 .Add("Header", header)
                 .Add("Questions", "AnswerRecords", "AuthorityRecords", "AdditionalRecords")
                 .ToString();
+        }
+
+        private void UpdateHeader() {
+            header.QuestionCount = questions.Count;
+            header.AnswerRecordCount = answers.Count;
+            header.AuthorityRecordCount = authority.Count;
+            header.AdditionalRecordCount = additional.Count;
         }
     }
 }

@@ -103,9 +103,10 @@ namespace DNS {
 
         public ClientResponse Resolve(string domain, RecordType type) {
             ClientRequest request = Create();
-            Question question = new Question(domain, type);
+            Question question = new Question(new Domain(domain), type);
 
-            request.AddQuestion(question);
+            request.Questions.Add(question);
+            //request.AddQuestion(question);
             request.OperationCode = OperationCode.Query;
             request.RecursionDesired = true;
 
@@ -140,6 +141,7 @@ namespace DNS {
 
     public class ClientResponse : IResponse {
         private Response response;
+        private byte[] originalMessage;
 
         public static ClientResponse FromArray(ClientRequest request, byte[] message) {
             Response response = Response.FromArray(message);
@@ -148,14 +150,30 @@ namespace DNS {
 
         internal ClientResponse(ClientRequest request, Response response, byte[] message) {
             Request = request;
-            OriginalMessage = message;
 
+            this.originalMessage = message;
             this.response = response;
         }
 
+        internal ClientResponse(ClientRequest request) {
+            this.response = new Response();
+
+            Request = request;
+            Id = request.Id;
+
+            foreach (Question question in request.Questions) {
+                Questions.Add(question);
+            }
+        }
+
         public byte[] OriginalMessage {
-            get;
-            private set;
+            get {
+                if (originalMessage != null) {
+                    return originalMessage;
+                }
+
+                return response.ToArray();
+            }
         }
 
         public ClientRequest Request {
@@ -172,25 +190,25 @@ namespace DNS {
             get { return response.AnswerRecords; }
         }
 
-        public void AddAnswerRecord(IResourceRecord record) {
+        /*public void AddAnswerRecord(IResourceRecord record) {
             response.AddAnswerRecord(record);
-        }
+        }*/
 
         public IList<IResourceRecord> AuthorityRecords {
             get { return response.AuthorityRecords; }
         }
 
-        public void AddAuthorityRecord(IResourceRecord record) {
+        /*public void AddAuthorityRecord(IResourceRecord record) {
             response.AddAuthorityRecord(record);
-        }
+        }*/
 
         public IList<IResourceRecord> AdditionalRecords {
             get { return response.AdditionalRecords; }
         }
 
-        public void AddAdditionalRecord(IResourceRecord record) {
+        /*public void AddAdditionalRecord(IResourceRecord record) {
             response.AddAdditionalRecord(record);
-        }
+        }*/
 
         public bool RecursionAvailable {
             get { return response.RecursionAvailable; }
@@ -272,13 +290,13 @@ namespace DNS {
             set { request.RecursionDesired = value; }
         }
 
-        public int QuestionCount {
+        /*public int QuestionCount {
             get { return request.QuestionCount; }
-        }
+        }*/
 
-        public void AddQuestion(Question question) {
+        /*public void AddQuestion(Question question) {
             request.AddQuestion(question);
-        }
+        }*/
 
         public IList<Question> Questions {
             get { return request.Questions; }

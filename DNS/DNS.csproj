@@ -62,6 +62,7 @@
     <Compile Include="ByteExtensions.cs" />
     <Compile Include="Client.cs" />
     <Compile Include="Domain.cs" />
+    <Compile Include="Example.cs" />
     <Compile Include="Header.cs" />
     <Compile Include="MasterFile.cs" />
     <Compile Include="Message.cs" />

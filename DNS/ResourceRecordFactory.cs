@@ -320,6 +320,10 @@ namespace DNS.Protocol {
             private set;
         }
 
+        public override string ToString() {
+            return Dump().Add("MasterDomainName", "ResponsibleDomainName", "SerialNumber").ToString();
+        }
+
         [Marshalling.Endian(Marshalling.Endianness.Big)]
         [StructLayout(LayoutKind.Sequential, Pack = 4)]
         public struct Options {

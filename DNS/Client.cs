@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Net;
@@ -33,7 +34,7 @@ namespace DNS {
             return string.Join(".", nibbles.Reverse().Select(b => b.ToString("x"))) + ".ip6.arpa";
         }
 
-        private static IPEndPoint[] C(params string[] ip) {
+        /*private static IPEndPoint[] C(params string[] ip) {
             return ip.Select(i => new IPEndPoint(IPAddress.Parse(i), DEFAULT_PORT)).ToArray();
         }
 
@@ -49,7 +50,7 @@ namespace DNS {
 
             IPEndPoint[] endPoints = DNS[name];
             return endPoints[RANDOM.Next(endPoints.Length)];
-        }
+        }*/
 
         public Client(IPEndPoint dns) {
             this.dns = dns;
@@ -60,11 +61,11 @@ namespace DNS {
 
         public ClientRequest FromArray(byte[] message) {
             Request request = Request.FromArray(message);
-            return new ClientRequest(request, dns);
+            return new ClientRequest(dns, request);
         }
 
-        public ClientRequest Create() {
-            return new ClientRequest(dns);
+        public ClientRequest Create(IRequest request = null) {
+            return new ClientRequest(dns, request);
         }
 
         public IList<IPAddress> Lookup(string domain, RecordType type = RecordType.A) {
@@ -141,7 +142,6 @@ namespace DNS {
 
     public class ClientResponse : IResponse {
         private Response response;
-        private byte[] originalMessage;
 
         public static ClientResponse FromArray(ClientRequest request, byte[] message) {
             Response response = Response.FromArray(message);
@@ -150,30 +150,21 @@ namespace DNS {
 
         internal ClientResponse(ClientRequest request, Response response, byte[] message) {
             Request = request;
+            OriginalMessage = message;
 
-            this.originalMessage = message;
             this.response = response;
         }
 
-        internal ClientResponse(ClientRequest request) {
-            this.response = new Response();
-
+        internal ClientResponse(ClientRequest request, Response response) {
             Request = request;
-            Id = request.Id;
+            OriginalMessage = response.ToArray();
 
-            foreach (Question question in request.Questions) {
-                Questions.Add(question);
-            }
+            this.response = response;
         }
 
         public byte[] OriginalMessage {
-            get {
-                if (originalMessage != null) {
-                    return originalMessage;
-                }
-
-                return response.ToArray();
-            }
+            get;
+            private set;
         }
 
         public ClientRequest Request {
@@ -183,7 +174,7 @@ namespace DNS {
 
         public int Id {
             get { return response.Id; }
-            set { response.Id = value; }
+            set {}
         }
 
         public IList<IResourceRecord> AnswerRecords {
@@ -195,7 +186,7 @@ namespace DNS {
         }*/
 
         public IList<IResourceRecord> AuthorityRecords {
-            get { return response.AuthorityRecords; }
+            get { return new ReadOnlyCollection<IResourceRecord>(response.AuthorityRecords); }
         }
 
         /*public void AddAuthorityRecord(IResourceRecord record) {
@@ -203,7 +194,7 @@ namespace DNS {
         }*/
 
         public IList<IResourceRecord> AdditionalRecords {
-            get { return response.AdditionalRecords; }
+            get { return new ReadOnlyCollection<IResourceRecord>(response.AdditionalRecords); }
         }
 
         /*public void AddAdditionalRecord(IResourceRecord record) {
@@ -212,26 +203,26 @@ namespace DNS {
 
         public bool RecursionAvailable {
             get { return response.RecursionAvailable; }
-            set { response.RecursionAvailable = value; }
+            set { }
         }
 
         public bool AuthorativeServer {
             get { return response.AuthorativeServer; }
-            set { response.AuthorativeServer = value; }
+            set { }
         }
 
         public OperationCode OperationCode {
             get { return response.OperationCode; }
-            set { response.OperationCode = value; }
+            set { }
         }
 
         public ResponseCode ResponseCode {
             get { return response.ResponseCode; }
-            set { response.ResponseCode = value; }
+            set { }
         }
 
         public IList<Question> Questions {
-            get { return response.Questions; }
+            get { return new ReadOnlyCollection<Question>(response.Questions); }
         }
 
         public int Size {
@@ -251,7 +242,7 @@ namespace DNS {
         private const int DEFAULT_PORT = 53;
         
         private IPEndPoint dns;
-        private Request request;
+        private IRequest request;
 
         /*public static ClientRequest FromArray(byte[] message) {
             ClientRequest request = new ClientRequest();
@@ -262,18 +253,21 @@ namespace DNS {
             return request;
         }*/
 
-        public ClientRequest(IPEndPoint dns) {
+        public ClientRequest(IPEndPoint dns, IRequest request = null) {
             this.dns = dns;
-            this.request = new Request();
+            this.request = request == null ? new Request() : new Request(request);
         }
 
-        public ClientRequest(IPAddress ip, int port = DEFAULT_PORT) : this(new IPEndPoint(ip, port)) {}
-        public ClientRequest(string ip, int port = DEFAULT_PORT) : this(IPAddress.Parse(ip), port) {}
+        public ClientRequest(IPAddress ip, int port = DEFAULT_PORT, IRequest request = null) : 
+            this(new IPEndPoint(ip, port), request) {}
 
-        internal ClientRequest(Request request, IPEndPoint dns) {
+        public ClientRequest(string ip, int port = DEFAULT_PORT, IRequest request = null) : 
+            this(IPAddress.Parse(ip), port, request) {}
+
+        /*internal ClientRequest(Request request, IPEndPoint dns) {
             this.request = request;
             this.dns = dns;
-        }
+        }*/
 
         public int Id {
             get { return request.Id; }

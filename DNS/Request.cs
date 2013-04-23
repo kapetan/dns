@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 
@@ -44,6 +43,17 @@ namespace DNS.Protocol {
             this.header.OperationCode = OperationCode.Query;
             this.header.Response = false;
             this.header.Id = RANDOM.Next(UInt16.MaxValue);
+        }
+
+        public Request(IRequest request) {
+            this.header = new Header();
+            this.questions = new List<Question>(request.Questions);
+
+            this.header.Response = false;
+
+            Id = request.Id;
+            OperationCode = request.OperationCode;
+            RecursionDesired = request.RecursionDesired;
         }
 
         public IList<Question> Questions {

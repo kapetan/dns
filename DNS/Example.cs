@@ -27,9 +27,15 @@ namespace DNS {
 
             Client client = new Client("127.0.0.1");
 
-            //Console.WriteLine(DNS.Marshalling.Object.Dump(client.Reverse(IPAddress.Parse("173.194.69.100"))));
-            Console.WriteLine(DNS.Marshalling.Object.Dump(client.Lookup("google.com")));
-            //Console.WriteLine(DNS.Marshalling.Object.Dump(client.Lookup("dr.dk")));
+            //client.Reverse(IPAddress.Parse("173.194.69.100"));
+            //client.Lookup("google.com");
+            //client.Lookup("dr.dk");
+
+            ClientRequest r = client.Create();
+            r.RecursionDesired = true;
+            r.Questions.Add(new Question(new Domain("www.cnn.com"), RecordType.A));
+
+            Console.WriteLine(r.Resolve().Size);
 
             server.Close();
         }

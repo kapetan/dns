@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 
@@ -28,13 +27,23 @@ namespace DNS.Protocol {
         private IList<IResourceRecord> authority;
         private IList<IResourceRecord> additional;
 
+        public static Response FromRequest(IRequest request) {
+            Response response = new Response();
+
+            response.Id = request.Id;
+
+            foreach (Question question in request.Questions) {
+                response.Questions.Add(question);
+            }
+
+            return response;
+        }
+
         public static Response FromArray(byte[] message) {
             Header header = Header.FromArray(message);
             int offset = header.Size;
 
-            if (!header.Response || header.QuestionCount == 0 ||
-                    header.AnswerRecordCount + header.AuthorityRecordCount + header.AdditionalRecordCount == 0) {
-                        
+            if (!header.Response || header.QuestionCount == 0) {
                 throw new ArgumentException("Invalid response message");
             }
 
@@ -63,6 +72,22 @@ namespace DNS.Protocol {
 
             this.header.Response = true;
             this.header.Id = RANDOM.Next(UInt16.MaxValue);
+        }
+
+        public Response(IResponse response) {
+            this.header = new Header();
+            this.questions = new List<Question>(response.Questions);
+            this.answers = new List<IResourceRecord>(response.AnswerRecords);
+            this.authority = new List<IResourceRecord>(response.AuthorityRecords);
+            this.additional = new List<IResourceRecord>(response.AdditionalRecords);
+
+            this.header.Response = true;
+
+            Id = response.Id;
+            RecursionAvailable = response.RecursionAvailable;
+            AuthorativeServer = response.AuthorativeServer;
+            OperationCode = response.OperationCode;
+            ResponseCode = response.ResponseCode;
         }
 
         public IList<Question> Questions {

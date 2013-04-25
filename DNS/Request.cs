@@ -88,9 +88,19 @@ namespace DNS.Protocol {
             header.QuestionCount = questions.Count;
         }*/
 
-        public byte[] ToArray() {
+        public byte[] ToArray(bool lengthPrefix = false) {
             UpdateHeader();
-            Marshalling.ByteStream result = new Marshalling.ByteStream(Size);
+            Marshalling.ByteStream result = new Marshalling.ByteStream(Size + (lengthPrefix ? 2 : 0));
+
+            if (lengthPrefix) {
+                byte[] length = BitConverter.GetBytes((ushort) Size);
+
+                if (BitConverter.IsLittleEndian) {
+                    Array.Reverse(length);
+                }
+
+                result.Append(length);
+            }
 
             result
                 .Append(header.ToArray())

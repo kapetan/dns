@@ -14,6 +14,7 @@ namespace DNS.Protocol {
         //void AddAdditionalRecord(IResourceRecord record);
         bool RecursionAvailable { get; set; }
         bool AuthorativeServer { get; set; }
+        bool Truncated { get; set; }
         OperationCode OperationCode { get; set; }
         ResponseCode ResponseCode { get; set; }
     }
@@ -45,6 +46,14 @@ namespace DNS.Protocol {
 
             if (!header.Response || header.QuestionCount == 0) {
                 throw new ArgumentException("Invalid response message");
+            }
+
+            if (header.Truncated) {
+                return new Response(header,
+                    Question.GetAllFromArray(message, offset, header.QuestionCount),
+                    new List<IResourceRecord>(),
+                    new List<IResourceRecord>(),
+                    new List<IResourceRecord>());
             }
 
             return new Response(header,
@@ -136,6 +145,11 @@ namespace DNS.Protocol {
             set { header.AuthorativeServer = value; }
         }
 
+        public bool Truncated {
+            get { return header.Truncated; }
+            set { header.Truncated = value; }
+        }
+
         public OperationCode OperationCode {
             get { return header.OperationCode; }
             set { header.OperationCode = value; }
@@ -156,9 +170,19 @@ namespace DNS.Protocol {
             }
         }
 
-        public byte[] ToArray() {
+        public byte[] ToArray(bool lengthPrefix = false) {
             UpdateHeader();
-            Marshalling.ByteStream result = new Marshalling.ByteStream(Size);
+            Marshalling.ByteStream result = new Marshalling.ByteStream(Size + (lengthPrefix ? 2 : 0));
+
+            if (lengthPrefix) {
+                byte[] length = BitConverter.GetBytes((ushort) Size);
+
+                if (BitConverter.IsLittleEndian) {
+                    Array.Reverse(length);
+                }
+
+                result.Append(length);
+            }
 
             result
                 .Append(header.ToArray())

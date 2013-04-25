@@ -29,13 +29,9 @@ namespace DNS {
 
             //client.Reverse(IPAddress.Parse("173.194.69.100"));
             //client.Lookup("google.com");
-            //client.Lookup("dr.dk");
+            client.Lookup("dr.dk");
 
-            ClientRequest r = client.Create();
-            r.RecursionDesired = true;
-            r.Questions.Add(new Question(new Domain("www.cnn.com"), RecordType.A));
-
-            Console.WriteLine(r.Resolve().Size);
+            //client.Lookup("cnn.com");
 
             server.Close();
         }

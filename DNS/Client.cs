@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Net;
 using System.Net.Sockets;
+using System.IO;
 
 using DNS.Protocol;
 
@@ -14,6 +15,7 @@ namespace DNS {
         private static readonly Random RANDOM = new Random();
 
         private IPEndPoint dns;
+        private IRequestResolver resolver;
 
         private static string FormatReverseIP(IPAddress ip) {
             byte[] address = ip.GetAddressBytes();
@@ -52,20 +54,23 @@ namespace DNS {
             return endPoints[RANDOM.Next(endPoints.Length)];
         }*/
 
-        public Client(IPEndPoint dns) {
+        public Client(IPEndPoint dns, IRequestResolver resolver = null) {
             this.dns = dns;
+            this.resolver = resolver == null ? new UdpRequestResolver(new TcpRequestResolver()) : resolver;
         }
 
-        public Client(IPAddress ip, int port = DEFAULT_PORT) : this(new IPEndPoint(ip, port)) {}
-        public Client(string ip, int port = DEFAULT_PORT) : this(IPAddress.Parse(ip), port) {}
+        public Client(IPAddress ip, int port = DEFAULT_PORT, IRequestResolver resolver = null) : 
+            this(new IPEndPoint(ip, port), resolver) {}
+        public Client(string ip, int port = DEFAULT_PORT, IRequestResolver resolver = null) : 
+            this(IPAddress.Parse(ip), port, resolver) { }
 
         public ClientRequest FromArray(byte[] message) {
             Request request = Request.FromArray(message);
-            return new ClientRequest(dns, request);
+            return new ClientRequest(dns, request, resolver);
         }
 
         public ClientRequest Create(IRequest request = null) {
-            return new ClientRequest(dns, request);
+            return new ClientRequest(dns, request, resolver);
         }
 
         public IList<IPAddress> Lookup(string domain, RecordType type = RecordType.A) {
@@ -140,6 +145,108 @@ namespace DNS {
         }
     }
 
+    public interface IRequestResolver {
+        ClientResponse Request(ClientRequest request);
+    }
+
+    public class NullRequestResolver : IRequestResolver {
+        public ClientResponse Request(ClientRequest request) {
+            throw new ResponseException("Request failed");
+        }
+    }
+
+    public class UdpRequestResolver : IRequestResolver {
+        private IRequestResolver fallback;
+
+        public UdpRequestResolver(IRequestResolver fallback) {
+            this.fallback = fallback;
+        }
+
+        public UdpRequestResolver() {
+            this.fallback = new NullRequestResolver();
+        }
+
+        public ClientResponse Request(ClientRequest request) {
+            UdpClient udp = new UdpClient();
+            IPEndPoint dns = request.Dns;
+
+            try {
+                udp.Connect(dns);
+                udp.Send(request.ToArray(), request.Size);
+
+                byte[] buffer = udp.Receive(ref dns);
+                Response response = Response.FromArray(buffer); //null;
+
+                if (response.Truncated) {
+                    return fallback.Request(request);
+                }
+
+                //try {
+                //    response = Response.FromArray(buffer);
+                /*} catch (ArgumentException e) {
+                    throw new ResponseException("Invalid response", e);
+                }*/
+
+                /*if (response.Id != request.Id) {
+                    throw new ResponseException(response, "Mismatching request/response IDs");
+                }
+                if (response.ResponseCode != ResponseCode.NoError) {
+                    throw new ResponseException(response);
+                }*/
+
+                return new ClientResponse(request, response, buffer);
+            } finally {
+                udp.Close();
+            }
+        }
+    }
+
+    public class TcpRequestResolver : IRequestResolver {
+        public ClientResponse Request(ClientRequest request) {
+            TcpClient tcp = new TcpClient();
+
+            try {
+                tcp.Connect(request.Dns);
+
+                Stream stream = tcp.GetStream();
+                byte[] buffer = request.ToArray(true);
+
+                stream.Write(buffer, 0, buffer.Length);
+
+                buffer = new byte[2];
+                Read(stream, buffer);
+
+                if (BitConverter.IsLittleEndian) {
+                    Array.Reverse(buffer);
+                }
+
+                buffer = new byte[BitConverter.ToUInt16(buffer, 0)];
+                Read(stream, buffer);
+
+                Response response = Response.FromArray(buffer);
+
+                return new ClientResponse(request, response, buffer);
+            } finally {
+                tcp.Close();
+            }
+        }
+
+        private static void Read(Stream stream, byte[] buffer) {
+            int length = buffer.Length;
+            int offset = 0;
+            int size = 0;
+
+            while (length > 0 && (size = stream.Read(buffer, offset, length)) > 0) {
+                offset += size;
+                length -= size;
+            }
+
+            if (length > 0) {
+                throw new IOException("Unexpected end of stream");
+            }
+        }
+    }
+
     public class ClientResponse : IResponse {
         private Response response;
 
@@ -157,7 +264,7 @@ namespace DNS {
 
         internal ClientResponse(ClientRequest request, Response response) {
             Request = request;
-            OriginalMessage = response.ToArray();
+            OriginalMessage = response.ToArray(false);
 
             this.response = response;
         }
@@ -211,6 +318,11 @@ namespace DNS {
             set { }
         }
 
+        public bool Truncated {
+            get { return response.Truncated; }
+            set { }
+        }
+
         public OperationCode OperationCode {
             get { return response.OperationCode; }
             set { }
@@ -229,8 +341,8 @@ namespace DNS {
             get { return response.Size; }
         }
 
-        public byte[] ToArray() {
-            return response.ToArray();
+        public byte[] ToArray(bool lengthPrefix = false) {
+            return response.ToArray(lengthPrefix);
         }
 
         public override string ToString() {
@@ -242,6 +354,7 @@ namespace DNS {
         private const int DEFAULT_PORT = 53;
         
         private IPEndPoint dns;
+        private IRequestResolver resolver;
         private IRequest request;
 
         /*public static ClientRequest FromArray(byte[] message) {
@@ -253,16 +366,17 @@ namespace DNS {
             return request;
         }*/
 
-        public ClientRequest(IPEndPoint dns, IRequest request = null) {
+        public ClientRequest(IPEndPoint dns, IRequest request = null, IRequestResolver resolver = null) {
             this.dns = dns;
             this.request = request == null ? new Request() : new Request(request);
+            this.resolver = resolver == null ? new UdpRequestResolver() : resolver;
         }
 
-        public ClientRequest(IPAddress ip, int port = DEFAULT_PORT, IRequest request = null) : 
-            this(new IPEndPoint(ip, port), request) {}
+        public ClientRequest(IPAddress ip, int port = DEFAULT_PORT, IRequest request = null, IRequestResolver resolver = null) : 
+            this(new IPEndPoint(ip, port), request, resolver) {}
 
-        public ClientRequest(string ip, int port = DEFAULT_PORT, IRequest request = null) : 
-            this(IPAddress.Parse(ip), port, request) {}
+        public ClientRequest(string ip, int port = DEFAULT_PORT, IRequest request = null, IRequestResolver resolver = null) : 
+            this(IPAddress.Parse(ip), port, request, resolver) {}
 
         /*internal ClientRequest(Request request, IPEndPoint dns) {
             this.request = request;
@@ -300,8 +414,8 @@ namespace DNS {
             get { return request.Size; }
         }
 
-        public byte[] ToArray() {
-            return request.ToArray();
+        public byte[] ToArray(bool lengthPrefix = false) {
+            return request.ToArray(lengthPrefix);
         }
 
         public override string ToString() {
@@ -313,8 +427,31 @@ namespace DNS {
             set { dns = value; }
         }
 
+        /// <summary>
+        /// Resolves this request into a response using the provided DNS information. The given
+        /// request strategy is used to retrieve the response.
+        /// </summary>
+        /// <exception cref="ResponseException">Throw if a malformed response is received from the server</exception>
+        /// <exception cref="IOException">Thrown if a IO error occurs</exception>
+        /// <exception cref="SocketException">Thrown if a the reading or writing to the socket fials</exception>
+        /// <returns>The response received from server</returns>
         public ClientResponse Resolve() {
-            UdpClient udp = new UdpClient();
+            try {
+                ClientResponse response = resolver.Request(this);
+
+                if (response.Id != this.Id) {
+                    throw new ResponseException(response, "Mismatching request/response IDs");
+                }
+                if (response.ResponseCode != ResponseCode.NoError) {
+                    throw new ResponseException(response);
+                }
+
+                return response;
+            } catch (ArgumentException e) {
+                throw new ResponseException("Invalid response", e);
+            }
+
+            /*UdpClient udp = new UdpClient();
 
             try {
                 udp.Connect(dns);
@@ -339,7 +476,7 @@ namespace DNS {
                 return new ClientResponse(this, response, buffer);
             } finally {
                 udp.Close();
-            }
+            }*/
         }
     }
 }

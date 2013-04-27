@@ -28,7 +28,7 @@ namespace DNS {
             Client client = new Client("127.0.0.1");
 
             client.Reverse(IPAddress.Parse("173.194.69.100"));
-            //client.Lookup("google.com");
+            client.Lookup("google.com");
             //client.Lookup("dr.dk");
             //Console.WriteLine(client.Resolve("dnstest.managemydedi.com", RecordType.AAAA));
 

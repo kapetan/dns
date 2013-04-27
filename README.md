@@ -34,7 +34,7 @@ The libray also includes a small client and a proxy server. Using the `ClientReq
 ClientRequest request = new ClientRequest("8.8.8.8");
 
 // Request an IPv6 record for the foo.com domain
-request.AddQuestion(new Question("foo.com", RecordType.AAAA));
+request.AddQuestion(new Question(Domain.FromString("foo.com"), RecordType.AAAA));
 request.RecursionDesired = true;
 
 ClientResponse response = request.Resolve();

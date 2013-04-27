@@ -23,13 +23,16 @@ namespace DNS {
                 server.Listen();
             })).Start();
 
-            Thread.Sleep(2000);
+            Thread.Sleep(1000);
 
+            //Client client = new Client("72.21.204.209");
+            //Client client = new Client("8.8.8.8");
             Client client = new Client("127.0.0.1");
 
             //client.Reverse(IPAddress.Parse("173.194.69.100"));
             //client.Lookup("google.com");
-            client.Lookup("dr.dk");
+            //client.Lookup("dr.dk");
+            Console.WriteLine(client.Resolve("dnstest.managemydedi.com", RecordType.AAAA));
 
             //client.Lookup("cnn.com");
 

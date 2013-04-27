@@ -61,6 +61,7 @@ namespace DNS {
 
         public Client(IPAddress ip, int port = DEFAULT_PORT, IRequestResolver resolver = null) : 
             this(new IPEndPoint(ip, port), resolver) {}
+
         public Client(string ip, int port = DEFAULT_PORT, IRequestResolver resolver = null) : 
             this(IPAddress.Parse(ip), port, resolver) { }
 
@@ -209,8 +210,14 @@ namespace DNS {
                 tcp.Connect(request.Dns);
 
                 Stream stream = tcp.GetStream();
-                byte[] buffer = request.ToArray(true);
+                byte[] buffer = request.ToArray();
+                byte[] length = BitConverter.GetBytes((ushort) buffer.Length);
 
+                if (BitConverter.IsLittleEndian) {
+                    Array.Reverse(length);
+                }
+
+                stream.Write(length, 0, length.Length);
                 stream.Write(buffer, 0, buffer.Length);
 
                 buffer = new byte[2];
@@ -249,6 +256,7 @@ namespace DNS {
 
     public class ClientResponse : IResponse {
         private Response response;
+        private byte[] message;
 
         public static ClientResponse FromArray(ClientRequest request, byte[] message) {
             Response response = Response.FromArray(message);
@@ -257,22 +265,24 @@ namespace DNS {
 
         internal ClientResponse(ClientRequest request, Response response, byte[] message) {
             Request = request;
-            OriginalMessage = message;
+            //OriginalMessage = message;
 
+            this.message = message;
             this.response = response;
         }
 
         internal ClientResponse(ClientRequest request, Response response) {
             Request = request;
-            OriginalMessage = response.ToArray(false);
+            //OriginalMessage = response.ToArray();
 
+            this.message = response.ToArray();
             this.response = response;
         }
 
-        public byte[] OriginalMessage {
+        /*public byte[] OriginalMessage {
             get;
             private set;
-        }
+        }*/
 
         public ClientRequest Request {
             get;
@@ -338,11 +348,11 @@ namespace DNS {
         }
 
         public int Size {
-            get { return response.Size; }
+            get { return message.Length; }
         }
 
-        public byte[] ToArray(bool lengthPrefix = false) {
-            return response.ToArray(lengthPrefix);
+        public byte[] ToArray() {
+            return message;
         }
 
         public override string ToString() {
@@ -356,15 +366,6 @@ namespace DNS {
         private IPEndPoint dns;
         private IRequestResolver resolver;
         private IRequest request;
-
-        /*public static ClientRequest FromArray(byte[] message) {
-            ClientRequest request = new ClientRequest();
-
-            request.request = Request.FromArray(message);
-            request.dns = null; //GetRandomDNS();
-
-            return request;
-        }*/
 
         public ClientRequest(IPEndPoint dns, IRequest request = null, IRequestResolver resolver = null) {
             this.dns = dns;
@@ -414,8 +415,8 @@ namespace DNS {
             get { return request.Size; }
         }
 
-        public byte[] ToArray(bool lengthPrefix = false) {
-            return request.ToArray(lengthPrefix);
+        public byte[] ToArray() {
+            return request.ToArray();
         }
 
         public override string ToString() {

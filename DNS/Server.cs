@@ -13,13 +13,14 @@ namespace DNS {
     public class Server {
         private const int DEFAULT_PORT = 53;
         private const int UDP_TIMEOUT = 2000;
+        private const int UDP_LIMIT = 512;
 
         public delegate void RequestedEventHandler(IRequest request);
         public delegate void RespondedEventHandler(IRequest request, IResponse response);
 
         private volatile bool run = true;
 
-        private IPEndPoint endServer;
+        //private IPEndPoint endServer;
         private MasterFile masterFile;
 
         private UdpClient udp;
@@ -30,7 +31,10 @@ namespace DNS {
         public event RespondedEventHandler Responded;
 
         public Server(IPEndPoint endServer) {
-            this.endServer = endServer;
+            //this.endServer = endServer;
+
+            this.emitter = new EventEmitter();
+            this.client = new Client(endServer, new UdpRequestResolver());
             this.masterFile = new MasterFile();
         }
 
@@ -38,9 +42,7 @@ namespace DNS {
         public Server(string endServerIp, int port = DEFAULT_PORT) : this(IPAddress.Parse(endServerIp), port) {}
 
         public void Listen(int port = DEFAULT_PORT) {
-            emitter = new EventEmitter();
             udp = new UdpClient(port);
-            client = new Client(endServer);
 
             IPEndPoint local = new IPEndPoint(IPAddress.Any, port);
 
@@ -57,33 +59,20 @@ namespace DNS {
                 }
 
                 Thread task = new Thread(() => {
-                    Request incoming = null;
+                    Request request = null;
 
                     try {
-                        //ClientRequest request = client.FromArray(clientMessage);
-                        incoming = Request.FromArray(clientMessage);
-                        emitter.Schedule(() => OnRequested(incoming));
+                        request = Request.FromArray(clientMessage);
+                        emitter.Schedule(() => OnRequested(request));
 
-                        Request request = new Request(incoming);
-                        Response response = Response.FromRequest(request);
+                        //Request request = new Request(incoming);
+                        //Response response = Response.FromRequest(request);
 
-                        ResolveLocal(request, response);
-                        ResolveRemote(request, response);
+                        IResponse response = ResolveLocal(request);
+                        //ResolveRemote(request, response);
 
-                        /*ClientRequest request = client.Create(incoming);
-                        Response response = ResolveLocal(request);
-
-                        if (request.Questions.Count > 0) {
-                            ClientResponse remote = request.Resolve();
-
-                            Merge(response.AnswerRecords, remote.AnswerRecords);
-                            Merge(response.AuthorityRecords, remote.AuthorityRecords);
-                            Merge(response.AdditionalRecords, remote.AdditionalRecords);
-                        }*/
-
-                        emitter.Schedule(() => Responded(incoming, response));
+                        emitter.Schedule(() => Responded(request, response));
                         udp.Send(response.ToArray(), response.Size, local);
-                        // udp.Send(response.OriginalMessage, response.OriginalMessage.Length, local);
                     }
                     catch(SocketException) {}
                     catch(ArgumentException) {}
@@ -91,7 +80,7 @@ namespace DNS {
                         IResponse response = e.Response;
 
                         if (response == null) {
-                            response = Response.FromRequest(incoming);
+                            response = Response.FromRequest(request);
                         }
 
                         udp.Send(response.ToArray(), response.Size, local);
@@ -125,34 +114,34 @@ namespace DNS {
             if (handlers != null) handlers(request, response);
         }
 
-        private void ResolveLocal(Request request, Response response) {
-            //Response response = new Response();
+        protected virtual IResponse ResolveLocal(Request request) {
+            Response response = Response.FromRequest(request);
 
-            //response.Id = request.Id;
-
-            foreach (Question question in request.Questions.ToArray()) {
+            foreach (Question question in request.Questions) {
                 IList<IResourceRecord> answers = masterFile.Get(question);
 
                 if (answers.Count > 0) {
-                    request.Questions.Remove(question);
+                    //request.Questions.Remove(question);
                     Merge(response.AnswerRecords, answers);
+                } else {
+                    return ResolveRemote(request);
                 }
             }
 
-            //return response;
+            return response;
         }
 
-        private void ResolveRemote(Request request, Response response) {
-            if (request.Questions.Count == 0) {
+        protected virtual IResponse ResolveRemote(Request request) {
+            /*if (request.Questions.Count == 0) {
                 return;
-            }
+            }*/
 
             ClientRequest remoteRequest = client.Create(request);
-            ClientResponse remoteResponse = remoteRequest.Resolve();
+            return remoteRequest.Resolve();
 
-            Merge(response.AnswerRecords, remoteResponse.AnswerRecords);
+            /*Merge(response.AnswerRecords, remoteResponse.AnswerRecords);
             Merge(response.AuthorityRecords, remoteResponse.AuthorityRecords);
-            Merge(response.AdditionalRecords, remoteResponse.AdditionalRecords);
+            Merge(response.AdditionalRecords, remoteResponse.AdditionalRecords);*/
         }
 
         private static void Merge<T>(IList<T> l1, IList<T> l2) {

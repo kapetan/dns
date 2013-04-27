@@ -9,7 +9,7 @@ namespace DNS.Protocol {
         IList<Question> Questions { get; }
 
         int Size { get; }
-        byte[] ToArray(bool lengthPrefix = false);
+        byte[] ToArray();
     }
 
     public interface IMessageEntry {

@@ -30,9 +30,9 @@ namespace DNS {
             //client.Reverse(IPAddress.Parse("173.194.69.100"));
             //client.Lookup("google.com");
             //client.Lookup("dr.dk");
-            Console.WriteLine(client.Resolve("dnstest.managemydedi.com", RecordType.AAAA));
+            //Console.WriteLine(client.Resolve("dnstest.managemydedi.com", RecordType.AAAA));
 
-            //client.Lookup("cnn.com");
+            client.Lookup("cnn.com");
 
             server.Close();
         }

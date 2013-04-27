@@ -20,7 +20,6 @@ namespace DNS {
 
         private volatile bool run = true;
 
-        //private IPEndPoint endServer;
         private MasterFile masterFile;
 
         private UdpClient udp;
@@ -31,8 +30,6 @@ namespace DNS {
         public event RespondedEventHandler Responded;
 
         public Server(IPEndPoint endServer) {
-            //this.endServer = endServer;
-
             this.emitter = new EventEmitter();
             this.client = new Client(endServer, new UdpRequestResolver());
             this.masterFile = new MasterFile();
@@ -65,11 +62,7 @@ namespace DNS {
                         request = Request.FromArray(clientMessage);
                         emitter.Schedule(() => OnRequested(request));
 
-                        //Request request = new Request(incoming);
-                        //Response response = Response.FromRequest(request);
-
                         IResponse response = ResolveLocal(request);
-                        //ResolveRemote(request, response);
 
                         emitter.Schedule(() => Responded(request, response));
                         udp.Send(response.ToArray(), response.Size, local);
@@ -121,7 +114,6 @@ namespace DNS {
                 IList<IResourceRecord> answers = masterFile.Get(question);
 
                 if (answers.Count > 0) {
-                    //request.Questions.Remove(question);
                     Merge(response.AnswerRecords, answers);
                 } else {
                     return ResolveRemote(request);
@@ -132,16 +124,8 @@ namespace DNS {
         }
 
         protected virtual IResponse ResolveRemote(Request request) {
-            /*if (request.Questions.Count == 0) {
-                return;
-            }*/
-
             ClientRequest remoteRequest = client.Create(request);
             return remoteRequest.Resolve();
-
-            /*Merge(response.AnswerRecords, remoteResponse.AnswerRecords);
-            Merge(response.AuthorityRecords, remoteResponse.AuthorityRecords);
-            Merge(response.AdditionalRecords, remoteResponse.AdditionalRecords);*/
         }
 
         private static void Merge<T>(IList<T> l1, IList<T> l2) {

@@ -44,9 +44,6 @@ namespace DNS.Protocol {
             this.klass = klass;
         }
 
-        /*public Question(string domain, RecordType type = RecordType.A, RecordClass klass = RecordClass.IN) : 
-            this(new Domain(domain), type, klass) {}*/
-
         public Domain Name {
             get { return domain; }
         }

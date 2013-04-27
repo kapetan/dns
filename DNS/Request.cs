@@ -8,8 +8,6 @@ namespace DNS.Protocol {
         int Id { get; set; }
         OperationCode OperationCode { get; set; }
         bool RecursionDesired { get; set; }
-        //int QuestionCount { get; }
-        //void AddQuestion(Question question);
     }
 
     public class Request : IRequest {
@@ -78,15 +76,6 @@ namespace DNS.Protocol {
             get { return header.RecursionDesired; }
             set { header.RecursionDesired = value; }
         }
-
-        /*public int QuestionCount {
-            get { return header.QuestionCount; }
-        }*/
-
-        /*public void AddQuestion(Question question) {
-            questions.Add(question);
-            header.QuestionCount = questions.Count;
-        }*/
 
         public byte[] ToArray() {
             UpdateHeader();

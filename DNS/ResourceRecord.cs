@@ -83,10 +83,6 @@ namespace DNS.Protocol {
             this.data = data;
         }
 
-        /*public ResourceRecord(string domain, byte[] data, RecordType type, 
-            RecordClass klass = RecordClass.IN, TimeSpan ttl = default(TimeSpan)) : 
-                    this(new Domain(domain), data, type, klass, ttl) {}*/
-
         public Domain Name {
             get { return domain; }
         }

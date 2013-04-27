@@ -7,11 +7,8 @@ namespace DNS.Protocol {
     public interface IResponse : IMessage {
         int Id { get; set; }
         IList<IResourceRecord> AnswerRecords { get; }
-        //void AddAnswerRecord(IResourceRecord record);
         IList<IResourceRecord> AuthorityRecords { get; }
-        //void AddAuthorityRecord(IResourceRecord record);
         IList<IResourceRecord> AdditionalRecords { get; }
-        //void AddAdditionalRecord(IResourceRecord record);
         bool RecursionAvailable { get; set; }
         bool AuthorativeServer { get; set; }
         bool Truncated { get; set; }
@@ -107,28 +104,13 @@ namespace DNS.Protocol {
             get { return answers; }
         }
 
-        /*public void AddAnswerRecord(IResourceRecord record) {
-            answers.Add(record);
-            header.AnswerRecordCount = answers.Count;
-        }*/
-
         public IList<IResourceRecord> AuthorityRecords {
             get { return authority; }
         }
 
-        /*public void AddAuthorityRecord(IResourceRecord record) {
-            authority.Add(record);
-            header.AuthorityRecordCount = authority.Count;
-        }*/
-
         public IList<IResourceRecord> AdditionalRecords {
             get { return additional; }
         }
-
-        /*public void AddAdditionalRecord(IResourceRecord record) {
-            additional.Add(record);
-            header.AdditionalRecordCount = additional.Count;
-        }*/
 
         public int Id {
             get { return header.Id; }

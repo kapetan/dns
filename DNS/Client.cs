@@ -36,24 +36,6 @@ namespace DNS {
             return string.Join(".", nibbles.Reverse().Select(b => b.ToString("x"))) + ".ip6.arpa";
         }
 
-        /*private static IPEndPoint[] C(params string[] ip) {
-            return ip.Select(i => new IPEndPoint(IPAddress.Parse(i), DEFAULT_PORT)).ToArray();
-        }
-
-        public static readonly IDictionary<string, IPEndPoint[]> DNS = new Dictionary<string, IPEndPoint[]>() { 
-            { "Google", C("8.8.8.8", "8.8.4.4") },
-            { "OpenDNS", C("208.67.222.222", "208.67.220.220") }
-        };
-
-        public static IPEndPoint Create(string name = null) {
-            if (name == null) {
-                name = DNS.Keys.ElementAt(RANDOM.Next(DNS.Keys.Count));
-            }
-
-            IPEndPoint[] endPoints = DNS[name];
-            return endPoints[RANDOM.Next(endPoints.Length)];
-        }*/
-
         public Client(IPEndPoint dns, IRequestResolver resolver = null) {
             this.dns = dns;
             this.resolver = resolver == null ? new UdpRequestResolver(new TcpRequestResolver()) : resolver;
@@ -113,7 +95,6 @@ namespace DNS {
             Question question = new Question(new Domain(domain), type);
 
             request.Questions.Add(question);
-            //request.AddQuestion(question);
             request.OperationCode = OperationCode.Query;
             request.RecursionDesired = true;
 
@@ -181,19 +162,6 @@ namespace DNS {
                 if (response.Truncated) {
                     return fallback.Request(request);
                 }
-
-                //try {
-                //    response = Response.FromArray(buffer);
-                /*} catch (ArgumentException e) {
-                    throw new ResponseException("Invalid response", e);
-                }*/
-
-                /*if (response.Id != request.Id) {
-                    throw new ResponseException(response, "Mismatching request/response IDs");
-                }
-                if (response.ResponseCode != ResponseCode.NoError) {
-                    throw new ResponseException(response);
-                }*/
 
                 return new ClientResponse(request, response, buffer);
             } finally {
@@ -265,7 +233,6 @@ namespace DNS {
 
         internal ClientResponse(ClientRequest request, Response response, byte[] message) {
             Request = request;
-            //OriginalMessage = message;
 
             this.message = message;
             this.response = response;
@@ -273,16 +240,10 @@ namespace DNS {
 
         internal ClientResponse(ClientRequest request, Response response) {
             Request = request;
-            //OriginalMessage = response.ToArray();
 
             this.message = response.ToArray();
             this.response = response;
         }
-
-        /*public byte[] OriginalMessage {
-            get;
-            private set;
-        }*/
 
         public ClientRequest Request {
             get;
@@ -298,25 +259,13 @@ namespace DNS {
             get { return response.AnswerRecords; }
         }
 
-        /*public void AddAnswerRecord(IResourceRecord record) {
-            response.AddAnswerRecord(record);
-        }*/
-
         public IList<IResourceRecord> AuthorityRecords {
             get { return new ReadOnlyCollection<IResourceRecord>(response.AuthorityRecords); }
         }
 
-        /*public void AddAuthorityRecord(IResourceRecord record) {
-            response.AddAuthorityRecord(record);
-        }*/
-
         public IList<IResourceRecord> AdditionalRecords {
             get { return new ReadOnlyCollection<IResourceRecord>(response.AdditionalRecords); }
         }
-
-        /*public void AddAdditionalRecord(IResourceRecord record) {
-            response.AddAdditionalRecord(record);
-        }*/
 
         public bool RecursionAvailable {
             get { return response.RecursionAvailable; }
@@ -379,11 +328,6 @@ namespace DNS {
         public ClientRequest(string ip, int port = DEFAULT_PORT, IRequest request = null, IRequestResolver resolver = null) : 
             this(IPAddress.Parse(ip), port, request, resolver) {}
 
-        /*internal ClientRequest(Request request, IPEndPoint dns) {
-            this.request = request;
-            this.dns = dns;
-        }*/
-
         public int Id {
             get { return request.Id; }
             set { request.Id = value; }
@@ -398,14 +342,6 @@ namespace DNS {
             get { return request.RecursionDesired; }
             set { request.RecursionDesired = value; }
         }
-
-        /*public int QuestionCount {
-            get { return request.QuestionCount; }
-        }*/
-
-        /*public void AddQuestion(Question question) {
-            request.AddQuestion(question);
-        }*/
 
         public IList<Question> Questions {
             get { return request.Questions; }
@@ -451,33 +387,6 @@ namespace DNS {
             } catch (ArgumentException e) {
                 throw new ResponseException("Invalid response", e);
             }
-
-            /*UdpClient udp = new UdpClient();
-
-            try {
-                udp.Connect(dns);
-                udp.Send(this.ToArray(), this.Size);
-
-                byte[] buffer = udp.Receive(ref dns);
-                Response response = null;
-
-                try {
-                    response = Response.FromArray(buffer);
-                } catch (ArgumentException e) {
-                    throw new ResponseException("Invalid response", e);
-                }
-
-                if (response.Id != this.Id) {
-                    throw new ResponseException(response, "Mismatching request/response IDs");
-                }
-                if (response.ResponseCode != ResponseCode.NoError) {
-                    throw new ResponseException(response);
-                }
-
-                return new ClientResponse(this, response, buffer);
-            } finally {
-                udp.Close();
-            }*/
         }
     }
 }

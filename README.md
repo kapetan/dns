@@ -67,6 +67,7 @@ string domain = client.Reverse("173.194.69.100");
 
 The `Server` class exposes a proxy Domain Name Server (UDP only). You can intercept domain name resolution requests and route them to specified IPs. The server is multi-threaded and spawns a thread for every request. It also emits an event on every request and every successful resolution. All the events are executed in the same separate thread.
 
+```C#
 // Proxy to google's DNS
 Server server = new Server("8.8.8.8");
 
@@ -79,3 +80,4 @@ server.Responded += (request, response) => Console.WriteLine("{0} => {1}", reque
 
 // Start the server (by default it listents on port 53)
 server.Listen();
+```

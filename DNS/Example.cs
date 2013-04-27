@@ -18,8 +18,6 @@ namespace DNS {
 
                 server.MasterFile.AddIPAddressResourceRecord("google.com", "127.0.0.1");
 
-                Console.WriteLine("Starting");
-
                 server.Listen();
             })).Start();
 

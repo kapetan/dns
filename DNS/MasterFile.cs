@@ -12,6 +12,12 @@ namespace DNS {
         private IList<IResourceRecord> entries = new List<IResourceRecord>();
         private TimeSpan ttl = DEFAULT_TTL;
 
+        public MasterFile(TimeSpan ttl) {
+            this.ttl = ttl;
+        }
+
+        public MasterFile() { }
+
         public void Add(IResourceRecord entry) {
             entries.Add(entry);
         }

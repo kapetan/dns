@@ -2,10 +2,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Net;
 
 namespace DNS.Protocol {
     public class Domain : IComparable<Domain> {
         private string[] labels;
+
+        public static Domain FromString(string domain) {
+            return new Domain(domain);
+        }
 
         public static Domain FromArray(byte[] message, int offset) {
             return FromArray(message, offset, out offset);
@@ -47,6 +52,29 @@ namespace DNS.Protocol {
             }
 
             return new Domain(labels.Select(l => Encoding.ASCII.GetString(l)).ToArray());
+        }
+
+        public static Domain PointerName(IPAddress ip) {
+            return new Domain(FormatReverseIP(ip));
+        }
+
+        private static string FormatReverseIP(IPAddress ip) {
+            byte[] address = ip.GetAddressBytes();
+
+            if (address.Length == 4) {
+                return string.Join(".", address.Reverse().Select(b => b.ToString())) + ".in-addr.arpa";
+            }
+
+            byte[] nibbles = new byte[address.Length * 2];
+
+            for (int i = 0, j = 0; i < address.Length; i++, j = 2 * i) {
+                byte b = address[i];
+
+                nibbles[j] = b.GetBitValueAt(4, 4);
+                nibbles[j + 1] = b.GetBitValueAt(0, 4);
+            }
+
+            return string.Join(".", nibbles.Reverse().Select(b => b.ToString("x"))) + ".ip6.arpa";
         }
 
         public Domain(string domain) : this(domain.Split('.')) {}

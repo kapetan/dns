@@ -17,25 +17,6 @@ namespace DNS {
         private IPEndPoint dns;
         private IRequestResolver resolver;
 
-        private static string FormatReverseIP(IPAddress ip) {
-            byte[] address = ip.GetAddressBytes();
-
-            if (address.Length == 4) {
-                return string.Join(".", address.Reverse().Select(b => b.ToString())) + ".in-addr.arpa";
-            }
-
-            byte[] nibbles = new byte[address.Length * 2];
-
-            for (int i = 0, j = 0; i < address.Length; i++, j = 2 * i) {
-                byte b = address[i];
-
-                nibbles[j] = b.GetBitValueAt(4, 4);
-                nibbles[j + 1] = b.GetBitValueAt(0, 4);
-            }
-
-            return string.Join(".", nibbles.Reverse().Select(b => b.ToString("x"))) + ".ip6.arpa";
-        }
-
         public Client(IPEndPoint dns, IRequestResolver resolver = null) {
             this.dns = dns;
             this.resolver = resolver == null ? new UdpRequestResolver(new TcpRequestResolver()) : resolver;
@@ -80,7 +61,7 @@ namespace DNS {
         }
 
         public string Reverse(IPAddress ip) {
-            ClientResponse response = Resolve(FormatReverseIP(ip), RecordType.PTR);
+            ClientResponse response = Resolve(Domain.PointerName(ip), RecordType.PTR);
             IResourceRecord ptr = response.AnswerRecords.FirstOrDefault(r => r.Type == RecordType.PTR);
 
             if (ptr == null) {
@@ -91,8 +72,12 @@ namespace DNS {
         }
 
         public ClientResponse Resolve(string domain, RecordType type) {
+            return Resolve(new Domain(domain), type);
+        }
+
+        public ClientResponse Resolve(Domain domain, RecordType type) {
             ClientRequest request = Create();
-            Question question = new Question(new Domain(domain), type);
+            Question question = new Question(domain, type);
 
             request.Questions.Add(question);
             request.OperationCode = OperationCode.Query;

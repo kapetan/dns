@@ -1,27 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+using Kapetan.Dns.Interface;
+using Kapetan.Dns.Model;
 
-namespace DNS.Protocol {
-    public interface IRequest : IMessage {
-        int Id { get; set; }
-        OperationCode OperationCode { get; set; }
-        bool RecursionDesired { get; set; }
-    }
-
-    public class Request : IRequest {
+namespace Kapetan.Dns
+{
+    public class Request : IRequest
+    {
         private static readonly Random RANDOM = new Random();
 
         private IList<Question> questions;
         private Header header;
 
-        public static Request FromArray(byte[] message) {
-            Header header = Header.FromArray(message);
+        public static Request FromArray(byte[] message)
+        {
+            var header = Header.FromArray(message);
 
             if (header.Response || header.QuestionCount == 0 ||
-                    header.AdditionalRecordCount + header.AnswerRecordCount + header.AuthorityRecordCount > 0 || 
-                    header.ResponseCode != ResponseCode.NoError) {
+                    header.AdditionalRecordCount + header.AnswerRecordCount + header.AuthorityRecordCount > 0 ||
+                    header.ResponseCode != ResponseCode.NoError)
+            {
 
                 throw new ArgumentException("Invalid request message");
             }
@@ -29,12 +28,14 @@ namespace DNS.Protocol {
             return new Request(header, Question.GetAllFromArray(message, header.Size, header.QuestionCount));
         }
 
-        public Request(Header header, IList<Question> questions) {
+        public Request(Header header, IList<Question> questions)
+        {
             this.header = header;
             this.questions = questions;
         }
 
-        public Request() {
+        public Request()
+        {
             this.questions = new List<Question>();
             this.header = new Header();
 
@@ -43,7 +44,8 @@ namespace DNS.Protocol {
             this.header.Id = RANDOM.Next(UInt16.MaxValue);
         }
 
-        public Request(IRequest request) {
+        public Request(IRequest request)
+        {
             this.header = new Header();
             this.questions = new List<Question>(request.Questions);
 
@@ -54,32 +56,38 @@ namespace DNS.Protocol {
             RecursionDesired = request.RecursionDesired;
         }
 
-        public IList<Question> Questions {
+        public IList<Question> Questions
+        {
             get { return questions; }
         }
 
-        public int Size {
+        public int Size
+        {
             get { return header.Size + questions.Sum(q => q.Size); }
         }
 
-        public int Id {
+        public int Id
+        {
             get { return header.Id; }
             set { header.Id = value; }
         }
 
-        public OperationCode OperationCode {
+        public OperationCode OperationCode
+        {
             get { return header.OperationCode; }
             set { header.OperationCode = value; }
         }
 
-        public bool RecursionDesired {
+        public bool RecursionDesired
+        {
             get { return header.RecursionDesired; }
             set { header.RecursionDesired = value; }
         }
 
-        public byte[] ToArray() {
-            UpdateHeader();
-            Marshalling.ByteStream result = new Marshalling.ByteStream(Size);
+        public byte[] ToArray()
+        {
+            this.UpdateHeader();
+            var result = new Marshalling.ByteStream(Size);
 
             result
                 .Append(header.ToArray())
@@ -88,8 +96,9 @@ namespace DNS.Protocol {
             return result.ToArray();
         }
 
-        public override string ToString() {
-            UpdateHeader();
+        public override string ToString()
+        {
+            this.UpdateHeader();
 
             return Marshalling.Object.New(this)
                 .Add("Header", header)
@@ -97,7 +106,8 @@ namespace DNS.Protocol {
                 .ToString();
         }
 
-        private void UpdateHeader() {
+        private void UpdateHeader()
+        {
             header.QuestionCount = questions.Count;
         }
     }

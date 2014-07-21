@@ -1,0 +1,92 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{44C7FFDE-6F74-4904-B3BB-5467B9D9CB98}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Kapetan.Dns</RootNamespace>
+    <AssemblyName>Kapetan.Dns</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Client.cs" />
+    <Compile Include="Extension\ByteExtensions.cs" />
+    <Compile Include="Marshalling\ByteStream.cs" />
+    <Compile Include="Model\CanonicalNameResourceRecord.cs" />
+    <Compile Include="Marshalling\EndianAttribute.cs" />
+    <Compile Include="Marshalling\Endianness.cs" />
+    <Compile Include="Model\ClientRequest.cs" />
+    <Compile Include="Model\ClientResponse.cs" />
+    <Compile Include="Domain.cs" />
+    <Compile Include="Model\Header.cs" />
+    <Compile Include="Interface\IMessage.cs" />
+    <Compile Include="Interface\IMessageEntry.cs" />
+    <Compile Include="Model\IPAddressResourceRecord.cs" />
+    <Compile Include="Interface\IRequest.cs" />
+    <Compile Include="Interface\IRequestResolver.cs" />
+    <Compile Include="Interface\IResourceRecord.cs" />
+    <Compile Include="Interface\IResponse.cs" />
+    <Compile Include="Model\MailExchangeResourceRecord.cs" />
+    <Compile Include="Model\MasterFile.cs" />
+    <Compile Include="Model\NameServerResourceRecord.cs" />
+    <Compile Include="Marshalling\Object.cs" />
+    <Compile Include="Model\OperationCode.cs" />
+    <Compile Include="Model\PointerResourceRecord.cs" />
+    <Compile Include="Model\Question.cs" />
+    <Compile Include="Model\RecordClass.cs" />
+    <Compile Include="Model\RecordType.cs" />
+    <Compile Include="Request.cs" />
+    <Compile Include="Model\ResourceRecord.cs" />
+    <Compile Include="Model\ResourceRecordBase.cs" />
+    <Compile Include="Model\ResourceRecordFactory.cs" />
+    <Compile Include="Response.cs" />
+    <Compile Include="Model\ResponseCode.cs" />
+    <Compile Include="Model\StartOfAuthorityResourceRecord.cs" />
+    <Compile Include="Marshalling\Struct.cs" />
+    <Compile Include="Resolver\NullRequestResolver.cs" />
+    <Compile Include="Model\ResponseException.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Resolver\TcpRequestResolver.cs" />
+    <Compile Include="Resolver\UdpRequestResolver.cs" />
+    <Compile Include="Server.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

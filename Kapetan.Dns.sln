@@ -1,0 +1,20 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kapetan.Dns", "Kapetan.Dns\Kapetan.Dns.csproj", "{44C7FFDE-6F74-4904-B3BB-5467B9D9CB98}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{44C7FFDE-6F74-4904-B3BB-5467B9D9CB98}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{44C7FFDE-6F74-4904-B3BB-5467B9D9CB98}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{44C7FFDE-6F74-4904-B3BB-5467B9D9CB98}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{44C7FFDE-6F74-4904-B3BB-5467B9D9CB98}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

@@ -28,7 +28,7 @@ Console.WriteLine(response);
 
 ### Client
 
-The libray also includes a small client and a proxy server. Using the `ClientRequest` or the `Client` class it is possible to send a request to a Domain Name Server. The request is first sent using UDP, if that fails (response is truncated), the request is sent again using TCP. This behaviour can be changed by supplying an `IRequestResolver` to the client constructor.
+The libray also includes a small client and a proxy server. Using the `ClientRequest` or the `DnsClient` class it is possible to send a request to a Domain Name Server. The request is first sent using UDP, if that fails (response is truncated), the request is sent again using TCP. This behaviour can be changed by supplying an `IRequestResolver` to the client constructor.
 
 ```C#
 ClientRequest request = new ClientRequest("8.8.8.8");

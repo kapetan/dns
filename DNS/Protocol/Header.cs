@@ -1,34 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using DNS.Protocol.Utils;
 
 namespace DNS.Protocol {
-    public enum OperationCode {
-        Query = 0,
-        IQuery,
-        Status,
-        // Reserved = 3
-        Notify = 4,
-        Update,
-    }
-
-    public enum ResponseCode {
-        NoError = 0,
-        FormatError,
-        ServerFailure,
-        NameError,
-        NotImplemented,
-        Refused,
-        YXDomain,
-        YXRRSet,
-        NXRRSet,
-        NotAuth,
-        NotZone,
-    }
-
     // 12 bytes message header
     [Marshalling.Endian(Marshalling.Endianness.Big)]
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
@@ -129,7 +104,7 @@ namespace DNS.Protocol {
         }
 
         public override string ToString() {
-            return Marshalling.Object.New(this)
+            return ObjectStringifier.New(this)
                 .AddAll()
                 .Remove("Size")
                 .ToString();

@@ -6,8 +6,10 @@ using System.Text;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
-
 using DNS.Protocol;
+using DNS.Protocol.ResourceRecords;
+using DNS.Client;
+using DNS.Client.RequestResolver;
 
 namespace DNS {
     public class Server {
@@ -24,14 +26,14 @@ namespace DNS {
 
         private UdpClient udp;
         private EventEmitter emitter;
-        private Client client;
+        private DnsClient client;
 
         public event RequestedEventHandler Requested;
         public event RespondedEventHandler Responded;
 
         public Server(IPEndPoint endServer) {
             this.emitter = new EventEmitter();
-            this.client = new Client(endServer, new UdpRequestResolver());
+            this.client = new DnsClient(endServer, new UdpRequestResolver());
             this.masterFile = new MasterFile();
         }
 

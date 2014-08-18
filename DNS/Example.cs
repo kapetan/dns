@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading;
 using System.Net;
 using DNS.Protocol;
+using DNS.Client;
 
 namespace DNS {
     class Example {
@@ -25,7 +26,7 @@ namespace DNS {
 
             //Client client = new Client("72.21.204.209");
             //Client client = new Client("8.8.8.8");
-            Client client = new Client("127.0.0.1");
+            DnsClient client = new DnsClient("127.0.0.1");
 
             client.Reverse(IPAddress.Parse("173.194.69.100"));
             client.Lookup("google.com");

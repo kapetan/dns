@@ -1,21 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+using DNS.Protocol.ResourceRecords;
+using DNS.Protocol.Utils;
 
 namespace DNS.Protocol {
-    public interface IResponse : IMessage {
-        int Id { get; set; }
-        IList<IResourceRecord> AnswerRecords { get; }
-        IList<IResourceRecord> AuthorityRecords { get; }
-        IList<IResourceRecord> AdditionalRecords { get; }
-        bool RecursionAvailable { get; set; }
-        bool AuthorativeServer { get; set; }
-        bool Truncated { get; set; }
-        OperationCode OperationCode { get; set; }
-        ResponseCode ResponseCode { get; set; }
-    }
-
     public class Response : IResponse {
         private static readonly Random RANDOM = new Random();
 
@@ -154,7 +143,7 @@ namespace DNS.Protocol {
 
         public byte[] ToArray() {
             UpdateHeader();
-            Marshalling.ByteStream result = new Marshalling.ByteStream(Size);
+            ByteStream result = new ByteStream(Size);
 
             result
                 .Append(header.ToArray())
@@ -169,7 +158,7 @@ namespace DNS.Protocol {
         public override string ToString() {
             UpdateHeader();
 
-            return Marshalling.Object.New(this)
+            return ObjectStringifier.New(this)
                 .Add("Header", header)
                 .Add("Questions", "AnswerRecords", "AuthorityRecords", "AdditionalRecords")
                 .ToString();

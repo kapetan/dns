@@ -1,35 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Runtime.InteropServices;
+using DNS.Protocol.Utils;
 
-namespace DNS.Protocol {
-    public enum RecordType {
-        A = 1,
-        NS = 2,
-        CNAME = 5,
-        SOA = 6,
-        WKS = 11,
-        PTR = 12,
-        MX = 15,
-        TXT = 16,
-        AAAA = 28,
-        SRV = 33,
-        ANY = 255,
-    }
-
-    public enum RecordClass {
-        IN = 1,
-        ANY = 255,
-    }
-
-    public interface IResourceRecord : IMessageEntry {
-        TimeSpan TimeToLive { get; }
-        int DataLength { get; }
-        byte[] Data { get; }
-    }
-
+namespace DNS.Protocol.ResourceRecords {
     public class ResourceRecord : IResourceRecord {
         private Domain domain;
         private RecordType type;
@@ -74,7 +48,7 @@ namespace DNS.Protocol {
             return new ResourceRecord(question.Name, data, question.Type, question.Class, ttl);
         }
 
-        public ResourceRecord(Domain domain, byte[] data, RecordType type, 
+        public ResourceRecord(Domain domain, byte[] data, RecordType type,
                 RecordClass klass = RecordClass.IN, TimeSpan ttl = default(TimeSpan)) {
             this.domain = domain;
             this.type = type;
@@ -112,7 +86,7 @@ namespace DNS.Protocol {
         }
 
         public byte[] ToArray() {
-            Marshalling.ByteStream result = new Marshalling.ByteStream(Size);
+            ByteStream result = new ByteStream(Size);
 
             result
                 .Append(domain.ToArray())
@@ -128,7 +102,7 @@ namespace DNS.Protocol {
         }
 
         public override string ToString() {
-            return Marshalling.Object.New(this)
+            return ObjectStringifier.New(this)
                 .Add("Name", "Type", "Class", "TimeToLive", "DataLength")
                 .ToString();
         }

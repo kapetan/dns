@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace DNS.Protocol {
+namespace DNS.Protocol.Utils {
     public static class ByteExtensions {
         public static byte GetBitValueAt(this byte b, byte offset, byte length) {
             return (byte) ((b >> offset) & ~(0xff << length));

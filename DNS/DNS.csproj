@@ -59,20 +59,46 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ByteExtensions.cs" />
-    <Compile Include="Client.cs" />
-    <Compile Include="Domain.cs" />
+    <Compile Include="Client\Client.cs" />
+    <Compile Include="Client\ClientRequest.cs" />
+    <Compile Include="Client\ClientResponse.cs" />
+    <Compile Include="Client\RequestResolver\IRequestResolver.cs" />
+    <Compile Include="Client\RequestResolver\NullRequestResolver.cs" />
+    <Compile Include="Client\RequestResolver\TcpRequestResolver.cs" />
+    <Compile Include="Client\RequestResolver\UdpRequestResolver.cs" />
+    <Compile Include="Client\ResponseException.cs" />
+    <Compile Include="Protocol\IMessage.cs" />
+    <Compile Include="Protocol\IMessageEntry.cs" />
+    <Compile Include="Protocol\IRequest.cs" />
+    <Compile Include="Protocol\IResponse.cs" />
+    <Compile Include="Protocol\OperationCode.cs" />
+    <Compile Include="Protocol\ResourceRecords\IPAddressResourceRecord.cs" />
+    <Compile Include="Protocol\ResponseCode.cs" />
+    <Compile Include="Protocol\Utils\ByteExtensions.cs" />
+    <Compile Include="Protocol\Domain.cs" />
     <Compile Include="Example.cs" />
-    <Compile Include="Header.cs" />
+    <Compile Include="Protocol\Header.cs" />
     <Compile Include="MasterFile.cs" />
-    <Compile Include="Message.cs" />
+    <Compile Include="Protocol\Marshalling\EndianAttribute.cs" />
+    <Compile Include="Protocol\Marshalling\Endianness.cs" />
+    <Compile Include="Protocol\Marshalling\Struct.cs" />
+    <Compile Include="Protocol\ResourceRecords\CanonicalNameResourceRecord.cs" />
+    <Compile Include="Protocol\ResourceRecords\IResourceRecord.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Marshalling.cs" />
-    <Compile Include="Question.cs" />
-    <Compile Include="ResourceRecord.cs" />
-    <Compile Include="ResourceRecordFactory.cs" />
-    <Compile Include="Request.cs" />
-    <Compile Include="Response.cs" />
+    <Compile Include="Protocol\Question.cs" />
+    <Compile Include="Protocol\Request.cs" />
+    <Compile Include="Protocol\RecordClass.cs" />
+    <Compile Include="Protocol\RecordType.cs" />
+    <Compile Include="Protocol\ResourceRecords\MailExchangeResourceRecord.cs" />
+    <Compile Include="Protocol\ResourceRecords\NameServerResourceRecord.cs" />
+    <Compile Include="Protocol\ResourceRecords\PointerResourceRecord.cs" />
+    <Compile Include="Protocol\ResourceRecords\ResourceRecord.cs" />
+    <Compile Include="Protocol\ResourceRecords\BaseResourceRecord.cs" />
+    <Compile Include="Protocol\ResourceRecords\ResourceRecordFactory.cs" />
+    <Compile Include="Protocol\ResourceRecords\StartOfAuthorityResourceRecord.cs" />
+    <Compile Include="Protocol\Response.cs" />
+    <Compile Include="Protocol\Utils\ByteStream.cs" />
+    <Compile Include="Protocol\Utils\ObjectStringifier.cs" />
     <Compile Include="Server.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -97,6 +123,7 @@
       <Install>true</Install>
     </BootstrapperPackage>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

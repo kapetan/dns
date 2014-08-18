@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Net;
+using DNS.Protocol.Utils;
 
 namespace DNS.Protocol {
     public class Domain : IComparable<Domain> {

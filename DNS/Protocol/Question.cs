@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using DNS.Protocol.Utils;
 
 namespace DNS.Protocol {
     public class Question : IMessageEntry {
@@ -61,7 +59,7 @@ namespace DNS.Protocol {
         }
 
         public byte[] ToArray() {
-            Marshalling.ByteStream result = new Marshalling.ByteStream(Size);
+            ByteStream result = new ByteStream(Size);
 
             result
                 .Append(domain.ToArray())
@@ -71,7 +69,7 @@ namespace DNS.Protocol {
         }
 
         public override string ToString() {
-            return Marshalling.Object.New(this)
+            return ObjectStringifier.New(this)
                 .Add("Name", "Type", "Class")
                 .ToString();
         }

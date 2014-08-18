@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Net;
 using DNS.Protocol;
+using DNS.Protocol.ResourceRecords;
 
 namespace DNS {
     public class MasterFile {

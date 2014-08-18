@@ -1,15 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+using DNS.Protocol.Utils;
 
 namespace DNS.Protocol {
-    public interface IRequest : IMessage {
-        int Id { get; set; }
-        OperationCode OperationCode { get; set; }
-        bool RecursionDesired { get; set; }
-    }
-
     public class Request : IRequest {
         private static readonly Random RANDOM = new Random();
 
@@ -79,7 +73,7 @@ namespace DNS.Protocol {
 
         public byte[] ToArray() {
             UpdateHeader();
-            Marshalling.ByteStream result = new Marshalling.ByteStream(Size);
+            ByteStream result = new ByteStream(Size);
 
             result
                 .Append(header.ToArray())
@@ -91,7 +85,7 @@ namespace DNS.Protocol {
         public override string ToString() {
             UpdateHeader();
 
-            return Marshalling.Object.New(this)
+            return ObjectStringifier.New(this)
                 .Add("Header", header)
                 .Add("Questions")
                 .ToString();

@@ -59,7 +59,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Client\Client.cs" />
+    <Compile Include="Client\DnsClient.cs" />
     <Compile Include="Client\ClientRequest.cs" />
     <Compile Include="Client\ClientResponse.cs" />
     <Compile Include="Client\RequestResolver\IRequestResolver.cs" />
@@ -99,7 +99,7 @@
     <Compile Include="Protocol\Response.cs" />
     <Compile Include="Protocol\Utils\ByteStream.cs" />
     <Compile Include="Protocol\Utils\ObjectStringifier.cs" />
-    <Compile Include="Server.cs" />
+    <Compile Include="DnsServer.cs" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.0">

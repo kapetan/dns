@@ -12,7 +12,7 @@ using DNS.Client;
 using DNS.Client.RequestResolver;
 
 namespace DNS {
-    public class Server {
+    public class DnsServer {
         private const int DEFAULT_PORT = 53;
         private const int UDP_TIMEOUT = 2000;
         private const int UDP_LIMIT = 512;
@@ -31,14 +31,14 @@ namespace DNS {
         public event RequestedEventHandler Requested;
         public event RespondedEventHandler Responded;
 
-        public Server(IPEndPoint endServer) {
+        public DnsServer(IPEndPoint endServer) {
             this.emitter = new EventEmitter();
             this.client = new DnsClient(endServer, new UdpRequestResolver());
             this.masterFile = new MasterFile();
         }
 
-        public Server(IPAddress endServer, int port = DEFAULT_PORT) : this(new IPEndPoint(endServer, port)) {}
-        public Server(string endServerIp, int port = DEFAULT_PORT) : this(IPAddress.Parse(endServerIp), port) {}
+        public DnsServer(IPAddress endServer, int port = DEFAULT_PORT) : this(new IPEndPoint(endServer, port)) {}
+        public DnsServer(string endServerIp, int port = DEFAULT_PORT) : this(IPAddress.Parse(endServerIp), port) {}
 
         public void Listen(int port = DEFAULT_PORT) {
             udp = new UdpClient(port);

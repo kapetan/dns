@@ -10,10 +10,10 @@ using DNS.Client;
 namespace DNS {
     class Example {
         public static void Main(string[] args) {
-            Server server = null;
+            DnsServer server = null;
 
             (new Thread(() => {
-                server = new Server("8.8.8.8");
+                server = new DnsServer("8.8.8.8");
 
                 server.Responded += (request, response) => Console.WriteLine("{0} => {1}", request, response);
 

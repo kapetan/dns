@@ -5,7 +5,7 @@ using System.Net;
 using DNS.Protocol;
 using DNS.Protocol.ResourceRecords;
 
-namespace DNS {
+namespace DNS.Server {
     public class MasterFile {
         private static readonly TimeSpan DEFAULT_TTL = new TimeSpan(0);
         

@@ -11,7 +11,7 @@ using DNS.Protocol.ResourceRecords;
 using DNS.Client;
 using DNS.Client.RequestResolver;
 
-namespace DNS {
+namespace DNS.Server {
     public class DnsServer {
         private const int DEFAULT_PORT = 53;
         private const int UDP_TIMEOUT = 2000;

@@ -6,6 +6,7 @@ using System.Threading;
 using System.Net;
 using DNS.Protocol;
 using DNS.Client;
+using DNS.Server;
 
 namespace DNS {
     class Example {

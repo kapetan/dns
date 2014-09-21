@@ -78,7 +78,7 @@
     <Compile Include="Protocol\Domain.cs" />
     <Compile Include="Example.cs" />
     <Compile Include="Protocol\Header.cs" />
-    <Compile Include="MasterFile.cs" />
+    <Compile Include="Server\MasterFile.cs" />
     <Compile Include="Protocol\Marshalling\EndianAttribute.cs" />
     <Compile Include="Protocol\Marshalling\Endianness.cs" />
     <Compile Include="Protocol\Marshalling\Struct.cs" />
@@ -99,7 +99,7 @@
     <Compile Include="Protocol\Response.cs" />
     <Compile Include="Protocol\Utils\ByteStream.cs" />
     <Compile Include="Protocol\Utils\ObjectStringifier.cs" />
-    <Compile Include="DnsServer.cs" />
+    <Compile Include="Server\DnsServer.cs" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.0">

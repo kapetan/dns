@@ -6,7 +6,7 @@
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{EBCB8F53-C56A-4245-893F-CE67D69D0087}</ProjectGuid>
-    <OutputType>WinExe</OutputType>
+    <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>DNS</RootNamespace>
     <AssemblyName>DNS</AssemblyName>

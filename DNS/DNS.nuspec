@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>DNS</id>
+    <version>1.0.0</version>
+    <title>DNS</title>
+    <authors>Mirza Kapetanovic</authors>
+    <owners>Mirza Kapetanovic</owners>
+    <projectUrl>https://github.com/kapetan/dns</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Library for parsing and serializing DNS messages. Includes a basic DNS client and server.</description>
+    <copyright>Copyright 2014</copyright>
+    <tags>dns request response client server</tags>
+  </metadata>
+</package>

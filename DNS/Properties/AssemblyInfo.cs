@@ -6,9 +6,9 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("DNS")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("Library for parsing and serializing DNS messages. Includes a basic DNS client and server.")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("Mirza Kapetanovic")]
 [assembly: AssemblyProduct("DNS")]
 [assembly: AssemblyCopyright("Copyright ©  2013")]
 [assembly: AssemblyTrademark("")]

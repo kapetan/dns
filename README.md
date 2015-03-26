@@ -1,6 +1,8 @@
 ﻿# DNS
 
-A DNS library written in C#. It needs .NET 4 to run.
+A DNS library written in C#. It needs .NET 4 to run. Available through NuGet.
+
+	Install-Package DNS
 
 # Usage
 

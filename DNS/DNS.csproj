@@ -76,7 +76,6 @@
     <Compile Include="Protocol\ResponseCode.cs" />
     <Compile Include="Protocol\Utils\ByteExtensions.cs" />
     <Compile Include="Protocol\Domain.cs" />
-    <Compile Include="Example.cs" />
     <Compile Include="Protocol\Header.cs" />
     <Compile Include="Server\MasterFile.cs" />
     <Compile Include="Protocol\Marshalling\EndianAttribute.cs" />

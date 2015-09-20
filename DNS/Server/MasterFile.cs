@@ -2,12 +2,26 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Text.RegularExpressions;
 using DNS.Protocol;
 using DNS.Protocol.ResourceRecords;
 
 namespace DNS.Server {
     public class MasterFile {
         private static readonly TimeSpan DEFAULT_TTL = new TimeSpan(0);
+
+        private static bool Matches(Domain domain, Domain entry) {
+            string[] labels = entry.ToString().Split('.');
+            string[] patterns = new string[labels.Length];
+
+            for (int i = 0; i < labels.Length; i++) {
+                string label = labels[i];
+                patterns[i] = label == "*" ? "(\\w+)" : Regex.Escape(label);
+            }
+
+            Regex re = new Regex("^" + string.Join("\\.", patterns) + "$");
+            return re.IsMatch(domain.ToString());
+        }
         
         private IList<IResourceRecord> entries = new List<IResourceRecord>();
         private TimeSpan ttl = DEFAULT_TTL;
@@ -63,7 +77,7 @@ namespace DNS.Server {
         }
 
         public IList<IResourceRecord> Get(Domain domain, RecordType type) {
-            return entries.Where(e => e.Name.Equals(domain) && e.Type == type).ToList();
+            return entries.Where(e => Matches(domain, e.Name) && e.Type == type).ToList();
         }
 
         public IList<IResourceRecord> Get(Question question) {

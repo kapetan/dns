@@ -58,6 +58,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="ClientServer\README.md" />
     <None Include="Client\README.md" />
     <None Include="Server\README.md" />
   </ItemGroup>

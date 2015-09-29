@@ -77,12 +77,16 @@ DnsServer server = new DnsServer("8.8.8.8");
 server.MasterFile.AddIPAddressResourceRecord("google.com", "127.0.0.1");
 server.MasterFile.AddIPAddressResourceRecord("github.com", "127.0.0.1");
 
+// Log every request
+server.Requested += (request) => Console.WriteLine(request);
 // On every successful request log the request and the response
 server.Responded += (request, response) => Console.WriteLine("{0} => {1}", request, response);
 
 // Start the server (by default it listents on port 53)
 server.Listen();
 ```
+
+Note that since the events are executed in a separate thread it's not possible to modify the `request` instance in the `server.Requested` callback.
 
 # License 
 

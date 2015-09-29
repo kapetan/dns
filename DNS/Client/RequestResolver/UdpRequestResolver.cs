@@ -19,6 +19,9 @@ namespace DNS.Client.RequestResolver {
             IPEndPoint dns = request.Dns;
 
             try {
+                udp.Client.SendTimeout = 5000;
+                udp.Client.ReceiveTimeout = 5000;
+
                 udp.Connect(dns);
                 udp.Send(request.ToArray(), request.Size);
 

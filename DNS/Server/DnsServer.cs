@@ -62,11 +62,21 @@ namespace DNS.Server {
 
                     try {
                         request = Request.FromArray(clientMessage);
-                        emitter.Schedule(() => OnRequested(request));
+                        emitter.Schedule(() => {
+                            RequestedEventHandler handler = OnRequested;
+                            if (handler != null) {
+                                handler(request);
+                            }
+                        });
 
                         IResponse response = ResolveLocal(request);
 
-                        emitter.Schedule(() => Responded(request, response));
+                        emitter.Schedule(() => {
+                            RespondedEventHandler handler = Responded;
+                            if (handler != null) {
+                                handler(request, response);
+                            }
+                        });
                         udp.Send(response.ToArray(), response.Size, local);
                     }
                     catch(SocketException) {}

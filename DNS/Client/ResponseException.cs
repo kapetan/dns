@@ -15,12 +15,12 @@ namespace DNS.Client {
 
         public ResponseException(IResponse response, Exception e)
             : base(Format(response), e) {
-            Response = Response;
+            Response = response;
         }
 
         public ResponseException(IResponse response, string message)
             : base(message) {
-            Response = Response;
+            Response = response;
         }
 
         public IResponse Response {

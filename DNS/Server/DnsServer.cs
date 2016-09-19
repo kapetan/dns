@@ -66,7 +66,7 @@ namespace DNS.Server {
 
                         IResponse response = ResolveLocal(request);
 
-                        emitter.Schedule(() => Responded(request, response));
+                        emitter.Schedule(() => OnResponded(request, response));
                         udp.Send(response.ToArray(), response.Size, local);
                     }
                     catch(SocketException) {}

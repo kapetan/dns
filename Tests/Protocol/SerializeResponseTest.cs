@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using NUnit.Framework;
+using Xunit;
 using DNS.Protocol;
 using DNS.Protocol.ResourceRecords;
 
 namespace DNS.Tests.Protocol.ResourceRecords {
-    [TestFixture]
+    
     public class SerializeResponseTest {
-        [Test]
+        [Fact]
         public void BasicQuestionResponseWithEmptyHeader() {
             Header header = new Header();
             header.Response = true;
@@ -25,10 +25,10 @@ namespace DNS.Tests.Protocol.ResourceRecords {
 
             byte[] content = Helper.ReadFixture("Response", "empty-header_basic");
 
-            CollectionAssert.AreEqual(content, response.ToArray());
+            Assert.Equal(content, response.ToArray());
         }
 
-        [Test]
+        [Fact]
         public void RequestWithHeaderAndResourceRecords() {
             Header header = new Header();
             header.Response = true;
@@ -59,7 +59,7 @@ namespace DNS.Tests.Protocol.ResourceRecords {
 
             byte[] content = Helper.ReadFixture("Response", "id-ra_all");
 
-            CollectionAssert.AreEqual(content, response.ToArray());
+            Assert.Equal(content, response.ToArray());
         }
     }
 }

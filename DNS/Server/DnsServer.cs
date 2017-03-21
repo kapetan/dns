@@ -10,6 +10,7 @@ using DNS.Protocol;
 using DNS.Protocol.ResourceRecords;
 using DNS.Client;
 using DNS.Client.RequestResolver;
+using System.Threading.Tasks;
 
 namespace DNS.Server {
     public class DnsServer {
@@ -40,7 +41,7 @@ namespace DNS.Server {
         public DnsServer(IPAddress endServer, int port = DEFAULT_PORT) : this(new IPEndPoint(endServer, port)) {}
         public DnsServer(string endServerIp, int port = DEFAULT_PORT) : this(IPAddress.Parse(endServerIp), port) {}
 
-        public void Listen(int port = DEFAULT_PORT) {
+        public async Task Listen(int port = DEFAULT_PORT) {
             udp = new UdpClient(port);
 
             IPEndPoint local = new IPEndPoint(IPAddress.Any, port);
@@ -52,22 +53,22 @@ namespace DNS.Server {
                 byte[] clientMessage = null;
 
                 try {
-                    clientMessage = udp.Receive(ref local);
+                    clientMessage = (await udp.ReceiveAsync()).Buffer;
                 } catch (SocketException) {
                     continue;
                 }
 
-                Thread task = new Thread(() => {
+                Thread task = new Thread(async () => {
                     Request request = null;
 
                     try {
                         request = Request.FromArray(clientMessage);
                         emitter.Schedule(() => OnRequested(request));
 
-                        IResponse response = ResolveLocal(request);
+                        IResponse response = await ResolveLocal(request);
 
                         emitter.Schedule(() => OnResponded(request, response));
-                        udp.Send(response.ToArray(), response.Size, local);
+                        await udp.SendAsync(response.ToArray(), response.Size, local);
                     }
                     catch(SocketException) {}
                     catch(ArgumentException) {}
@@ -78,7 +79,7 @@ namespace DNS.Server {
                             response = Response.FromRequest(request);
                         }
 
-                        udp.Send(response.ToArray(), response.Size, local);
+                        await udp.SendAsync(response.ToArray(), response.Size, local);
                     }
                 });
 
@@ -91,7 +92,7 @@ namespace DNS.Server {
                 run = false;
 
                 emitter.Stop();
-                udp.Close();
+                udp.Dispose();
             }
         }
 
@@ -109,7 +110,7 @@ namespace DNS.Server {
             if (handlers != null) handlers(request, response);
         }
 
-        protected virtual IResponse ResolveLocal(Request request) {
+        protected virtual async Task<IResponse> ResolveLocal(Request request) {
             Response response = Response.FromRequest(request);
 
             foreach (Question question in request.Questions) {
@@ -118,16 +119,16 @@ namespace DNS.Server {
                 if (answers.Count > 0) {
                     Merge(response.AnswerRecords, answers);
                 } else {
-                    return ResolveRemote(request);
+                    return await ResolveRemote(request);
                 }
             }
 
             return response;
         }
 
-        protected virtual IResponse ResolveRemote(Request request) {
+        protected virtual async Task<IResponse> ResolveRemote(Request request) {
             ClientRequest remoteRequest = client.Create(request);
-            return remoteRequest.Resolve();
+            return await remoteRequest.Resolve();
         }
 
         private static void Merge<T>(IList<T> l1, IList<T> l2) {

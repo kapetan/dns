@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using System.Net.Sockets;
 using DNS.Protocol;
+using System.Threading.Tasks;
 
 namespace DNS.Client.RequestResolver {
     public class UdpRequestResolver : IRequestResolver {
@@ -14,7 +15,7 @@ namespace DNS.Client.RequestResolver {
             this.fallback = new NullRequestResolver();
         }
 
-        public ClientResponse Request(ClientRequest request) {
+        public async Task<ClientResponse> Request(ClientRequest request) {
             UdpClient udp = new UdpClient();
             IPEndPoint dns = request.Dns;
 
@@ -22,19 +23,18 @@ namespace DNS.Client.RequestResolver {
                 udp.Client.SendTimeout = 5000;
                 udp.Client.ReceiveTimeout = 5000;
 
-                udp.Connect(dns);
-                udp.Send(request.ToArray(), request.Size);
+                await udp.SendAsync(request.ToArray(), request.Size, dns);                
 
-                byte[] buffer = udp.Receive(ref dns);
+                byte[] buffer = (await udp.ReceiveAsync()).Buffer;
                 Response response = Response.FromArray(buffer); //null;
 
                 if (response.Truncated) {
-                    return fallback.Request(request);
+                    return await fallback.Request(request);
                 }
 
                 return new ClientResponse(request, response, buffer);
             } finally {
-                udp.Close();
+                udp.Dispose();
             }
         }
     }

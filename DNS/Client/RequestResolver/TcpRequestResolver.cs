@@ -2,14 +2,15 @@
 using System.IO;
 using System.Net.Sockets;
 using DNS.Protocol;
+using System.Threading.Tasks;
 
 namespace DNS.Client.RequestResolver {
     public class TcpRequestResolver : IRequestResolver {
-        public ClientResponse Request(ClientRequest request) {
+        public async Task<ClientResponse> Request(ClientRequest request) {
             TcpClient tcp = new TcpClient();
 
             try {
-                tcp.Connect(request.Dns);
+                await tcp.ConnectAsync (request.Dns.Address, request.Dns.Port);
 
                 Stream stream = tcp.GetStream();
                 byte[] buffer = request.ToArray();
@@ -36,7 +37,7 @@ namespace DNS.Client.RequestResolver {
 
                 return new ClientResponse(request, response, buffer);
             } finally {
-                tcp.Close();
+                tcp.Dispose();
             }
         }
 

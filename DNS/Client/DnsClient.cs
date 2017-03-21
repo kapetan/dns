@@ -5,6 +5,7 @@ using System.Net;
 using DNS.Protocol;
 using DNS.Protocol.ResourceRecords;
 using DNS.Client.RequestResolver;
+using System.Threading.Tasks;
 
 namespace DNS.Client {
     public class DnsClient {
@@ -34,12 +35,12 @@ namespace DNS.Client {
             return new ClientRequest(dns, request, resolver);
         }
 
-        public IList<IPAddress> Lookup(string domain, RecordType type = RecordType.A) {
+        public async Task<IList<IPAddress>> Lookup(string domain, RecordType type = RecordType.A) {
             if (type != RecordType.A && type != RecordType.AAAA) {
                 throw new ArgumentException("Invalid record type " + type);
             }
 
-            ClientResponse response = Resolve(domain, type);
+            ClientResponse response = await Resolve(domain, type);
             IList<IPAddress> ips = response.AnswerRecords
                 .Where(r => r.Type == type)
                 .Cast<IPAddressResourceRecord>()
@@ -53,12 +54,12 @@ namespace DNS.Client {
             return ips;
         }
 
-        public string Reverse(string ip) {
+        public Task<string> Reverse(string ip) {
             return Reverse(IPAddress.Parse(ip));
         }
 
-        public string Reverse(IPAddress ip) {
-            ClientResponse response = Resolve(Domain.PointerName(ip), RecordType.PTR);
+        public async Task<string> Reverse(IPAddress ip) {
+            ClientResponse response = await Resolve(Domain.PointerName(ip), RecordType.PTR);
             IResourceRecord ptr = response.AnswerRecords.FirstOrDefault(r => r.Type == RecordType.PTR);
 
             if (ptr == null) {
@@ -68,11 +69,11 @@ namespace DNS.Client {
             return ((PointerResourceRecord) ptr).PointerDomainName.ToString();
         }
 
-        public ClientResponse Resolve(string domain, RecordType type) {
+        public Task<ClientResponse> Resolve(string domain, RecordType type) {
             return Resolve(new Domain(domain), type);
         }
 
-        public ClientResponse Resolve(Domain domain, RecordType type) {
+        public Task<ClientResponse> Resolve(Domain domain, RecordType type) {
             ClientRequest request = Create();
             Question question = new Question(domain, type);
 

@@ -1,105 +1,105 @@
 ﻿using System;
 using System.Collections.Generic;
-using NUnit.Framework;
+using Xunit;
 using DNS.Protocol;
 
 namespace DNS.Tests.Protocol {
-    [TestFixture]
+    
     public class ParseQuestionTest {
-        [Test]
+        [Fact]
         public void BasicQuestionWithEmptyDomain() {
             int endOffset = 0;
             byte[] content = Helper.ReadFixture("Question", "empty-domain_basic");
             Question question = Question.FromArray(content, 0, out endOffset);
 
-            Assert.AreEqual("", question.Name.ToString());
-            Assert.AreEqual(RecordType.A, question.Type);
-            Assert.AreEqual(RecordClass.IN, question.Class);
-            Assert.AreEqual(5, question.Size);
-            Assert.AreEqual(5, endOffset);
+            Assert.Equal("", question.Name.ToString());
+            Assert.Equal(RecordType.A, question.Type);
+            Assert.Equal(RecordClass.IN, question.Class);
+            Assert.Equal(5, question.Size);
+            Assert.Equal(5, endOffset);
         }
 
-        [Test]
+        [Fact]
         public void BasicQuestionWithMultipleLabelDomain() {
             int endOffset = 0;
             byte[] content = Helper.ReadFixture("Question", "www.google.com_basic");
             Question question = Question.FromArray(content, 0, out endOffset);
 
-            Assert.AreEqual("www.google.com", question.Name.ToString());
-            Assert.AreEqual(RecordType.A, question.Type);
-            Assert.AreEqual(RecordClass.IN, question.Class);
-            Assert.AreEqual(20, question.Size);
-            Assert.AreEqual(20, endOffset);
+            Assert.Equal("www.google.com", question.Name.ToString());
+            Assert.Equal(RecordType.A, question.Type);
+            Assert.Equal(RecordClass.IN, question.Class);
+            Assert.Equal(20, question.Size);
+            Assert.Equal(20, endOffset);
         }
 
-        [Test]
+        [Fact]
         public void CNameQuestionWithEmptyDomain() {
             int endOffset = 0;
             byte[] content = Helper.ReadFixture("Question", "empty-domain_cname");
             Question question = Question.FromArray(content, 0, out endOffset);
 
-            Assert.AreEqual("", question.Name.ToString());
-            Assert.AreEqual(RecordType.CNAME, question.Type);
-            Assert.AreEqual(RecordClass.IN, question.Class);
-            Assert.AreEqual(5, question.Size);
-            Assert.AreEqual(5, endOffset);
+            Assert.Equal("", question.Name.ToString());
+            Assert.Equal(RecordType.CNAME, question.Type);
+            Assert.Equal(RecordClass.IN, question.Class);
+            Assert.Equal(5, question.Size);
+            Assert.Equal(5, endOffset);
         }
 
-        [Test]
+        [Fact]
         public void AnyQuestionWithEmptyDomain() {
             int endOffset = 0;
             byte[] content = Helper.ReadFixture("Question", "empty-domain_any");
             Question question = Question.FromArray(content, 0, out endOffset);
 
-            Assert.AreEqual("", question.Name.ToString());
-            Assert.AreEqual(RecordType.A, question.Type);
-            Assert.AreEqual(RecordClass.ANY, question.Class);
-            Assert.AreEqual(5, question.Size);
-            Assert.AreEqual(5, endOffset);
+            Assert.Equal("", question.Name.ToString());
+            Assert.Equal(RecordType.A, question.Type);
+            Assert.Equal(RecordClass.ANY, question.Class);
+            Assert.Equal(5, question.Size);
+            Assert.Equal(5, endOffset);
         }
 
-        [Test]
+        [Fact]
         public void AllSetQuestionWithMultipleLabelDomains() {
             int endOffset = 0;
             byte[] content = Helper.ReadFixture("Question", "www.google.com_all");
             Question question = Question.FromArray(content, 0, out endOffset);
 
-            Assert.AreEqual("www.google.com", question.Name.ToString());
-            Assert.AreEqual(RecordType.CNAME, question.Type);
-            Assert.AreEqual(RecordClass.ANY, question.Class);
-            Assert.AreEqual(20, question.Size);
-            Assert.AreEqual(20, endOffset);
+            Assert.Equal("www.google.com", question.Name.ToString());
+            Assert.Equal(RecordType.CNAME, question.Type);
+            Assert.Equal(RecordClass.ANY, question.Class);
+            Assert.Equal(20, question.Size);
+            Assert.Equal(20, endOffset);
         }
 
-        [Test]
+        [Fact]
         public void MultipleQuestions() {
             int endOffset = 0;
             byte[] content = Helper.ReadFixture("Question", "multiple");
             IList<Question> questions = Question.GetAllFromArray(content, 0, 3, out endOffset);
 
-            Assert.AreEqual(3, questions.Count);
-            Assert.AreEqual(36, endOffset);
+            Assert.Equal(3, questions.Count);
+            Assert.Equal(36, endOffset);
 
             Question question = questions[0];
 
-            Assert.AreEqual("", question.Name.ToString());
-            Assert.AreEqual(RecordType.A, question.Type);
-            Assert.AreEqual(RecordClass.IN, question.Class);
-            Assert.AreEqual(5, question.Size);
+            Assert.Equal("", question.Name.ToString());
+            Assert.Equal(RecordType.A, question.Type);
+            Assert.Equal(RecordClass.IN, question.Class);
+            Assert.Equal(5, question.Size);
 
             question = questions[1];
 
-            Assert.AreEqual("www.google.com", question.Name.ToString());
-            Assert.AreEqual(RecordType.CNAME, question.Type);
-            Assert.AreEqual(RecordClass.IN, question.Class);
-            Assert.AreEqual(20, question.Size);
+            Assert.Equal("www.google.com", question.Name.ToString());
+            Assert.Equal(RecordType.CNAME, question.Type);
+            Assert.Equal(RecordClass.IN, question.Class);
+            Assert.Equal(20, question.Size);
 
             question = questions[2];
 
-            Assert.AreEqual("dr.dk", question.Name.ToString());
-            Assert.AreEqual(RecordType.A, question.Type);
-            Assert.AreEqual(RecordClass.ANY, question.Class);
-            Assert.AreEqual(11, question.Size);
+            Assert.Equal("dr.dk", question.Name.ToString());
+            Assert.Equal(RecordType.A, question.Type);
+            Assert.Equal(RecordClass.ANY, question.Class);
+            Assert.Equal(11, question.Size);
         }
     }
 }

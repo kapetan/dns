@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 using System.Reflection;
+using System.Linq;
 
 namespace DNS.Protocol.Marshalling {
     public static class Struct {
@@ -8,8 +9,8 @@ namespace DNS.Protocol.Marshalling {
             var fields = type.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
             EndianAttribute endian = null;
 
-            if (type.IsDefined(typeof(EndianAttribute), false)) {
-                endian = (EndianAttribute) type.GetCustomAttributes(typeof(EndianAttribute), false)[0];
+            if (type.GetTypeInfo().IsDefined(typeof(EndianAttribute), false)) {
+                endian = (EndianAttribute) type.GetTypeInfo().GetCustomAttributes(typeof(EndianAttribute), false).First();
             }
 
             foreach (FieldInfo field in fields) {
@@ -19,7 +20,7 @@ namespace DNS.Protocol.Marshalling {
 
                 int offset = Marshal.OffsetOf(type, field.Name).ToInt32();
                 int length = Marshal.SizeOf(field.FieldType);
-                endian = endian ?? (EndianAttribute) field.GetCustomAttributes(typeof(EndianAttribute), false)[0];
+                endian = endian ?? (EndianAttribute) field.GetCustomAttributes(typeof(EndianAttribute), false).First();
 
                 if (endian.Endianness == Endianness.Big && BitConverter.IsLittleEndian ||
                         endian.Endianness == Endianness.Little && !BitConverter.IsLittleEndian) {

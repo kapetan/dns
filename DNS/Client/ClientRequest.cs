@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Net;
 using DNS.Protocol;
 using DNS.Client.RequestResolver;
+using System.Threading.Tasks;
 
 namespace DNS.Client {
     public class ClientRequest : IRequest {
@@ -68,9 +69,9 @@ namespace DNS.Client {
         /// <exception cref="IOException">Thrown if a IO error occurs</exception>
         /// <exception cref="SocketException">Thrown if a the reading or writing to the socket fails</exception>
         /// <returns>The response received from server</returns>
-        public ClientResponse Resolve() {
+        public async Task<ClientResponse> Resolve() {
             try {
-                ClientResponse response = resolver.Request(this);
+                ClientResponse response = await resolver.Request(this);
 
                 if (response.Id != this.Id) {
                     throw new ResponseException(response, "Mismatching request/response IDs");

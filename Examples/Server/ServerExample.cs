@@ -12,7 +12,7 @@ namespace Examples.Server {
             }
 
             server.Responded += (request, response) => Console.WriteLine("{0} => {1}", request, response);
-            server.Listen();
+            server.Listen().GetAwaiter().GetResult();
         }
     }
 }

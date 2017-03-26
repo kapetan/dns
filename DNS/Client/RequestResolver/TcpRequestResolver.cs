@@ -20,8 +20,8 @@ namespace DNS.Client.RequestResolver {
                     Array.Reverse(length);
                 }
 
-                stream.Write(length, 0, length.Length);
-                stream.Write(buffer, 0, buffer.Length);
+                await stream.WriteAsync(length, 0, length.Length);
+                await stream.WriteAsync(buffer, 0, buffer.Length);
 
                 buffer = new byte[2];
                 Read(stream, buffer);

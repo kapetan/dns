@@ -13,7 +13,7 @@ using DNS.Client.RequestResolver;
 using System.Threading.Tasks;
 
 namespace DNS.Server {
-    public class DnsServer {
+    public class DnsServer: IDisposable {
         private const int DEFAULT_PORT = 53;
         private const int UDP_TIMEOUT = 2000;
         private const int UDP_LIMIT = 512;
@@ -50,25 +50,33 @@ namespace DNS.Server {
             udp.Client.SendTimeout = UDP_TIMEOUT;
 
             while (run) {
-                byte[] clientMessage = null;
+                UdpReceiveResult clientMessage;
 
                 try {
-                    clientMessage = (await udp.ReceiveAsync()).Buffer;
+                    clientMessage = await udp.ReceiveAsync();
                 } catch (SocketException) {
                     continue;
+                } catch (ObjectDisposedException)
+                {
+                    if (run)
+                        throw;
+                    else
+                    {
+                        return;
+                    }
                 }
 
                 Thread task = new Thread(async () => {
                     Request request = null;
 
                     try {
-                        request = Request.FromArray(clientMessage);
+                        request = Request.FromArray(clientMessage.Buffer);
                         emitter.Schedule(() => OnRequested(request));
 
                         IResponse response = await ResolveLocal(request);
 
                         emitter.Schedule(() => OnResponded(request, response));
-                        await udp.SendAsync(response.ToArray(), response.Size, local);
+                        await udp.SendAsync(response.ToArray(), response.Size, clientMessage.RemoteEndPoint);
                     }
                     catch(SocketException) {}
                     catch(ArgumentException) {}
@@ -79,20 +87,11 @@ namespace DNS.Server {
                             response = Response.FromRequest(request);
                         }
 
-                        await udp.SendAsync(response.ToArray(), response.Size, local);
+                        await udp.SendAsync(response.ToArray(), response.Size, clientMessage.RemoteEndPoint);
                     }
                 });
 
                 task.Start();
-            }
-        }
-
-        public void Close() {
-            if (udp != null) {
-                run = false;
-
-                emitter.Stop();
-                udp.Dispose();
             }
         }
 
@@ -136,6 +135,37 @@ namespace DNS.Server {
                 l1.Add(obj);
             }
         }
+
+        #region IDisposable Support
+        private bool disposedValue = false; // To detect redundant calls
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    run = false;
+                    emitter?.Stop();
+                    udp?.Dispose();
+                }
+
+                
+
+                disposedValue = true;
+            }
+        }
+
+
+        // This code added to correctly implement the disposable pattern.
+        public void Dispose()
+        {
+            // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+            Dispose(true);
+            // TODO: uncomment the following line if the finalizer is overridden above.
+            // GC.SuppressFinalize(this);
+        }
+        #endregion
     }
 
     internal class EventEmitter {

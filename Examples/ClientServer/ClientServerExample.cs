@@ -18,17 +18,17 @@ namespace Examples.ClientServer {
 
                 server.MasterFile.AddIPAddressResourceRecord("google.com", "127.0.0.1");
 
-                server.Listen();
+                server.Listen().GetAwaiter().GetResult();
             })).Start();
 
             Thread.Sleep(1000);
 
             DnsClient client = new DnsClient("127.0.0.1");
 
-            client.Lookup("google.com");
-            client.Lookup("cnn.com");
+            client.Lookup("google.com").GetAwaiter().GetResult();
+            client.Lookup("cnn.com").GetAwaiter().GetResult();
 
-            server.Close();
+            server.Dispose();
         }
     }
 }

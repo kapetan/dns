@@ -24,14 +24,14 @@ namespace DNS.Client.RequestResolver {
                 await stream.WriteAsync(buffer, 0, buffer.Length);
 
                 buffer = new byte[2];
-                Read(stream, buffer);
+                await Read(stream, buffer);
 
                 if (BitConverter.IsLittleEndian) {
                     Array.Reverse(buffer);
                 }
 
                 buffer = new byte[BitConverter.ToUInt16(buffer, 0)];
-                Read(stream, buffer);
+                await Read(stream, buffer);
 
                 Response response = Response.FromArray(buffer);
 
@@ -41,12 +41,12 @@ namespace DNS.Client.RequestResolver {
             }
         }
 
-        private static void Read(Stream stream, byte[] buffer) {
+        private static async Task Read(Stream stream, byte[] buffer) {
             int length = buffer.Length;
             int offset = 0;
             int size = 0;
 
-            while (length > 0 && (size = stream.Read(buffer, offset, length)) > 0) {
+            while (length > 0 && (size = await stream.ReadAsync(buffer, offset, length)) > 0) {
                 offset += size;
                 length -= size;
             }

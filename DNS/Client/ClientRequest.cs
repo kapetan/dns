@@ -67,7 +67,8 @@ namespace DNS.Client {
         /// </summary>
         /// <exception cref="ResponseException">Throw if a malformed response is received from the server</exception>
         /// <exception cref="IOException">Thrown if a IO error occurs</exception>
-        /// <exception cref="SocketException">Thrown if a the reading or writing to the socket fails</exception>
+        /// <exception cref="SocketException">Thrown if the reading or writing to the socket fails</exception>
+        /// <exception cref="OperationCanceledException">Thrown if reading or writing to the socket timeouts</exception>
         /// <returns>The response received from server</returns>
         public async Task<ClientResponse> Resolve() {
             try {

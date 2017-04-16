@@ -1,5 +1,4 @@
-﻿using System;
-using Xunit;
+﻿using Xunit;
 using DNS.Protocol;
 
 namespace DNS.Tests.Protocol {

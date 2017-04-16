@@ -1,6 +1,8 @@
 ﻿# DNS
 
-A DNS library written in C# targeting .NETStandard 1.5. Available through NuGet.
+A DNS library written in C# targeting .NET Standard 1.5. Versions prior to version two (2.0.0) were written for .NET 4 using blocking network operations. Version two and above use asynchronous operations.
+
+Available through NuGet.
 
 	Install-Package DNS
 
@@ -17,14 +19,14 @@ request.Id = 123;
 UdpClient udp = new UdpClient();
 IPEndPoint google = new IPEndPoint(IPAddress.Parse("8.8.8.8"), 53);
 
-// Connect to google's DNS server
-udp.Connect(google);
-udp.Send(request.ToArray(), request.Size);
+// Send to google's DNS server
+await udp.SendAsync(request.ToArray(), request.Size, google);
 
-byte[] buffer = udp.Receive(ref google);
+UdpReceiveResult result = await udp.ReceiveAsync();
+byte[] buffer = result.Buffer;
 Response response = Response.FromArray(buffer);
 
-// Outputs an human readable representation
+// Outputs a human readable representation
 Console.WriteLine(response);
 ```
 
@@ -39,7 +41,7 @@ ClientRequest request = new ClientRequest("8.8.8.8");
 request.Questions.Add(new Question(Domain.FromString("foo.com"), RecordType.AAAA));
 request.RecursionDesired = true;
 
-ClientResponse response = request.Resolve();
+ClientResponse response = await request.Resolve();
 
 // Get all the IPs for the foo.com domain
 IList<IPAddress> ips = response.AnswerRecords
@@ -59,15 +61,15 @@ DnsClient client = new DnsClient("8.8.8.8");
 ClientRequest request = client.Create();
 
 // Returns a list of IPs
-IList<IPAddress> ips = client.Resolve("foo.com");
+IList<IPAddress> ips = await client.Lookup("foo.com");
 
 // Get the domain name belonging to the IP (google.com)
-string domain = client.Reverse("173.194.69.100");
+string domain = await client.Reverse("173.194.69.100");
 ```
 
 ### Server
 
-The `DnsServer` class exposes a proxy Domain Name Server (UDP only). You can intercept domain name resolution requests and route them to specified IPs. The server is multi-threaded and spawns a thread for every request. It also emits an event on every request and every successful resolution. All the events are executed in the same separate thread.
+The `DnsServer` class exposes a proxy Domain Name Server (UDP only). You can intercept domain name resolution requests and route them to specified IPs. The server is asynchronous. It also emits an event on every request and every successful resolution.
 
 ```C#
 // Proxy to google's DNS
@@ -81,22 +83,26 @@ server.MasterFile.AddIPAddressResourceRecord("github.com", "127.0.0.1");
 server.Requested += (request) => Console.WriteLine(request);
 // On every successful request log the request and the response
 server.Responded += (request, response) => Console.WriteLine("{0} => {1}", request, response);
+// Log errors
+server.Errored += (e) => Console.WriteLine(e.Message);
 
 // Start the server (by default it listents on port 53)
-server.Listen();
+await server.Listen();
 ```
 
-Note that since the events are executed in a separate thread it's not possible to modify the `request` instance in the `server.Requested` callback.
+Depending on the application setup the events might be executed on a different thread than the calling thread.
 
-# License 
+It's also possible to modify the `request` instance in the `server.Requested` callback.
+
+# License
 
 **This software is licensed under "MIT"**
 
 > Copyright (c) 2012 Mirza Kapetanovic
-> 
+>
 > Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the 'Software'), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-> 
+>
 > The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-> 
+>
 > THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 

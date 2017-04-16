@@ -3,14 +3,15 @@ using System.IO;
 using System.Net.Sockets;
 using DNS.Protocol;
 using System.Threading.Tasks;
+using System.Net;
 
 namespace DNS.Client.RequestResolver {
     public class TcpRequestResolver : IRequestResolver {
         public async Task<ClientResponse> Request(ClientRequest request) {
-            TcpClient tcp = new TcpClient();
+            IPEndPoint dns = request.Dns;
 
-            try {
-                await tcp.ConnectAsync (request.Dns.Address, request.Dns.Port);
+            using(TcpClient tcp = new TcpClient()) {
+                await tcp.ConnectAsync(dns.Address, dns.Port);
 
                 Stream stream = tcp.GetStream();
                 byte[] buffer = request.ToArray();
@@ -36,8 +37,6 @@ namespace DNS.Client.RequestResolver {
                 Response response = Response.FromArray(buffer);
 
                 return new ClientResponse(request, response, buffer);
-            } finally {
-                tcp.Dispose();
             }
         }
 

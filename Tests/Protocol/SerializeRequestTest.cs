@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using NUnit.Framework;
+﻿using System.Collections.Generic;
+using Xunit;
 using DNS.Protocol;
 
 namespace DNS.Tests.Protocol {
-    [TestFixture]
+    
     public class SerializeRequestTest {
-        [Test]
+        [Fact]
         public void BasicQuestionRequestWithEmptyHeader() {
             Header header = new Header();
 
@@ -18,10 +17,10 @@ namespace DNS.Tests.Protocol {
 
             byte[] content = Helper.ReadFixture("Request", "empty-header_basic-question");
 
-            CollectionAssert.AreEqual(content, request.ToArray());
+            Assert.Equal(content, request.ToArray());
         }
 
-        [Test]
+        [Fact]
         public void SingleQuestionRequestWithHeader() {
             Header header = new Header();
 
@@ -35,10 +34,10 @@ namespace DNS.Tests.Protocol {
 
             byte[] content = Helper.ReadFixture("Request", "id-rd_www.google.com-cname");
 
-            CollectionAssert.AreEqual(content, request.ToArray());
+            Assert.Equal(content, request.ToArray());
         }
 
-        [Test]
+        [Fact]
         public void RequestWithMultipleQuestions() {
             Header header = new Header();
 
@@ -56,7 +55,7 @@ namespace DNS.Tests.Protocol {
 
             byte[] content = Helper.ReadFixture("Request", "multiple-questions");
 
-            CollectionAssert.AreEqual(content, request.ToArray());
+            Assert.Equal(content, request.ToArray());
         }
     }
 }

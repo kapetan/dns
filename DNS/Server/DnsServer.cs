@@ -1,38 +1,35 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Concurrent;
-using System.Linq;
-using System.Text;
 using System.Net;
 using System.Net.Sockets;
-using System.Threading;
+using System.Threading.Tasks;
+using System.IO;
 using DNS.Protocol;
 using DNS.Protocol.ResourceRecords;
+using DNS.Protocol.Utils;
 using DNS.Client;
 using DNS.Client.RequestResolver;
 
 namespace DNS.Server {
-    public class DnsServer {
+    public class DnsServer: IDisposable {
         private const int DEFAULT_PORT = 53;
         private const int UDP_TIMEOUT = 2000;
-        private const int UDP_LIMIT = 512;
 
         public delegate void RequestedEventHandler(IRequest request);
         public delegate void RespondedEventHandler(IRequest request, IResponse response);
+        public delegate void ErroredEventHandler(Exception e);
 
         private volatile bool run = true;
-
+        private bool disposed = false;
         private MasterFile masterFile;
-
         private UdpClient udp;
-        private EventEmitter emitter;
         private DnsClient client;
 
         public event RequestedEventHandler Requested;
         public event RespondedEventHandler Responded;
+        public event ErroredEventHandler Errored;
 
         public DnsServer(IPEndPoint endServer) {
-            this.emitter = new EventEmitter();
             this.client = new DnsClient(endServer, new UdpRequestResolver());
             this.masterFile = new MasterFile();
         }
@@ -40,59 +37,36 @@ namespace DNS.Server {
         public DnsServer(IPAddress endServer, int port = DEFAULT_PORT) : this(new IPEndPoint(endServer, port)) {}
         public DnsServer(string endServerIp, int port = DEFAULT_PORT) : this(IPAddress.Parse(endServerIp), port) {}
 
-        public void Listen(int port = DEFAULT_PORT) {
-            udp = new UdpClient(port);
+        public async Task Listen(int port = DEFAULT_PORT) {
+            await Task.Yield();
 
-            IPEndPoint local = new IPEndPoint(IPAddress.Any, port);
-
-            emitter.Run();
-            udp.Client.SendTimeout = UDP_TIMEOUT;
+            if (run) {
+                try {
+                    udp = new UdpClient(port);
+                } catch (SocketException e) {
+                    OnErrored(e);
+                    return;
+                }
+            }
 
             while (run) {
-                byte[] clientMessage = null;
+                UdpReceiveResult result;
 
                 try {
-                    clientMessage = udp.Receive(ref local);
-                } catch (SocketException) {
+                    result = await udp.ReceiveAsync();
+                }
+                catch (ObjectDisposedException e) { OnErrored(e); }
+                catch (SocketException e) {
+                    OnErrored(e);
                     continue;
                 }
 
-                Thread task = new Thread(() => {
-                    Request request = null;
-
-                    try {
-                        request = Request.FromArray(clientMessage);
-                        emitter.Schedule(() => OnRequested(request));
-
-                        IResponse response = ResolveLocal(request);
-
-                        emitter.Schedule(() => OnResponded(request, response));
-                        udp.Send(response.ToArray(), response.Size, local);
-                    }
-                    catch(SocketException) {}
-                    catch(ArgumentException) {}
-                    catch(ResponseException e) {
-                        IResponse response = e.Response;
-
-                        if (response == null) {
-                            response = Response.FromRequest(request);
-                        }
-
-                        udp.Send(response.ToArray(), response.Size, local);
-                    }
-                });
-
-                task.Start();
+                HandleRequest(result);
             }
         }
 
-        public void Close() {
-            if (udp != null) {
-                run = false;
-
-                emitter.Stop();
-                udp.Close();
-            }
+        public void Dispose() {
+            Dispose(true);
         }
 
         public MasterFile MasterFile {
@@ -109,7 +83,12 @@ namespace DNS.Server {
             if (handlers != null) handlers(request, response);
         }
 
-        protected virtual IResponse ResolveLocal(Request request) {
+        protected virtual void OnErrored(Exception e) {
+            ErroredEventHandler handlers = Errored;
+            if (handlers != null) handlers(e);
+        }
+
+        protected virtual async Task<IResponse> ResolveLocal(Request request) {
             Response response = Response.FromRequest(request);
 
             foreach (Question question in request.Questions) {
@@ -118,54 +97,69 @@ namespace DNS.Server {
                 if (answers.Count > 0) {
                     Merge(response.AnswerRecords, answers);
                 } else {
-                    return ResolveRemote(request);
+                    return await ResolveRemote(request);
                 }
             }
 
             return response;
         }
 
-        protected virtual IResponse ResolveRemote(Request request) {
+        protected virtual async Task<IResponse> ResolveRemote(Request request) {
             ClientRequest remoteRequest = client.Create(request);
-            return remoteRequest.Resolve();
+            return await remoteRequest.Resolve();
+        }
+
+        protected virtual void Dispose(bool disposing) {
+            if (!disposed) {
+                disposed = true;
+
+                if (disposing) {
+                    run = false;
+                    udp?.Dispose();
+                }
+            }
+        }
+
+        private async void HandleRequest(UdpReceiveResult result) {
+            Request request = null;
+
+            try {
+                request = Request.FromArray(result.Buffer);
+                OnRequested(request);
+
+                IResponse response = await ResolveLocal(request);
+
+                OnResponded(request, response);
+                await udp
+                    .SendAsync(response.ToArray(), response.Size, result.RemoteEndPoint)
+                    .WithCancellationTimeout(UDP_TIMEOUT);
+            }
+            catch (SocketException e) { OnErrored(e); }
+            catch (ArgumentException e) { OnErrored(e); }
+            catch (OperationCanceledException e) { OnErrored(e); }
+            catch (IOException e) { OnErrored(e); }
+            catch (ObjectDisposedException e) { OnErrored(e); }
+            catch (ResponseException e) {
+                IResponse response = e.Response;
+
+                if (response == null) {
+                    response = Response.FromRequest(request);
+                }
+
+                try {
+                    await udp
+                        .SendAsync(response.ToArray(), response.Size, result.RemoteEndPoint)
+                        .WithCancellationTimeout(UDP_TIMEOUT);
+                }
+                catch (SocketException) {}
+                catch (OperationCanceledException) {}
+                finally { OnErrored(e); }
+            }
         }
 
         private static void Merge<T>(IList<T> l1, IList<T> l2) {
             foreach (T obj in l2) {
                 l1.Add(obj);
-            }
-        }
-    }
-
-    internal class EventEmitter {
-        public delegate void Emit();
-
-        private CancellationTokenSource tokenSource;
-        private BlockingCollection<Emit> queue;
-
-        public void Schedule(Emit emit) {
-            if (queue != null) {
-                queue.Add(emit);
-            }
-        }
-
-        public void Run() {
-            tokenSource = new CancellationTokenSource();
-            queue = new BlockingCollection<Emit>();
-
-            (new Thread(() => {
-                try {
-                    while (true) {
-                        Emit emit = queue.Take(tokenSource.Token);
-                        emit();
-                    }
-                } catch (OperationCanceledException) { }
-            })).Start();
-        }
-
-        public void Stop() {
-            if (tokenSource != null) {
-                tokenSource.Cancel();
             }
         }
     }

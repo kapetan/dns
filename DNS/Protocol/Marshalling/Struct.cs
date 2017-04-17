@@ -1,15 +1,17 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 using System.Reflection;
+using System.Linq;
 
 namespace DNS.Protocol.Marshalling {
     public static class Struct {
-        private static byte[] ConvertEndian(Type type, byte[] data) {
-            var fields = type.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+        private static byte[] ConvertEndian<T>(byte[] data) {
+            Type type = typeof(T);
+            FieldInfo[] fields = type.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
             EndianAttribute endian = null;
 
-            if (type.IsDefined(typeof(EndianAttribute), false)) {
-                endian = (EndianAttribute) type.GetCustomAttributes(typeof(EndianAttribute), false)[0];
+            if (type.GetTypeInfo().IsDefined(typeof(EndianAttribute), false)) {
+                endian = (EndianAttribute) type.GetTypeInfo().GetCustomAttributes(typeof(EndianAttribute), false).First();
             }
 
             foreach (FieldInfo field in fields) {
@@ -17,9 +19,11 @@ namespace DNS.Protocol.Marshalling {
                     continue;
                 }
 
-                int offset = Marshal.OffsetOf(type, field.Name).ToInt32();
+                int offset = Marshal.OffsetOf<T>(field.Name).ToInt32();
+                #pragma warning disable 618
                 int length = Marshal.SizeOf(field.FieldType);
-                endian = endian ?? (EndianAttribute) field.GetCustomAttributes(typeof(EndianAttribute), false)[0];
+                #pragma warning restore 618
+                endian = endian ?? (EndianAttribute) field.GetCustomAttributes(typeof(EndianAttribute), false).First();
 
                 if (endian.Endianness == Endianness.Big && BitConverter.IsLittleEndian ||
                         endian.Endianness == Endianness.Little && !BitConverter.IsLittleEndian) {
@@ -38,10 +42,10 @@ namespace DNS.Protocol.Marshalling {
             byte[] buffer = new byte[length];
             Array.Copy(data, offset, buffer, 0, buffer.Length);
 
-            GCHandle handle = GCHandle.Alloc(ConvertEndian(typeof(T), buffer), GCHandleType.Pinned);
+            GCHandle handle = GCHandle.Alloc(ConvertEndian<T>(buffer), GCHandleType.Pinned);
 
             try {
-                return (T) Marshal.PtrToStructure(handle.AddrOfPinnedObject(), typeof(T));
+                return Marshal.PtrToStructure<T>(handle.AddrOfPinnedObject());
             } finally {
                 handle.Free();
             }
@@ -53,7 +57,7 @@ namespace DNS.Protocol.Marshalling {
 
             try {
                 Marshal.StructureToPtr(obj, handle.AddrOfPinnedObject(), false);
-                return ConvertEndian(typeof(T), data);
+                return ConvertEndian<T>(data);
             } finally {
                 handle.Free();
             }

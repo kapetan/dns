@@ -1,5 +1,7 @@
-﻿namespace DNS.Client.RequestResolver {
+﻿using System.Threading.Tasks;
+
+namespace DNS.Client.RequestResolver {
     public interface IRequestResolver {
-        ClientResponse Request(ClientRequest request);
+        Task<ClientResponse> Request(ClientRequest request);
     }
 }

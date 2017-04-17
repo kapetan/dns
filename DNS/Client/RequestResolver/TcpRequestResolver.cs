@@ -2,14 +2,16 @@
 using System.IO;
 using System.Net.Sockets;
 using DNS.Protocol;
+using System.Threading.Tasks;
+using System.Net;
 
 namespace DNS.Client.RequestResolver {
     public class TcpRequestResolver : IRequestResolver {
-        public ClientResponse Request(ClientRequest request) {
-            TcpClient tcp = new TcpClient();
+        public async Task<ClientResponse> Request(ClientRequest request) {
+            IPEndPoint dns = request.Dns;
 
-            try {
-                tcp.Connect(request.Dns);
+            using(TcpClient tcp = new TcpClient()) {
+                await tcp.ConnectAsync(dns.Address, dns.Port);
 
                 Stream stream = tcp.GetStream();
                 byte[] buffer = request.ToArray();
@@ -19,33 +21,31 @@ namespace DNS.Client.RequestResolver {
                     Array.Reverse(length);
                 }
 
-                stream.Write(length, 0, length.Length);
-                stream.Write(buffer, 0, buffer.Length);
+                await stream.WriteAsync(length, 0, length.Length);
+                await stream.WriteAsync(buffer, 0, buffer.Length);
 
                 buffer = new byte[2];
-                Read(stream, buffer);
+                await Read(stream, buffer);
 
                 if (BitConverter.IsLittleEndian) {
                     Array.Reverse(buffer);
                 }
 
                 buffer = new byte[BitConverter.ToUInt16(buffer, 0)];
-                Read(stream, buffer);
+                await Read(stream, buffer);
 
                 Response response = Response.FromArray(buffer);
 
                 return new ClientResponse(request, response, buffer);
-            } finally {
-                tcp.Close();
             }
         }
 
-        private static void Read(Stream stream, byte[] buffer) {
+        private static async Task Read(Stream stream, byte[] buffer) {
             int length = buffer.Length;
             int offset = 0;
             int size = 0;
 
-            while (length > 0 && (size = stream.Read(buffer, offset, length)) > 0) {
+            while (length > 0 && (size = await stream.ReadAsync(buffer, offset, length)) > 0) {
                 offset += size;
                 length -= size;
             }

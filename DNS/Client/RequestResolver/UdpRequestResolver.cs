@@ -1,9 +1,14 @@
 ﻿using System.Net;
 using System.Net.Sockets;
+using System.Threading.Tasks;
+using System.IO;
 using DNS.Protocol;
+using DNS.Protocol.Utils;
 
 namespace DNS.Client.RequestResolver {
     public class UdpRequestResolver : IRequestResolver {
+        private const int TIMEOUT = 5000;
+
         private IRequestResolver fallback;
 
         public UdpRequestResolver(IRequestResolver fallback) {
@@ -14,27 +19,24 @@ namespace DNS.Client.RequestResolver {
             this.fallback = new NullRequestResolver();
         }
 
-        public ClientResponse Request(ClientRequest request) {
-            UdpClient udp = new UdpClient();
+        public async Task<ClientResponse> Request(ClientRequest request) {
             IPEndPoint dns = request.Dns;
 
-            try {
-                udp.Client.SendTimeout = 5000;
-                udp.Client.ReceiveTimeout = 5000;
+            using(UdpClient udp = new UdpClient()) {
+                await udp
+                    .SendAsync(request.ToArray(), request.Size, dns)
+                    .WithCancellationTimeout(TIMEOUT);
 
-                udp.Connect(dns);
-                udp.Send(request.ToArray(), request.Size);
-
-                byte[] buffer = udp.Receive(ref dns);
-                Response response = Response.FromArray(buffer); //null;
+                UdpReceiveResult result = await udp.ReceiveAsync().WithCancellationTimeout(TIMEOUT);
+                if(!result.RemoteEndPoint.Equals(dns)) throw new IOException("Remote endpoint mismatch");
+                byte[] buffer = result.Buffer;
+                Response response = Response.FromArray(buffer);
 
                 if (response.Truncated) {
-                    return fallback.Request(request);
+                    return await fallback.Request(request);
                 }
 
                 return new ClientResponse(request, response, buffer);
-            } finally {
-                udp.Close();
             }
         }
     }

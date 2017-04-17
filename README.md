@@ -8,7 +8,7 @@ Available through NuGet.
 
 # Usage
 
-The library exposes a `Request` and `Response` classes for parsing and creating DNS messages. These can be serialzed to byte arrays.
+The library exposes a `Request` and `Response` classes for parsing and creating DNS messages. These can be serialized to byte arrays.
 
 ```C#
 Request request = new Request();

@@ -113,7 +113,7 @@ namespace DNS.Protocol {
         }
 
         public int CompareTo(Domain other) {
-            return ToString().CompareTo(other.ToString());
+            return ToString().ToLower().CompareTo(other.ToString().ToLower());
         }
 
         public override bool Equals(object obj) {

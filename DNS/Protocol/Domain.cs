@@ -7,7 +7,7 @@ using DNS.Protocol.Utils;
 
 namespace DNS.Protocol {
     public class Domain : IComparable<Domain> {
-        private string[] labels;
+        private byte[][] labels;
 
         public static Domain FromString(string domain) {
             return new Domain(domain);
@@ -52,7 +52,7 @@ namespace DNS.Protocol {
                 endOffset = offset;
             }
 
-            return new Domain(labels.Select(l => Encoding.ASCII.GetString(l)).ToArray());
+            return new Domain(labels.ToArray());
         }
 
         public static Domain PointerName(IPAddress ip) {
@@ -81,6 +81,10 @@ namespace DNS.Protocol {
         public Domain(string domain) : this(domain.Split('.')) {}
 
         public Domain(string[] labels) {
+            this.labels = labels.Select(label => Encoding.ASCII.GetBytes(label)).ToArray();
+        }
+
+        public Domain(byte[][] labels) {
             this.labels = labels;
         }
 
@@ -92,13 +96,11 @@ namespace DNS.Protocol {
             byte[] result = new byte[Size];
             int offset = 0;
 
-            foreach (string label in labels) {
-                byte[] l = Encoding.ASCII.GetBytes(label);
+            foreach (byte[] label in labels) {
+                result[offset++] = (byte)label.Length;
+                label.CopyTo(result, offset);
 
-                result[offset++] = (byte) l.Length;
-                l.CopyTo(result, offset);
-
-                offset += l.Length;
+                offset += label.Length;
             }
 
             result[offset] = 0;
@@ -107,7 +109,7 @@ namespace DNS.Protocol {
         }
 
         public override string ToString() {
-            return string.Join(".", labels);
+            return string.Join(".", labels.Select(label => Encoding.ASCII.GetString(label)));
         }
 
         public int CompareTo(Domain other) {

@@ -7,7 +7,13 @@ using DNS.Protocol.Utils;
 
 namespace DNS.Protocol {
     public class Domain : IComparable<Domain> {
-        private string[] labels;
+        private const byte ASCII_UPPERCASE_FIRST = 65;
+        private const byte ASCII_UPPERCASE_LAST = 90;
+        private const byte ASCII_LOWERCASE_FIRST = 97;
+        private const byte ASCII_LOWERCASE_LAST = 122;
+        private const byte ASCII_UPPERCASE_MASK = 223;
+
+        private byte[][] labels;
 
         public static Domain FromString(string domain) {
             return new Domain(domain);
@@ -52,7 +58,7 @@ namespace DNS.Protocol {
                 endOffset = offset;
             }
 
-            return new Domain(labels.Select(l => Encoding.ASCII.GetString(l)).ToArray());
+            return new Domain(labels.ToArray());
         }
 
         public static Domain PointerName(IPAddress ip) {
@@ -78,11 +84,42 @@ namespace DNS.Protocol {
             return string.Join(".", nibbles.Reverse().Select(b => b.ToString("x"))) + ".ip6.arpa";
         }
 
-        public Domain(string domain) : this(domain.Split('.')) {}
+        private static bool IsASCIIAlphabet(byte b) {
+            return (ASCII_UPPERCASE_FIRST <= b && b <= ASCII_UPPERCASE_LAST) ||
+                (ASCII_LOWERCASE_FIRST <= b && b <= ASCII_LOWERCASE_LAST);
+        }
 
-        public Domain(string[] labels) {
+        private static int CompareTo(byte a, byte b) {
+            if(IsASCIIAlphabet(a) && IsASCIIAlphabet(b)) {
+                a &= ASCII_UPPERCASE_MASK;
+                b &= ASCII_UPPERCASE_MASK;
+            }
+
+            return a - b;
+        }
+
+        private static int CompareTo(byte[] a, byte[] b) {
+            int length = Math.Min(a.Length, b.Length);
+
+            for (int i = 0; i < length; i++) {
+                int v = CompareTo(a[i], b[i]);
+                if(v != 0) return v;
+            }
+
+            return a.Length - b.Length;
+        }
+
+        public Domain(byte[][] labels) {
             this.labels = labels;
         }
+
+        public Domain(string[] labels, Encoding encoding) {
+            this.labels = labels.Select(label => encoding.GetBytes(label)).ToArray();
+        }
+
+        public Domain(string domain) : this(domain.Split('.')) {}
+
+        public Domain(string[] labels) : this(labels, Encoding.ASCII) {}
 
         public int Size {
             get { return labels.Sum(l => l.Length) + labels.Length + 1; }
@@ -92,26 +129,33 @@ namespace DNS.Protocol {
             byte[] result = new byte[Size];
             int offset = 0;
 
-            foreach (string label in labels) {
-                byte[] l = Encoding.ASCII.GetBytes(label);
-
-                result[offset++] = (byte) l.Length;
-                l.CopyTo(result, offset);
-
-                offset += l.Length;
+            foreach (byte[] label in labels) {
+                result[offset++] = (byte) label.Length;
+                label.CopyTo(result, offset);
+                offset += label.Length;
             }
 
             result[offset] = 0;
-
             return result;
         }
 
+        public string ToString(Encoding encoding) {
+            return string.Join(".", labels.Select(label => encoding.GetString(label)));
+        }
+
         public override string ToString() {
-            return string.Join(".", labels);
+            return ToString(Encoding.ASCII);
         }
 
         public int CompareTo(Domain other) {
-            return ToString().CompareTo(other.ToString());
+            int length = Math.Min(labels.Length, other.labels.Length);
+
+            for (int i = 0; i < length; i++) {
+                int v = CompareTo(this.labels[i], other.labels[i]);
+                if(v != 0) return v;
+            }
+
+            return this.labels.Length - other.labels.Length;
         }
 
         public override bool Equals(object obj) {

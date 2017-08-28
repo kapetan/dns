@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Threading;
 using DNS.Protocol;
 using DNS.Protocol.ResourceRecords;
 using DNS.Client.RequestResolver;
@@ -35,12 +36,12 @@ namespace DNS.Client {
             return new ClientRequest(dns, request, resolver);
         }
 
-        public async Task<IList<IPAddress>> Lookup(string domain, RecordType type = RecordType.A) {
+        public async Task<IList<IPAddress>> Lookup(string domain, RecordType type = RecordType.A, CancellationToken cancellationToken = default(CancellationToken)) {
             if (type != RecordType.A && type != RecordType.AAAA) {
                 throw new ArgumentException("Invalid record type " + type);
             }
 
-            ClientResponse response = await Resolve(domain, type);
+            ClientResponse response = await Resolve(domain, type, cancellationToken);
             IList<IPAddress> ips = response.AnswerRecords
                 .Where(r => r.Type == type)
                 .Cast<IPAddressResourceRecord>()
@@ -58,8 +59,8 @@ namespace DNS.Client {
             return Reverse(IPAddress.Parse(ip));
         }
 
-        public async Task<string> Reverse(IPAddress ip) {
-            ClientResponse response = await Resolve(Domain.PointerName(ip), RecordType.PTR);
+        public async Task<string> Reverse(IPAddress ip, CancellationToken cancellationToken = default(CancellationToken)) {
+            ClientResponse response = await Resolve(Domain.PointerName(ip), RecordType.PTR, cancellationToken);
             IResourceRecord ptr = response.AnswerRecords.FirstOrDefault(r => r.Type == RecordType.PTR);
 
             if (ptr == null) {
@@ -69,11 +70,11 @@ namespace DNS.Client {
             return ((PointerResourceRecord) ptr).PointerDomainName.ToString();
         }
 
-        public Task<ClientResponse> Resolve(string domain, RecordType type) {
-            return Resolve(new Domain(domain), type);
+        public Task<ClientResponse> Resolve(string domain, RecordType type, CancellationToken cancellationToken = default(CancellationToken)) {
+            return Resolve(new Domain(domain), type, cancellationToken);
         }
 
-        public Task<ClientResponse> Resolve(Domain domain, RecordType type) {
+        public Task<ClientResponse> Resolve(Domain domain, RecordType type, CancellationToken cancellationToken = default(CancellationToken)) {
             ClientRequest request = Create();
             Question question = new Question(domain, type);
 
@@ -81,7 +82,7 @@ namespace DNS.Client {
             request.OperationCode = OperationCode.Query;
             request.RecursionDesired = true;
 
-            return request.Resolve();
+            return request.Resolve(cancellationToken);
         }
     }
 }

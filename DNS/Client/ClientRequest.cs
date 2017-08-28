@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net;
+using System.Threading;
 using DNS.Protocol;
 using DNS.Client.RequestResolver;
 using System.Threading.Tasks;
@@ -70,9 +71,9 @@ namespace DNS.Client {
         /// <exception cref="SocketException">Thrown if the reading or writing to the socket fails</exception>
         /// <exception cref="OperationCanceledException">Thrown if reading or writing to the socket timeouts</exception>
         /// <returns>The response received from server</returns>
-        public async Task<ClientResponse> Resolve() {
+        public async Task<ClientResponse> Resolve(CancellationToken cancellationToken = default(CancellationToken)) {
             try {
-                ClientResponse response = await resolver.Request(this);
+                ClientResponse response = await resolver.Request(this, cancellationToken);
 
                 if (response.Id != this.Id) {
                     throw new ResponseException(response, "Mismatching request/response IDs");

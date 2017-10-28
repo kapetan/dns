@@ -68,6 +68,9 @@ namespace DNS.Protocol.Utils {
         }
 
         public ObjectStringifier Add(params string[] names) {
+#if (PORTABLE)
+            throw new NotImplementedException();
+#else
             Type type = obj.GetType();
 
             foreach (string name in names) {
@@ -78,6 +81,7 @@ namespace DNS.Protocol.Utils {
             }
 
             return this;
+#endif
         }
 
         public ObjectStringifier Add(string name, object value) {
@@ -86,6 +90,9 @@ namespace DNS.Protocol.Utils {
         }
 
         public ObjectStringifier AddAll() {
+#if (PORTABLE)
+            throw new NotImplementedException();
+#else
             PropertyInfo[] properties = obj.GetType().GetProperties(
                 BindingFlags.Public | BindingFlags.Instance);
 
@@ -95,6 +102,7 @@ namespace DNS.Protocol.Utils {
             }
 
             return this;
+#endif
         }
 
         public override string ToString() {

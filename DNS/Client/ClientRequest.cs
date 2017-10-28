@@ -1,66 +1,74 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Net;
 using DNS.Protocol;
 using DNS.Client.RequestResolver;
 using System.Threading.Tasks;
 
-namespace DNS.Client {
-    public class ClientRequest : IRequest {
+namespace DNS.Client
+{
+    public class ClientRequest : IRequest
+    {
         private const int DEFAULT_PORT = 53;
-
         private IPEndPoint dns;
         private IRequestResolver resolver;
         private IRequest request;
 
-        public ClientRequest(IPEndPoint dns, IRequest request = null, IRequestResolver resolver = null) {
+        public ClientRequest(IPEndPoint dns, IRequest request = null, IRequestResolver resolver = null)
+        {
             this.dns = dns;
             this.request = request == null ? new Request() : new Request(request);
             this.resolver = resolver == null ? new UdpRequestResolver() : resolver;
         }
 
         public ClientRequest(IPAddress ip, int port = DEFAULT_PORT, IRequest request = null, IRequestResolver resolver = null) :
-            this(new IPEndPoint(ip, port), request, resolver) { }
+            this(new IPEndPoint(ip, port), request, resolver)
+        { }
 
         public ClientRequest(string ip, int port = DEFAULT_PORT, IRequest request = null, IRequestResolver resolver = null) :
-            this(IPAddress.Parse(ip), port, request, resolver) { }
-
-        public int Id {
+            this(IPAddress.Parse(ip), port, request, resolver)
+        { }
+        public int Id
+        {
             get { return request.Id; }
             set { request.Id = value; }
         }
 
-        public OperationCode OperationCode {
+        public OperationCode OperationCode
+        {
             get { return request.OperationCode; }
             set { request.OperationCode = value; }
         }
 
-        public bool RecursionDesired {
+        public bool RecursionDesired
+        {
             get { return request.RecursionDesired; }
             set { request.RecursionDesired = value; }
         }
 
-        public IList<Question> Questions {
+        public IList<Question> Questions
+        {
             get { return request.Questions; }
         }
 
-        public int Size {
+        public int Size
+        {
             get { return request.Size; }
         }
 
-        public byte[] ToArray() {
+        public byte[] ToArray()
+        {
             return request.ToArray();
         }
 
-        public override string ToString() {
+        public override string ToString()
+        {
             return request.ToString();
         }
-
-        public IPEndPoint Dns {
+        public IPEndPoint Dns
+        {
             get { return dns; }
             set { dns = value; }
         }
-
         /// <summary>
         /// Resolves this request into a response using the provided DNS information. The given
         /// request strategy is used to retrieve the response.
@@ -70,19 +78,25 @@ namespace DNS.Client {
         /// <exception cref="SocketException">Thrown if the reading or writing to the socket fails</exception>
         /// <exception cref="OperationCanceledException">Thrown if reading or writing to the socket timeouts</exception>
         /// <returns>The response received from server</returns>
-        public async Task<ClientResponse> Resolve() {
-            try {
+        public async Task<ClientResponse> Resolve()
+        {
+            try
+            {
                 ClientResponse response = await resolver.Request(this);
 
-                if (response.Id != this.Id) {
+                if (response.Id != this.Id)
+                {
                     throw new ResponseException(response, "Mismatching request/response IDs");
                 }
-                if (response.ResponseCode != ResponseCode.NoError) {
+                if (response.ResponseCode != ResponseCode.NoError)
+                {
                     throw new ResponseException(response);
                 }
 
                 return response;
-            } catch (ArgumentException e) {
+            }
+            catch (ArgumentException e)
+            {
                 throw new ResponseException("Invalid response", e);
             }
         }

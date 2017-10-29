@@ -1,19 +1,32 @@
 ﻿using System;
 using System.IO;
+#if (!PORTABLE)
 using System.Net.Sockets;
+#endif
 using DNS.Protocol;
 using System.Threading.Tasks;
-using System.Net;
 
 namespace DNS.Client.RequestResolver {
     public class TcpRequestResolver : IRequestResolver {
         public async Task<ClientResponse> Request(ClientRequest request) {
             IPEndPoint dns = request.Dns;
 
-            using(TcpClient tcp = new TcpClient()) {
-                await tcp.ConnectAsync(dns.Address, dns.Port);
+#if (!PORTABLE)
+            using (TcpClient tcp = new TcpClient()) {
+#else
+            using (Sockets.Plugin.TcpSocketClient tcp = new Sockets.Plugin.TcpSocketClient())
+            {
 
-                Stream stream = tcp.GetStream();
+#endif
+                await tcp.ConnectAsync(dns.Address.ToString(), dns.Port);
+
+#if (!PORTABLE)
+                Stream readStream = tcp.GetStream();
+                Stream writeStream = tcp.GetStream();
+#else
+                Stream readStream = tcp.ReadStream;
+                Stream writeStream = tcp.WriteStream;
+#endif
                 byte[] buffer = request.ToArray();
                 byte[] length = BitConverter.GetBytes((ushort) buffer.Length);
 
@@ -21,18 +34,18 @@ namespace DNS.Client.RequestResolver {
                     Array.Reverse(length);
                 }
 
-                await stream.WriteAsync(length, 0, length.Length);
-                await stream.WriteAsync(buffer, 0, buffer.Length);
+                await writeStream.WriteAsync(length, 0, length.Length);
+                await writeStream.WriteAsync(buffer, 0, buffer.Length);
 
                 buffer = new byte[2];
-                await Read(stream, buffer);
+                await Read(readStream, buffer);
 
                 if (BitConverter.IsLittleEndian) {
                     Array.Reverse(buffer);
                 }
 
                 buffer = new byte[BitConverter.ToUInt16(buffer, 0)];
-                await Read(stream, buffer);
+                await Read(readStream, buffer);
 
                 Response response = Response.FromArray(buffer);
 

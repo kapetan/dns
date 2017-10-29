@@ -18,5 +18,6 @@
         public static byte SetBitValueAt(this byte b, byte offset, byte value) {
             return b.SetBitValueAt(offset, 1, value);
         }
+        
     }
 }

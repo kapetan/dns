@@ -1,7 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard1.5</TargetFrameworks>
+    <!---->
+    <TargetFrameworks>netstandard1.5;portable45-net45+win8;portable-net45+win8+wpa81</TargetFrameworks>
     <Description>Library for parsing and serializing DNS messages. Includes a basic DNS client and server.</Description>
     <Company>Mirza Kapetanovic</Company>
     <Authors>Mirza Kapetanovic</Authors>
@@ -13,12 +15,71 @@
     <PackageProjectUrl>https://github.com/kapetan/dns</PackageProjectUrl>
   </PropertyGroup>
 
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\$(Configuration)</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\$(Configuration)</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(TargetFramework)'=='portable45-net45+win8'">
+    <TargetFrameworkIdentifier>.NETPortable</TargetFrameworkIdentifier>
+    <AssemblyTitle>DNS .NET Portable</AssemblyTitle>
+    <EnableDefaultCompileItems>True</EnableDefaultCompileItems>
+    <TargetFrameworkProfile>Profile7</TargetFrameworkProfile>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <LanguageTargets>$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets</LanguageTargets>
+    <DefineConstants>PORTABLE;$(AdditionalConstants)</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(TargetFramework)'=='portable-net45+win8+wpa81'">
+    <TargetFrameworkIdentifier>.NETPortable</TargetFrameworkIdentifier>
+    <AssemblyTitle>DNS .NET Portable</AssemblyTitle>
+    <EnableDefaultCompileItems>True</EnableDefaultCompileItems>
+    <TargetFrameworkProfile>Profile111</TargetFrameworkProfile>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <NugetTargetMoniker>.NETPortable,Version=v0.0,Profile=Profile111</NugetTargetMoniker>
+    <LanguageTargets>$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets</LanguageTargets>
+    <DefineConstants>PORTABLE;$(AdditionalConstants)</DefineConstants>
+  </PropertyGroup>
+
   <ItemGroup>
     <Folder Include="Properties\" />
   </ItemGroup>
 
-  <ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.5'">
     <PackageReference Include="System.Reflection.TypeExtensions" Version="4.3.0" />
   </ItemGroup>
 
+  <ItemGroup Condition="'$(TargetFramework)' == 'portable45-net45+win8'">
+    <PackageReference Include="rda.SocketsForPCL" Version="2.0.2" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'portable-net45+win8+wpa81'">
+    <PackageReference Include="rda.SocketsForPCL" Version="2.0.2" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <!--<ProjectReference Include="D:\Xamarin\pcl socket\sockets-for-pcl\Sockets\Sockets.Plugin\Sockets.Plugin.csproj">
+      <Name>Sockets.Plugin</Name>
+    </ProjectReference>-->
+    <!--<ProjectReference Include="D:\Xamarin\pcl socket\sockets-for-pcl\Sockets\Sockets.Plugin.Abstractions\Sockets.Plugin.Abstractions.csproj">
+      <Name>Sockets.Plugin.Abstractions</Name>
+    </ProjectReference>-->
+    <!--<ProjectReference Include="D:\Xamarin\pcl socket\sockets-for-pcl\Sockets\Sockets.Implementation.NET\Sockets.Implementation.NET.csproj">
+      <Name>Sockets.Implementation.NET</Name>
+    </ProjectReference>-->
+  </ItemGroup>
 </Project>

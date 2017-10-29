@@ -1,5 +1,4 @@
-﻿using System.Net;
-using Xunit;
+﻿using Xunit;
 using DNS.Protocol;
 
 namespace DNS.Tests.Protocol {
@@ -7,7 +6,7 @@ namespace DNS.Tests.Protocol {
     public class ReverseDomainTest {
         [Fact]
         public void AllZeroIPv4() {
-            IPAddress ip = IPAddress.Parse("0.0.0.0");
+            var ip = IPAddress.Parse("0.0.0.0");
             Domain domain = Domain.PointerName(ip);
 
             Assert.Equal("0.0.0.0.in-addr.arpa", domain.ToString());

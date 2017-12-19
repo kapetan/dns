@@ -39,6 +39,8 @@ namespace DNS.Protocol.ResourceRecords {
                     return new PointerResourceRecord(record, message, dataOffset);
                 case RecordType.MX:
                     return new MailExchangeResourceRecord(record, message, dataOffset);
+                case RecordType.TXT:
+                    return new TxtResourceRecord(record, message, dataOffset);
                 default:
                     return record;
             }

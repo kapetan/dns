@@ -76,6 +76,10 @@ namespace DNS.Server {
             Add(new MailExchangeResourceRecord(domain, preference, exchange));
         }
 
+        public void AddTxtResourceRecord(string domain, string attributeName, string attributeValue) {
+            Add(new TxtResourceRecord(new Domain(domain), attributeName, attributeValue, ttl));
+        }
+
         public IList<IResourceRecord> Get(Domain domain, RecordType type) {
             return entries.Where(e => Matches(domain, e.Name) && e.Type == type).ToList();
         }

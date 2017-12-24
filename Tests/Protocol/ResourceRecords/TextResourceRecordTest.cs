@@ -6,7 +6,7 @@ using DNS.Protocol.ResourceRecords;
 
 namespace DNS.Tests.Protocol.ResourceRecords {
 
-    public class TxtResourceRecordTest {
+    public class TextResourceRecordTest {
         [Theory]
         [InlineData(@"color=blue",      @"color",    @"blue")]
         [InlineData(@"equation=a=4",    @"equation", @"a=4")]
@@ -19,7 +19,7 @@ namespace DNS.Tests.Protocol.ResourceRecords {
         [InlineData(@"a b=c d",         @"a b",      @"c d")]
         [InlineData(@"abc` =123 ",      @"abc ",     @"123 ")]
         public void Rfc1464Examples(string internalForm, string expAttributeName, string expAttributeValue) {
-            TxtResourceRecord record = new TxtResourceRecord(null, Prepare(internalForm), 0);
+            TextResourceRecord record = new TextResourceRecord(null, Prepare(internalForm), 0);
             KeyValuePair<string, string> attribute = record.Attribute;
             Assert.Equal(expAttributeName, attribute.Key);
             Assert.Equal(expAttributeValue, attribute.Value);
@@ -30,7 +30,7 @@ namespace DNS.Tests.Protocol.ResourceRecords {
         [InlineData(@"=test", @"=test", null, @"test")]
         [InlineData(@"",      @"",      null, @"")]
         public void NegativeExamples(string input, string expTxtData, string expAttributeName, string expAttributeValue) {
-            TxtResourceRecord record = new TxtResourceRecord(null, Prepare(input), 0);
+            TextResourceRecord record = new TextResourceRecord(null, Prepare(input), 0);
             KeyValuePair<string, string> attribute = record.Attribute;
 
             Assert.Equal(expTxtData, record.ToStringTextData());

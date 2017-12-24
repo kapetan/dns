@@ -6,7 +6,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 
 namespace DNS.Protocol.ResourceRecords {
-    public class TxtResourceRecord : BaseResourceRecord {
+    public class TextResourceRecord : BaseResourceRecord {
         /// Regular expression that matches the attribute name/value.
         /// The first unescaped equal sign is the name/value delimiter.
         private static readonly Regex PATTERN_TXT_RECORD = new Regex(@"^([ -~]*?)(?<!`)=([ -~]*)$");
@@ -40,17 +40,17 @@ namespace DNS.Protocol.ResourceRecords {
             return CharacterString.FromString($"{Escape(attributeName)}={attributeValue}");
         }
 
-        public TxtResourceRecord(IResourceRecord record, byte[] message, int dataOffset) :
+        public TextResourceRecord(IResourceRecord record, byte[] message, int dataOffset) :
             base(record) {
             TextData = CharacterString.GetAllFromArray(message, dataOffset);
         }
 
-        public TxtResourceRecord(Domain domain, IList<CharacterString> characterStrings,
+        public TextResourceRecord(Domain domain, IList<CharacterString> characterStrings,
                 TimeSpan ttl = default(TimeSpan)) : base(Create(domain, characterStrings, ttl)) {
             TextData = new ReadOnlyCollection<CharacterString>(characterStrings);
         }
 
-        public TxtResourceRecord(Domain domain, string attributeName, string attributeValue,
+        public TextResourceRecord(Domain domain, string attributeName, string attributeValue,
                 TimeSpan ttl = default(TimeSpan)) :
                 this(domain, FormatAttributeNameValue(attributeName, attributeValue), ttl) {}
 

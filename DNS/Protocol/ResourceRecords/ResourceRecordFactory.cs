@@ -40,7 +40,7 @@ namespace DNS.Protocol.ResourceRecords {
                 case RecordType.MX:
                     return new MailExchangeResourceRecord(record, message, dataOffset);
                 case RecordType.TXT:
-                    return new TxtResourceRecord(record, message, dataOffset);
+                    return new TextResourceRecord(record, message, dataOffset);
                 default:
                     return record;
             }

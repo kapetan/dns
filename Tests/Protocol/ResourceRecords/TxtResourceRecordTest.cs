@@ -3,11 +3,9 @@ using System.Text;
 using Xunit;
 using DNS.Protocol.ResourceRecords;
 
-namespace DNS.Tests.Protocol.ResourceRecords
-{
+namespace DNS.Tests.Protocol.ResourceRecords {
 
     public class TxtResourceRecordTest {
-
         [Theory]
         [InlineData(@"color=blue",      @"color",    @"blue")]
         [InlineData(@"equation=a=4",    @"equation", @"a=4")]

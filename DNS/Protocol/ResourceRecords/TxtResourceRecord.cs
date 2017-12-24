@@ -19,6 +19,24 @@ namespace DNS.Protocol.ResourceRecords {
         /// Regular expression that matches escaped characters.
         private static readonly Regex PATTERN_UNESCAPE = new Regex(@"`([`=\s])");
 
+        private static CharacterString[] ReadTxtData(byte[] message, int dataOffset) {
+            var result = new List<CharacterString>();
+            while (dataOffset < message.Length) {
+                result.Add(CharacterString.FromArray(message, dataOffset, out var endOffset));
+                dataOffset = endOffset;
+            }
+            return result.ToArray();
+        }
+
+        private static byte[] CreateTxtData(string attributeName, string attributeValue) {
+            var charStrings = CharacterString.FromString($"{Escape(attributeName)}={attributeValue}");
+            return charStrings.SelectMany(c => c.ToArray()).ToArray();
+        }
+
+        private static string Trim(string value) => PATTERN_TRIM_NAME.Replace(value, string.Empty);
+        private static string Escape(string value) => PATTERN_ESCAPE.Replace(value, "`$1");
+        private static string Unescape(string value) => PATTERN_UNESCAPE.Replace(value, "$1");
+
         public TxtResourceRecord(IResourceRecord record, byte[] message, int dataOffset)
             : base(record) {
             RawTxtData = ReadTxtData(message, dataOffset);
@@ -32,18 +50,13 @@ namespace DNS.Protocol.ResourceRecords {
             AttributeValue = attributeValue;
         }
 
-        private static CharacterString[] ReadTxtData(byte[] message, int dataOffset) {
-            var result = new List<CharacterString>();
-            while (dataOffset < message.Length) {
-                result.Add(CharacterString.FromArray(message, dataOffset, out var endOffset));
-                dataOffset = endOffset;
-            }
-            return result.ToArray();
-        }
+        public CharacterString[] RawTxtData { get; }
+        public string TxtData { get; }
+        public string AttributeName { get; private set; }
+        public string AttributeValue { get; private set; }
 
-        private static byte[] CreateTxtData(string attributeName, string attributeValue) {
-            var charStrings = CharacterString.FromString($"{Escape(attributeName)}={attributeValue}");
-            return charStrings.SelectMany(c => c.Value).ToArray();
+        public override string ToString() {
+            return Stringify().Add("AttributeName", "AttributeValue").ToString();
         }
 
         private void Parse() {
@@ -56,16 +69,5 @@ namespace DNS.Protocol.ResourceRecords {
                 AttributeValue = Unescape(TxtData);
             }
         }
-
-        private static string Trim(string value) => PATTERN_TRIM_NAME.Replace(value, string.Empty);
-        private static string Escape(string value) => PATTERN_ESCAPE.Replace(value, "`$1");
-        private static string Unescape(string value) => PATTERN_UNESCAPE.Replace(value, "$1");
-
-        public CharacterString[] RawTxtData { get; }
-        public string TxtData { get; }
-        public string AttributeName { get; private set; }
-        public string AttributeValue { get; private set; }
-
-        public override string ToString() => Stringify().Add("AttributeName", "AttributeValue").ToString();
     }
 }

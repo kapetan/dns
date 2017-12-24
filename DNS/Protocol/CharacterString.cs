@@ -12,8 +12,9 @@ namespace DNS.Protocol {
     ///    can be up to 256 characters in length (including the length octet).
     /// </summary>
     public class CharacterString {
-
         private const int MAX_SIZE = byte.MaxValue;
+
+        private byte[] data;
 
         public static CharacterString FromArray(byte[] message, int offset) {
             return FromArray(message, offset, out offset);
@@ -23,13 +24,12 @@ namespace DNS.Protocol {
             if (message.Length < 1) {
                 throw new ArgumentException("Empty message");
             }
-            byte[] value;
-            endOffset = 0;
-            var len = message[offset++];
-            value = new byte[len];
-            Buffer.BlockCopy(message, offset, value, 0, len);
+
+            byte len = message[offset++];
+            byte[] data = new byte[len];
+            Buffer.BlockCopy(message, offset, data, 0, len);
             endOffset = offset + len;
-            return new CharacterString(value);
+            return new CharacterString(data);
         }
 
         public static IEnumerable<CharacterString> FromString(string message) {
@@ -38,21 +38,36 @@ namespace DNS.Protocol {
 
         public static IEnumerable<CharacterString> FromString(string message, Encoding encoding) {
             var bytes = encoding.GetBytes(message);
-            for (var i = 0; i < bytes.Length; i += MAX_SIZE) {
-                var len = Math.Min(bytes.Length - i, MAX_SIZE);
-                var chunk = new byte[len + 1];
-                chunk[0] = (byte)len;
-                Buffer.BlockCopy(bytes, i, chunk, 1, len);
+            for (int i = 0; i < bytes.Length; i += MAX_SIZE) {
+                int len = Math.Min(bytes.Length - i, MAX_SIZE);
+                byte[] chunk = new byte[len];
+                Buffer.BlockCopy(bytes, i, chunk, 0, len);
                 yield return new CharacterString(chunk);
             }
         }
 
-        private CharacterString(byte[] value) => Value = value;
+        public CharacterString(byte[] data) {
+            if (data.Length > MAX_SIZE) Array.Resize(ref data, MAX_SIZE);
+            this.data = data;
+        }
 
-        public byte[] Value { get; }
+        public CharacterString(string data, Encoding encoding) : this(encoding.GetBytes(data)) {}
+
+        public CharacterString(string data) : this(data, Encoding.ASCII) {}
+
+        public int Size {
+            get { return data.Length + 1; }
+        }
+
+        public byte[] ToArray() {
+            byte[] result = new byte[Size];
+            result[0] = (byte) data.Length;
+            data.CopyTo(result, 1);
+            return result;
+        }
 
         public string ToString(Encoding encoding) {
-            return encoding.GetString(Value);
+            return encoding.GetString(data);
         }
 
         public override string ToString() {

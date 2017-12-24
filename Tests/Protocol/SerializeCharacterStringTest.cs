@@ -1,6 +1,5 @@
 using Xunit;
 using DNS.Protocol;
-using System.Linq;
 
 namespace DNS.Tests.Protocol {
 

@@ -16,6 +16,21 @@ namespace DNS.Protocol {
 
         private byte[] data;
 
+        public static IList<CharacterString> GetAllFromArray(byte[] message, int offset) {
+            return GetAllFromArray(message, offset, out offset);
+        }
+
+        public static IList<CharacterString> GetAllFromArray(byte[] message, int offset, out int endOffset) {
+            IList<CharacterString> characterStrings = new List<CharacterString>();
+
+            while (offset < message.Length) {
+                characterStrings.Add(CharacterString.FromArray(message, offset, out offset));
+            }
+
+            endOffset = offset;
+            return characterStrings;
+        }
+
         public static CharacterString FromArray(byte[] message, int offset) {
             return FromArray(message, offset, out offset);
         }
@@ -32,18 +47,23 @@ namespace DNS.Protocol {
             return new CharacterString(data);
         }
 
-        public static IEnumerable<CharacterString> FromString(string message) {
+        public static IList<CharacterString> FromString(string message) {
             return FromString(message, Encoding.ASCII);
         }
 
-        public static IEnumerable<CharacterString> FromString(string message, Encoding encoding) {
-            var bytes = encoding.GetBytes(message);
+        public static IList<CharacterString> FromString(string message, Encoding encoding) {
+            byte[] bytes = encoding.GetBytes(message);
+            int size = (int) Math.Ceiling((double) bytes.Length / MAX_SIZE);
+            IList<CharacterString> characterStrings = new List<CharacterString>(size);
+
             for (int i = 0; i < bytes.Length; i += MAX_SIZE) {
                 int len = Math.Min(bytes.Length - i, MAX_SIZE);
                 byte[] chunk = new byte[len];
                 Buffer.BlockCopy(bytes, i, chunk, 0, len);
-                yield return new CharacterString(chunk);
+                characterStrings.Add(new CharacterString(chunk));
             }
+
+            return characterStrings;
         }
 
         public CharacterString(byte[] data) {

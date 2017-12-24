@@ -1,5 +1,6 @@
 using System;
 using System.Text;
+using System.Collections.Generic;
 using Xunit;
 using DNS.Protocol.ResourceRecords;
 
@@ -18,9 +19,10 @@ namespace DNS.Tests.Protocol.ResourceRecords {
         [InlineData(@"a b=c d",         @"a b",      @"c d")]
         [InlineData(@"abc` =123 ",      @"abc ",     @"123 ")]
         public void Rfc1464Examples(string internalForm, string expAttributeName, string expAttributeValue) {
-            var record = new TxtResourceRecord(null, Prepare(internalForm), 0);
-            Assert.Equal(expAttributeName, record.AttributeName);
-            Assert.Equal(expAttributeValue, record.AttributeValue);
+            TxtResourceRecord record = new TxtResourceRecord(null, Prepare(internalForm), 0);
+            KeyValuePair<string, string> attribute = record.Attribute;
+            Assert.Equal(expAttributeName, attribute.Key);
+            Assert.Equal(expAttributeValue, attribute.Value);
         }
 
         [Theory]
@@ -28,16 +30,18 @@ namespace DNS.Tests.Protocol.ResourceRecords {
         [InlineData(@"=test", @"=test", null, @"test")]
         [InlineData(@"",      @"",      null, @"")]
         public void NegativeExamples(string input, string expTxtData, string expAttributeName, string expAttributeValue) {
-            var record = new TxtResourceRecord(null, Prepare(input), 0);
-            Assert.Equal(expTxtData, record.TxtData);
-            Assert.Equal(expAttributeName, record.AttributeName);
-            Assert.Equal(expAttributeValue, record.AttributeValue);
+            TxtResourceRecord record = new TxtResourceRecord(null, Prepare(input), 0);
+            KeyValuePair<string, string> attribute = record.Attribute;
+
+            Assert.Equal(expTxtData, record.ToStringTextData());
+            Assert.Equal(expAttributeName, attribute.Key);
+            Assert.Equal(expAttributeValue, attribute.Value);
         }
 
         private byte[] Prepare(string internalForm) {
             var bytes = Encoding.ASCII.GetBytes(internalForm);
             var result = new byte[bytes.Length + 1];
-            result[0] = (byte)bytes.Length;
+            result[0] = (byte) bytes.Length;
             Array.Copy(bytes, 0, result, 1, bytes.Length);
             return result;
         }

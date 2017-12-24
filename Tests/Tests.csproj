@@ -48,6 +48,7 @@
     <None Remove="Fixtures\Response\id-ra_all" />
     <None Remove="Fixtures\CharacterString\empty-string" />
     <None Remove="Fixtures\CharacterString\www-string" />
+    <None Remove="Fixtures\CharacterString\www.google.com-string" />
   </ItemGroup>
 
   <ItemGroup>
@@ -178,6 +179,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Fixtures\CharacterString\www-string">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Fixtures\CharacterString\www.google.com-string">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

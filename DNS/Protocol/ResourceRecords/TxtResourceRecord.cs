@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -19,55 +20,67 @@ namespace DNS.Protocol.ResourceRecords {
         /// Regular expression that matches escaped characters.
         private static readonly Regex PATTERN_UNESCAPE = new Regex(@"`([`=\s])");
 
-        private static CharacterString[] ReadTxtData(byte[] message, int dataOffset) {
-            var result = new List<CharacterString>();
-            while (dataOffset < message.Length) {
-                result.Add(CharacterString.FromArray(message, dataOffset, out var endOffset));
-                dataOffset = endOffset;
-            }
-            return result.ToArray();
-        }
-
-        private static byte[] CreateTxtData(string attributeName, string attributeValue) {
-            var charStrings = CharacterString.FromString($"{Escape(attributeName)}={attributeValue}");
-            return charStrings.SelectMany(c => c.ToArray()).ToArray();
-        }
-
         private static string Trim(string value) => PATTERN_TRIM_NAME.Replace(value, string.Empty);
         private static string Escape(string value) => PATTERN_ESCAPE.Replace(value, "`$1");
         private static string Unescape(string value) => PATTERN_UNESCAPE.Replace(value, "$1");
 
-        public TxtResourceRecord(IResourceRecord record, byte[] message, int dataOffset)
-            : base(record) {
-            RawTxtData = ReadTxtData(message, dataOffset);
-            TxtData = String.Join(string.Empty, RawTxtData.Select(x => x.ToString(Encoding.ASCII)));
-            Parse();
-        }
+        private static IResourceRecord Create(Domain domain, IList<CharacterString> characterStrings, TimeSpan ttl) {
+            byte[] data = new byte[characterStrings.Sum(c => c.Size)];
+            int offset = 0;
 
-        public TxtResourceRecord(Domain domain, string attributeName, string attributeValue, TimeSpan ttl = default(TimeSpan))
-            : base(new ResourceRecord(domain, CreateTxtData(attributeName, attributeValue), RecordType.TXT, RecordClass.IN, ttl)) {
-            AttributeName = attributeName;
-            AttributeValue = attributeValue;
-        }
-
-        public CharacterString[] RawTxtData { get; }
-        public string TxtData { get; }
-        public string AttributeName { get; private set; }
-        public string AttributeValue { get; private set; }
-
-        public override string ToString() {
-            return Stringify().Add("AttributeName", "AttributeValue").ToString();
-        }
-
-        private void Parse() {
-            var match = PATTERN_TXT_RECORD.Match(TxtData);
-            if (match.Success) {
-                AttributeName = (match.Groups[1].Length > 0) ? Unescape(Trim(match.Groups[1].ToString())) : null;
-                AttributeValue = Unescape(match.Groups[2].ToString());
-            } else {
-                AttributeName = null;
-                AttributeValue = Unescape(TxtData);
+            foreach (CharacterString characterString in characterStrings) {
+                characterString.ToArray().CopyTo(data, offset);
+                offset += characterString.Size;
             }
+
+            return new ResourceRecord(domain, data, RecordType.TXT, RecordClass.IN, ttl);
+        }
+
+        private static IList<CharacterString> FormatAttributeNameValue(string attributeName, string attributeValue) {
+            return CharacterString.FromString($"{Escape(attributeName)}={attributeValue}");
+        }
+
+        public TxtResourceRecord(IResourceRecord record, byte[] message, int dataOffset) :
+            base(record) {
+            TextData = CharacterString.GetAllFromArray(message, dataOffset);
+        }
+
+        public TxtResourceRecord(Domain domain, IList<CharacterString> characterStrings,
+                TimeSpan ttl = default(TimeSpan)) : base(Create(domain, characterStrings, ttl)) {
+            TextData = new ReadOnlyCollection<CharacterString>(characterStrings);
+        }
+
+        public TxtResourceRecord(Domain domain, string attributeName, string attributeValue,
+                TimeSpan ttl = default(TimeSpan)) :
+                this(domain, FormatAttributeNameValue(attributeName, attributeValue), ttl) {}
+
+        public IList<CharacterString> TextData {
+            get;
+            private set;
+        }
+
+        public KeyValuePair<string, string> Attribute {
+            get {
+                string text = ToStringTextData();
+                Match match = PATTERN_TXT_RECORD.Match(text);
+
+                if (match.Success) {
+                    string attributeName = (match.Groups[1].Length > 0) ?
+                        Unescape(Trim(match.Groups[1].ToString())) : null;
+                    string attributeValue = Unescape(match.Groups[2].ToString());
+                    return new KeyValuePair<string, string>(attributeName, attributeValue);
+                } else {
+                    return new KeyValuePair<string, string>(null, Unescape(text));
+                }
+            }
+        }
+
+        public string ToStringTextData() {
+            return ToStringTextData(Encoding.ASCII);
+        }
+
+        public string ToStringTextData(Encoding encoding) {
+            return String.Join(string.Empty, TextData.Select(c => c.ToString(encoding)));
         }
     }
 }

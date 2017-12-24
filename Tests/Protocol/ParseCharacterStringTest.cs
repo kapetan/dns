@@ -2,6 +2,7 @@ using System;
 using Xunit;
 using DNS.Protocol;
 using System.Linq;
+using System.Collections.Generic;
 
 namespace DNS.Tests.Protocol {
 
@@ -57,6 +58,31 @@ namespace DNS.Tests.Protocol {
         }
 
         [Fact]
+        public void MultipleCharacterStrings() {
+            int endOffset = 0;
+            byte[] content = Helper.ReadFixture("CharacterString", "www.google.com-string");
+            IList<CharacterString> characterStrings = CharacterString.GetAllFromArray(content, 0, out endOffset);
+
+            Assert.Equal(3, characterStrings.Count);
+            Assert.Equal(15, endOffset);
+
+            CharacterString characterString = characterStrings[0];
+
+            Assert.Equal("www", characterString.ToString());
+            Assert.Equal(4, characterString.Size);
+
+            characterString = characterStrings[1];
+
+            Assert.Equal("google", characterString.ToString());
+            Assert.Equal(7, characterString.Size);
+
+            characterString = characterStrings[2];
+
+            Assert.Equal("com", characterString.ToString());
+            Assert.Equal(4, characterString.Size);
+        }
+
+        [Fact]
         public void CharacterStringFromEmptyString() {
             var result = CharacterString.FromString("");
             Assert.Empty(result);
@@ -66,7 +92,7 @@ namespace DNS.Tests.Protocol {
         public void CharacterStringFromSimpleString() {
             var result = CharacterString.FromString("www");
 
-            Assert.Equal(1, result.Count());
+            Assert.Equal(1, result.Count);
 
             var characterString = result.First();
 
@@ -78,7 +104,7 @@ namespace DNS.Tests.Protocol {
         public void CharacterStringFromLongString() {
             var result = CharacterString.FromString(new string('a', 512));
 
-            Assert.Equal(3, result.Count());
+            Assert.Equal(3, result.Count);
             Assert.Equal(new []{256, 256, 3}, result.Select(x => x.Size));
             Assert.Equal(new []{255, 255, 2}, result.Select(x => (int) x.ToArray()[0]));
         }

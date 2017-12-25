@@ -1,0 +1,8 @@
+language: csharp
+mono: none
+dotnet: 2.1.3
+script:
+ - dotnet restore Tests/
+ - dotnet test Tests/
+notifications:
+  email: false

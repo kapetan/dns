@@ -22,7 +22,7 @@ namespace DNS.Server {
             Regex re = new Regex("^" + string.Join("\\.", patterns) + "$");
             return re.IsMatch(domain.ToString());
         }
-        
+
         private IList<IResourceRecord> entries = new List<IResourceRecord>();
         private TimeSpan ttl = DEFAULT_TTL;
 
@@ -74,6 +74,10 @@ namespace DNS.Server {
 
         public void AddMailExchangeResourceRecord(Domain domain, int preference, Domain exchange) {
             Add(new MailExchangeResourceRecord(domain, preference, exchange));
+        }
+
+        public void AddTextResourceRecord(string domain, string attributeName, string attributeValue) {
+            Add(new TextResourceRecord(new Domain(domain), attributeName, attributeValue, ttl));
         }
 
         public IList<IResourceRecord> Get(Domain domain, RecordType type) {

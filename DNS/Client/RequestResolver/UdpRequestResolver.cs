@@ -9,16 +9,18 @@ using DNS.Protocol.Utils;
 
 namespace DNS.Client.RequestResolver {
     public class UdpRequestResolver : IRequestResolver {
-        private const int TIMEOUT = 5000;
+        private readonly int timeout;
 
         private readonly IRequestResolver fallback;
 
-        public UdpRequestResolver(IRequestResolver fallback) {
+        public UdpRequestResolver(IRequestResolver fallback, int timeout = 5000) {
             this.fallback = fallback;
+            this.timeout = timeout;
         }
 
-        public UdpRequestResolver() {
+        public UdpRequestResolver(int timeout = 5000) {
             this.fallback = new NullRequestResolver();
+            this.timeout = timeout;
         }
 
         public async Task<ClientResponse> Request(ClientRequest request, CancellationToken cancellationToken = default(CancellationToken)) {
@@ -27,9 +29,12 @@ namespace DNS.Client.RequestResolver {
             using(UdpClient udp = new UdpClient()) {
                 await udp
                     .SendAsync(request.ToArray(), request.Size, dns)
-                    .WithCancellationOrTimeout(cancellationToken, TimeSpan.FromMilliseconds(TIMEOUT));
+                    .WithCancellationOrTimeout(cancellationToken, TimeSpan.FromMilliseconds(timeout));
                 
-                UdpReceiveResult result = await udp.ReceiveAsync().WithCancellationOrTimeout(cancellationToken, TimeSpan.FromMilliseconds(TIMEOUT));
+                UdpReceiveResult result = await udp
+                    .ReceiveAsync()
+                    .WithCancellationOrTimeout(cancellationToken, TimeSpan.FromMilliseconds(timeout));
+
                 if(!result.RemoteEndPoint.Equals(dns)) throw new IOException("Remote endpoint mismatch");
                 byte[] buffer = result.Buffer;
                 Response response = Response.FromArray(buffer);

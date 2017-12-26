@@ -60,12 +60,12 @@ namespace DNS.Server {
             Add(new CanonicalNameResourceRecord(domain, cname, ttl));
         }
 
-        public void AddPointerResourceRecord(string domain, string pointer) {
-            AddPointerResourceRecord(new Domain(domain), new Domain(pointer));
+        public void AddPointerResourceRecord(string ip, string pointer) {
+            AddPointerResourceRecord(IPAddress.Parse(ip), new Domain(pointer));
         }
 
-        public void AddPointerResourceRecord(Domain domain, Domain pointer) {
-            Add(new PointerResourceRecord(domain, pointer, ttl));
+        public void AddPointerResourceRecord(IPAddress ip, Domain pointer) {
+            Add(new PointerResourceRecord(Domain.PointerName(ip), pointer, ttl));
         }
 
         public void AddMailExchangeResourceRecord(string domain, int preference, string exchange) {

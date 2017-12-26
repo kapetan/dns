@@ -17,21 +17,20 @@ namespace Examples.ClientServer {
             server.Requested += (request) => Console.WriteLine("Requested: {0}", request);
             server.Responded += (request, response) => Console.WriteLine("Responded: {0} => {1}", request, response);
             server.Errored += (e) => Console.WriteLine("Errored: {0}", e.Message);
+            server.Listening += () => Console.WriteLine("Listening");
 
             server.MasterFile.AddIPAddressResourceRecord("google.com", "127.0.0.1");
 
-            #pragma warning disable 4014
-            server.Listen(PORT);
-            #pragma warning restore 4014
+            server.Listening += async () => {
+                DnsClient client = new DnsClient("127.0.0.1", PORT);
 
-            await Task.Delay(1000);
+                await client.Lookup("google.com");
+                await client.Lookup("cnn.com");
 
-            DnsClient client = new DnsClient("127.0.0.1", PORT);
+                server.Dispose();
+            };
 
-            await client.Lookup("google.com");
-            await client.Lookup("cnn.com");
-
-            server.Dispose();
+            await server.Listen(PORT);
         }
     }
 }

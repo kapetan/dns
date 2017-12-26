@@ -17,6 +17,7 @@ namespace DNS.Server {
 
         public delegate void RequestedEventHandler(IRequest request);
         public delegate void RespondedEventHandler(IRequest request, IResponse response);
+        public delegate void ListeningEventHandler();
         public delegate void ErroredEventHandler(Exception e);
 
         private volatile bool run = true;
@@ -27,6 +28,7 @@ namespace DNS.Server {
 
         public event RequestedEventHandler Requested;
         public event RespondedEventHandler Responded;
+        public event ListeningEventHandler Listening;
         public event ErroredEventHandler Errored;
 
         public DnsServer(IPEndPoint endServer) {
@@ -40,29 +42,41 @@ namespace DNS.Server {
         public async Task Listen(int port = DEFAULT_PORT) {
             await Task.Yield();
 
+            TaskCompletionSource<object> tcs = new TaskCompletionSource<object>();
+            IPEndPoint ip = new IPEndPoint(IPAddress.Any, port);
+
             if (run) {
                 try {
-                    udp = new UdpClient(port);
+                    udp = new UdpClient(ip);
                 } catch (SocketException e) {
                     OnErrored(e);
                     return;
                 }
             }
 
-            while (run) {
-                UdpReceiveResult result;
+            AsyncCallback receiveCallback = null;
+            receiveCallback = result => {
+                byte[] data;
 
                 try {
-                    result = await udp.ReceiveAsync();
+                    data = udp.EndReceive(result, ref ip);
+                    HandleRequest(data, ip);
                 }
-                catch (ObjectDisposedException e) { OnErrored(e); }
+                catch (ObjectDisposedException) {
+                    // run should already be false
+                    run = false;
+                }
                 catch (SocketException e) {
                     OnErrored(e);
-                    continue;
                 }
 
-                HandleRequest(result);
-            }
+                if (run) udp.BeginReceive(receiveCallback, null);
+                else tcs.SetResult(null);
+            };
+
+            udp.BeginReceive(receiveCallback, null);
+            OnListening();
+            await tcs.Task;
         }
 
         public void Dispose() {
@@ -81,6 +95,11 @@ namespace DNS.Server {
         protected virtual void OnResponded(IRequest request, IResponse response) {
             RespondedEventHandler handlers = Responded;
             if (handlers != null) handlers(request, response);
+        }
+
+        protected virtual void OnListening() {
+            ListeningEventHandler handlers = Listening;
+            if (handlers != null) handlers();
         }
 
         protected virtual void OnErrored(Exception e) {
@@ -120,18 +139,18 @@ namespace DNS.Server {
             }
         }
 
-        private async void HandleRequest(UdpReceiveResult result) {
+        private async void HandleRequest(byte[] data, IPEndPoint remote) {
             Request request = null;
 
             try {
-                request = Request.FromArray(result.Buffer);
+                request = Request.FromArray(data);
                 OnRequested(request);
 
                 IResponse response = await ResolveLocal(request);
 
                 OnResponded(request, response);
                 await udp
-                    .SendAsync(response.ToArray(), response.Size, result.RemoteEndPoint)
+                    .SendAsync(response.ToArray(), response.Size, remote)
                     .WithCancellationTimeout(UDP_TIMEOUT);
             }
             catch (SocketException e) { OnErrored(e); }
@@ -148,7 +167,7 @@ namespace DNS.Server {
 
                 try {
                     await udp
-                        .SendAsync(response.ToArray(), response.Size, result.RemoteEndPoint)
+                        .SendAsync(response.ToArray(), response.Size, remote)
                         .WithCancellationTimeout(UDP_TIMEOUT);
                 }
                 catch (SocketException) {}

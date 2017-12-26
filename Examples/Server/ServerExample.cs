@@ -18,6 +18,7 @@ namespace Examples.Server {
             }
 
             server.Responded += (request, response) => Console.WriteLine("{0} => {1}", request, response);
+            server.Listening += () => Console.WriteLine("Listening");
             server.Errored += (e) => {
                 Console.WriteLine("Errored: {0}", e);
                 ResponseException responseError = e as ResponseException;

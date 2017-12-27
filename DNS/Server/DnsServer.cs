@@ -32,7 +32,7 @@ namespace DNS.Server {
         public event ErroredEventHandler Errored;
 
         public DnsServer(IPEndPoint endServer) {
-            this.client = new DnsClient(endServer, new UdpRequestResolver());
+            this.client = new DnsClient(new UdpRequestResolver(endServer));
             this.masterFile = new MasterFile();
         }
 

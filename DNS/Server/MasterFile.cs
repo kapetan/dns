@@ -65,7 +65,7 @@ namespace DNS.Server {
         }
 
         public void AddPointerResourceRecord(IPAddress ip, Domain pointer) {
-            Add(new PointerResourceRecord(Domain.PointerName(ip), pointer, ttl));
+            Add(new PointerResourceRecord(ip, pointer, ttl));
         }
 
         public void AddMailExchangeResourceRecord(string domain, int preference, string exchange) {

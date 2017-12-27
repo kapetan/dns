@@ -1,7 +1,8 @@
 ﻿using System.Threading.Tasks;
+using DNS.Protocol;
 
 namespace DNS.Client.RequestResolver {
     public interface IRequestResolver {
-        Task<ClientResponse> Request(ClientRequest request);
+        Task<IResponse> Request(IRequest request);
     }
 }

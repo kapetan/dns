@@ -5,29 +5,29 @@ using DNS.Protocol.ResourceRecords;
 
 namespace DNS.Client {
     public class ClientResponse : IResponse {
-        private Response response;
+        private IResponse response;
         private byte[] message;
 
-        public static ClientResponse FromArray(ClientRequest request, byte[] message) {
+        public static ClientResponse FromArray(IRequest request, byte[] message) {
             Response response = Response.FromArray(message);
             return new ClientResponse(request, response, message);
         }
 
-        internal ClientResponse(ClientRequest request, Response response, byte[] message) {
+        internal ClientResponse(IRequest request, IResponse response, byte[] message) {
             Request = request;
 
             this.message = message;
             this.response = response;
         }
 
-        internal ClientResponse(ClientRequest request, Response response) {
+        internal ClientResponse(IRequest request, IResponse response) {
             Request = request;
 
             this.message = response.ToArray();
             this.response = response;
         }
 
-        public ClientRequest Request {
+        public IRequest Request {
             get;
             private set;
         }

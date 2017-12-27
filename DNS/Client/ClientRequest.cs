@@ -9,21 +9,22 @@ namespace DNS.Client {
     public class ClientRequest : IRequest {
         private const int DEFAULT_PORT = 53;
 
-        private IPEndPoint dns;
         private IRequestResolver resolver;
         private IRequest request;
 
-        public ClientRequest(IPEndPoint dns, IRequest request = null, IRequestResolver resolver = null) {
-            this.dns = dns;
+        public ClientRequest(IPEndPoint dns, IRequest request = null) :
+            this(new UdpRequestResolver(dns), request) { }
+
+        public ClientRequest(IPAddress ip, int port = DEFAULT_PORT, IRequest request = null) :
+            this(new IPEndPoint(ip, port), request) { }
+
+        public ClientRequest(string ip, int port = DEFAULT_PORT, IRequest request = null) :
+            this(IPAddress.Parse(ip), port, request) { }
+
+        public ClientRequest(IRequestResolver resolver, IRequest request = null) {
+            this.resolver = resolver;
             this.request = request == null ? new Request() : new Request(request);
-            this.resolver = resolver == null ? new UdpRequestResolver() : resolver;
         }
-
-        public ClientRequest(IPAddress ip, int port = DEFAULT_PORT, IRequest request = null, IRequestResolver resolver = null) :
-            this(new IPEndPoint(ip, port), request, resolver) { }
-
-        public ClientRequest(string ip, int port = DEFAULT_PORT, IRequest request = null, IRequestResolver resolver = null) :
-            this(IPAddress.Parse(ip), port, request, resolver) { }
 
         public int Id {
             get { return request.Id; }
@@ -56,11 +57,6 @@ namespace DNS.Client {
             return request.ToString();
         }
 
-        public IPEndPoint Dns {
-            get { return dns; }
-            set { dns = value; }
-        }
-
         /// <summary>
         /// Resolves this request into a response using the provided DNS information. The given
         /// request strategy is used to retrieve the response.
@@ -70,9 +66,9 @@ namespace DNS.Client {
         /// <exception cref="SocketException">Thrown if the reading or writing to the socket fails</exception>
         /// <exception cref="OperationCanceledException">Thrown if reading or writing to the socket timeouts</exception>
         /// <returns>The response received from server</returns>
-        public async Task<ClientResponse> Resolve() {
+        public async Task<IResponse> Resolve() {
             try {
-                ClientResponse response = await resolver.Request(this);
+                IResponse response = await resolver.Request(this);
 
                 if (response.Id != this.Id) {
                     throw new ResponseException(response, "Mismatching request/response IDs");

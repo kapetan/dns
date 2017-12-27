@@ -1,15 +1,19 @@
 ﻿using System;
 using System.IO;
 using System.Net.Sockets;
-using DNS.Protocol;
 using System.Threading.Tasks;
 using System.Net;
+using DNS.Protocol;
 
 namespace DNS.Client.RequestResolver {
     public class TcpRequestResolver : IRequestResolver {
-        public async Task<ClientResponse> Request(ClientRequest request) {
-            IPEndPoint dns = request.Dns;
+        private IPEndPoint dns;
 
+        public TcpRequestResolver(IPEndPoint dns) {
+            this.dns = dns;
+        }
+
+        public async Task<IResponse> Request(IRequest request) {
             using(TcpClient tcp = new TcpClient()) {
                 await tcp.ConnectAsync(dns.Address, dns.Port);
 
@@ -34,8 +38,7 @@ namespace DNS.Client.RequestResolver {
                 buffer = new byte[BitConverter.ToUInt16(buffer, 0)];
                 await Read(stream, buffer);
 
-                Response response = Response.FromArray(buffer);
-
+                IResponse response = Response.FromArray(buffer);
                 return new ClientResponse(request, response, buffer);
             }
         }

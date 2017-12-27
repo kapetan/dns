@@ -7,23 +7,23 @@ using DNS.Protocol.Utils;
 
 namespace DNS.Client.RequestResolver {
     public class UdpRequestResolver : IRequestResolver {
-        private readonly int timeout;
-
+        private int timeout;
         private IRequestResolver fallback;
+        private IPEndPoint dns;
 
-        public UdpRequestResolver(IRequestResolver fallback, int timeout = 5000) {
+        public UdpRequestResolver(IPEndPoint dns, IRequestResolver fallback, int timeout = 5000) {
+            this.dns = dns;
             this.fallback = fallback;
             this.timeout = timeout;
         }
 
-        public UdpRequestResolver(int timeout = 5000) {
+        public UdpRequestResolver(IPEndPoint dns, int timeout = 5000) {
+            this.dns = dns;
             this.fallback = new NullRequestResolver();
             this.timeout = timeout;
         }
 
-        public async Task<ClientResponse> Request(ClientRequest request) {
-            IPEndPoint dns = request.Dns;
-
+        public async Task<IResponse> Request(IRequest request) {
             using(UdpClient udp = new UdpClient()) {
                 await udp
                     .SendAsync(request.ToArray(), request.Size, dns)

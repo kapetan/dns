@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net;
 
 namespace DNS.Protocol.ResourceRecords {
     public class PointerResourceRecord : BaseResourceRecord {
@@ -7,8 +8,8 @@ namespace DNS.Protocol.ResourceRecords {
             PointerDomainName = Domain.FromArray(message, dataOffset);
         }
 
-        public PointerResourceRecord(Domain domain, Domain pointer, TimeSpan ttl = default(TimeSpan)) :
-            base(new ResourceRecord(domain, pointer.ToArray(), RecordType.PTR, RecordClass.IN, ttl)) {
+        public PointerResourceRecord(IPAddress ip, Domain pointer, TimeSpan ttl = default(TimeSpan)) :
+            base(new ResourceRecord(Domain.PointerName(ip), pointer.ToArray(), RecordType.PTR, RecordClass.IN, ttl)) {
             PointerDomainName = pointer;
         }
 

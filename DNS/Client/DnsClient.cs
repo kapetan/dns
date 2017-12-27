@@ -12,27 +12,28 @@ namespace DNS.Client {
         private const int DEFAULT_PORT = 53;
         private static readonly Random RANDOM = new Random();
 
-        private IPEndPoint dns;
         private IRequestResolver resolver;
 
-        public DnsClient(IPEndPoint dns, IRequestResolver resolver = null) {
-            this.dns = dns;
-            this.resolver = resolver == null ? new UdpRequestResolver(new TcpRequestResolver()) : resolver;
+        public DnsClient(IPEndPoint dns) :
+            this(new UdpRequestResolver(dns, new TcpRequestResolver(dns))) { }
+
+        public DnsClient(IPAddress ip, int port = DEFAULT_PORT) :
+            this(new IPEndPoint(ip, port)) { }
+
+        public DnsClient(string ip, int port = DEFAULT_PORT) :
+            this(IPAddress.Parse(ip), port) { }
+
+        public DnsClient(IRequestResolver resolver) {
+            this.resolver = resolver;
         }
-
-        public DnsClient(IPAddress ip, int port = DEFAULT_PORT, IRequestResolver resolver = null) :
-            this(new IPEndPoint(ip, port), resolver) { }
-
-        public DnsClient(string ip, int port = DEFAULT_PORT, IRequestResolver resolver = null) :
-            this(IPAddress.Parse(ip), port, resolver) { }
 
         public ClientRequest FromArray(byte[] message) {
             Request request = Request.FromArray(message);
-            return new ClientRequest(dns, request, resolver);
+            return new ClientRequest(resolver, request);
         }
 
         public ClientRequest Create(IRequest request = null) {
-            return new ClientRequest(dns, request, resolver);
+            return new ClientRequest(resolver, request);
         }
 
         public async Task<IList<IPAddress>> Lookup(string domain, RecordType type = RecordType.A) {
@@ -40,7 +41,7 @@ namespace DNS.Client {
                 throw new ArgumentException("Invalid record type " + type);
             }
 
-            ClientResponse response = await Resolve(domain, type);
+            IResponse response = await Resolve(domain, type);
             IList<IPAddress> ips = response.AnswerRecords
                 .Where(r => r.Type == type)
                 .Cast<IPAddressResourceRecord>()
@@ -59,7 +60,7 @@ namespace DNS.Client {
         }
 
         public async Task<string> Reverse(IPAddress ip) {
-            ClientResponse response = await Resolve(Domain.PointerName(ip), RecordType.PTR);
+            IResponse response = await Resolve(Domain.PointerName(ip), RecordType.PTR);
             IResourceRecord ptr = response.AnswerRecords.FirstOrDefault(r => r.Type == RecordType.PTR);
 
             if (ptr == null) {
@@ -69,11 +70,11 @@ namespace DNS.Client {
             return ((PointerResourceRecord) ptr).PointerDomainName.ToString();
         }
 
-        public Task<ClientResponse> Resolve(string domain, RecordType type) {
+        public Task<IResponse> Resolve(string domain, RecordType type) {
             return Resolve(new Domain(domain), type);
         }
 
-        public Task<ClientResponse> Resolve(Domain domain, RecordType type) {
+        public Task<IResponse> Resolve(Domain domain, RecordType type) {
             ClientRequest request = Create();
             Question question = new Question(domain, type);
 

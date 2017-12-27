@@ -8,9 +8,9 @@ using DNS.Client.RequestResolver;
 using DNS.Protocol;
 using DNS.Protocol.ResourceRecords;
 
-namespace DNS.Tests.ClientServer {
+namespace DNS.Tests.Client {
 
-    public class ClientTest {
+    public class DnsClientTest {
         [Fact]
         public async Task ClientLookup() {
             DnsClient client = new DnsClient(new IPAddressRequestResolver());

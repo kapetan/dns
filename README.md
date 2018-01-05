@@ -75,11 +75,12 @@ The `DnsServer` class exposes a proxy Domain Name Server (UDP only). You can int
 
 ```C#
 // Proxy to google's DNS
-DnsServer server = new DnsServer("8.8.8.8");
+MasterFile masterFile = new MasterFile();
+DnsServer server = new DnsServer(masterFile, "8.8.8.8");
 
 // Resolve these domain to localhost
-server.MasterFile.AddIPAddressResourceRecord("google.com", "127.0.0.1");
-server.MasterFile.AddIPAddressResourceRecord("github.com", "127.0.0.1");
+masterFile.AddIPAddressResourceRecord("google.com", "127.0.0.1");
+masterFile.AddIPAddressResourceRecord("github.com", "127.0.0.1");
 
 // Log every request
 server.Requested += (request) => Console.WriteLine(request);
@@ -95,6 +96,34 @@ await server.Listen();
 Depending on the application setup the events might be executed on a different thread than the calling thread.
 
 It's also possible to modify the `request` instance in the `server.Requested` callback.
+
+### Request Resolver
+
+The `DnsServer`, `DnsClient` and `ClientRequest` classes also accept an instance implementing the `IRequestResolver` interface, which they internally use to resolve DNS requests. Some of the default implementations are `UdpRequestResolver`, `TcpRequestResolver` and `MasterFile` classes. But it's also possible to provide a custom request resolver.
+
+```C#
+// A request resolver that resolves all dns queries to localhost
+public class LocalRequestResolver : IRequestResolver {
+	public Task<IResponse> Resolve(IRequest request) {
+		IResponse response = Response.FromRequest(request);
+
+		foreach (Question question in response.Questions) {
+			if (question.Type == RecordType.A) {
+				IResourceRecord record = new IPAddressResourceRecord(
+					question.Name, IPAddress.Parse("127.0.0.1"));
+				response.AnswerRecords.Add(record);
+			}
+		}
+
+		return Task.FromResult(response);
+	}
+}
+
+// All dns requests received will be handled by the localhost request resolver
+DnsServer server = new DnsServer(new LocalRequestResolver());
+
+await server.Listen();
+```
 
 # License
 

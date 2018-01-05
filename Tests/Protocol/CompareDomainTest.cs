@@ -16,6 +16,7 @@ namespace DNS.Tests.Protocol {
             Domain b = new Domain(Helper.GetArray("WWW"));
 
             Assert.Equal(0, a.CompareTo(b));
+            Assert.Equal(a.GetHashCode(), b.GetHashCode());
         }
 
         [Fact]
@@ -28,6 +29,7 @@ namespace DNS.Tests.Protocol {
             ));
 
             Assert.Equal(0, a.CompareTo(b));
+            Assert.Equal(a.GetHashCode(), b.GetHashCode());
         }
 
         [Fact]
@@ -44,6 +46,7 @@ namespace DNS.Tests.Protocol {
             ));
 
             Assert.Equal(0, a.CompareTo(b));
+            Assert.Equal(a.GetHashCode(), b.GetHashCode());
         }
 
         [Fact]
@@ -53,6 +56,7 @@ namespace DNS.Tests.Protocol {
 
             Assert.True(a.CompareTo(b) < 0);
             Assert.True(b.CompareTo(a) > 0);
+            Assert.NotEqual(a.GetHashCode(), b.GetHashCode());
         }
 
         [Fact]
@@ -62,6 +66,7 @@ namespace DNS.Tests.Protocol {
 
             Assert.True(a.CompareTo(b) < 0);
             Assert.True(b.CompareTo(a) > 0);
+            Assert.NotEqual(a.GetHashCode(), b.GetHashCode());
         }
 
         [Fact]
@@ -75,6 +80,7 @@ namespace DNS.Tests.Protocol {
 
             Assert.True(a.CompareTo(b) < 0);
             Assert.True(b.CompareTo(a) > 0);
+            Assert.NotEqual(a.GetHashCode(), b.GetHashCode());
         }
 
         [Fact]
@@ -84,6 +90,7 @@ namespace DNS.Tests.Protocol {
 
             Assert.True(a.CompareTo(b) < 0);
             Assert.True(b.CompareTo(a) > 0);
+            Assert.NotEqual(a.GetHashCode(), b.GetHashCode());
         }
     }
 }

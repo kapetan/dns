@@ -12,14 +12,15 @@ namespace Examples.ClientServer {
         }
 
         public async static Task MainAsync() {
-            DnsServer server = new DnsServer("8.8.8.8");
+            MasterFile masterFile = new MasterFile();
+            DnsServer server = new DnsServer(masterFile, "8.8.8.8");
+
+            masterFile.AddIPAddressResourceRecord("google.com", "127.0.0.1");
 
             server.Requested += (request) => Console.WriteLine("Requested: {0}", request);
             server.Responded += (request, response) => Console.WriteLine("Responded: {0} => {1}", request, response);
             server.Errored += (e) => Console.WriteLine("Errored: {0}", e.Message);
             server.Listening += () => Console.WriteLine("Listening");
-
-            server.MasterFile.AddIPAddressResourceRecord("google.com", "127.0.0.1");
 
             server.Listening += async () => {
                 DnsClient client = new DnsClient("127.0.0.1", PORT);

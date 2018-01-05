@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using DNS.Protocol;
 using DNS.Protocol.ResourceRecords;
+using DNS.Client.RequestResolver;
 
 namespace DNS.Server {
-    public class MasterFile {
+    public class MasterFile : IRequestResolver {
         private static readonly TimeSpan DEFAULT_TTL = new TimeSpan(0);
 
         private static bool Matches(Domain domain, Domain entry) {
@@ -23,6 +25,12 @@ namespace DNS.Server {
             return re.IsMatch(domain.ToString());
         }
 
+        private static void Merge<T>(IList<T> l1, IList<T> l2) {
+            foreach (T obj in l2) {
+                l1.Add(obj);
+            }
+        }
+
         private IList<IResourceRecord> entries = new List<IResourceRecord>();
         private TimeSpan ttl = DEFAULT_TTL;
 
@@ -30,7 +38,7 @@ namespace DNS.Server {
             this.ttl = ttl;
         }
 
-        public MasterFile() { }
+        public MasterFile() {}
 
         public void Add(IResourceRecord entry) {
             entries.Add(entry);
@@ -80,11 +88,27 @@ namespace DNS.Server {
             Add(new TextResourceRecord(new Domain(domain), attributeName, attributeValue, ttl));
         }
 
-        public IList<IResourceRecord> Get(Domain domain, RecordType type) {
+        public Task<IResponse> Request(IRequest request) {
+            IResponse response = Response.FromRequest(request);
+
+            foreach (Question question in request.Questions) {
+                IList<IResourceRecord> answers = Get(question);
+
+                if (answers.Count > 0) {
+                    Merge(response.AnswerRecords, answers);
+                } else {
+                    response.ResponseCode = ResponseCode.NameError;
+                }
+            }
+
+            return Task.FromResult(response);
+        }
+
+        private IList<IResourceRecord> Get(Domain domain, RecordType type) {
             return entries.Where(e => Matches(domain, e.Name) && e.Type == type).ToList();
         }
 
-        public IList<IResourceRecord> Get(Question question) {
+        private IList<IResourceRecord> Get(Question question) {
             return Get(question.Name, question.Type);
         }
     }

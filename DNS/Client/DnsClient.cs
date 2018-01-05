@@ -15,13 +15,13 @@ namespace DNS.Client {
         private IRequestResolver resolver;
 
         public DnsClient(IPEndPoint dns) :
-            this(new UdpRequestResolver(dns, new TcpRequestResolver(dns))) { }
+            this(new UdpRequestResolver(dns, new TcpRequestResolver(dns))) {}
 
         public DnsClient(IPAddress ip, int port = DEFAULT_PORT) :
-            this(new IPEndPoint(ip, port)) { }
+            this(new IPEndPoint(ip, port)) {}
 
         public DnsClient(string ip, int port = DEFAULT_PORT) :
-            this(IPAddress.Parse(ip), port) { }
+            this(IPAddress.Parse(ip), port) {}
 
         public DnsClient(IRequestResolver resolver) {
             this.resolver = resolver;

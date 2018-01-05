@@ -20,24 +20,37 @@ namespace DNS.Server {
         public delegate void ListeningEventHandler();
         public delegate void ErroredEventHandler(Exception e);
 
-        private volatile bool run = true;
-        private bool disposed = false;
-        private MasterFile masterFile;
-        private UdpClient udp;
-        private DnsClient client;
-
         public event RequestedEventHandler Requested;
         public event RespondedEventHandler Responded;
         public event ListeningEventHandler Listening;
         public event ErroredEventHandler Errored;
 
-        public DnsServer(IPEndPoint endServer) {
-            this.client = new DnsClient(new UdpRequestResolver(endServer));
-            this.masterFile = new MasterFile();
-        }
+        private bool run = true;
+        private bool disposed = false;
+        private UdpClient udp;
+        private IRequestResolver resolver;
 
-        public DnsServer(IPAddress endServer, int port = DEFAULT_PORT) : this(new IPEndPoint(endServer, port)) {}
-        public DnsServer(string endServerIp, int port = DEFAULT_PORT) : this(IPAddress.Parse(endServerIp), port) {}
+        public DnsServer(MasterFile masterFile, IPEndPoint endServer) :
+            this(new FallbackRequestResolver(masterFile, new UdpRequestResolver(endServer))) {}
+
+        public DnsServer(MasterFile masterFile, IPAddress endServer, int port = DEFAULT_PORT) :
+            this(masterFile, new IPEndPoint(endServer, port)) {}
+
+        public DnsServer(MasterFile masterFile, string endServer, int port = DEFAULT_PORT) :
+            this(masterFile, IPAddress.Parse(endServer), port) {}
+
+        public DnsServer(IPEndPoint endServer) :
+            this(new UdpRequestResolver(endServer)) {}
+
+        public DnsServer(IPAddress endServer, int port = DEFAULT_PORT) :
+            this(new IPEndPoint(endServer, port)) {}
+
+        public DnsServer(string endServer, int port = DEFAULT_PORT) :
+            this(IPAddress.Parse(endServer), port) {}
+
+        public DnsServer(IRequestResolver resolver) {
+            this.resolver = resolver;
+        }
 
         public async Task Listen(int port = DEFAULT_PORT) {
             await Task.Yield();
@@ -83,10 +96,6 @@ namespace DNS.Server {
             Dispose(true);
         }
 
-        public MasterFile MasterFile {
-            get { return masterFile; }
-        }
-
         protected virtual void OnRequested(IRequest request) {
             RequestedEventHandler handlers = Requested;
             if (handlers != null) handlers(request);
@@ -107,27 +116,6 @@ namespace DNS.Server {
             if (handlers != null) handlers(e);
         }
 
-        protected virtual async Task<IResponse> ResolveLocal(Request request) {
-            Response response = Response.FromRequest(request);
-
-            foreach (Question question in request.Questions) {
-                IList<IResourceRecord> answers = masterFile.Get(question);
-
-                if (answers.Count > 0) {
-                    Merge(response.AnswerRecords, answers);
-                } else {
-                    return await ResolveRemote(request);
-                }
-            }
-
-            return response;
-        }
-
-        protected virtual async Task<IResponse> ResolveRemote(Request request) {
-            ClientRequest remoteRequest = client.Create(request);
-            return await remoteRequest.Resolve();
-        }
-
         protected virtual void Dispose(bool disposing) {
             if (!disposed) {
                 disposed = true;
@@ -146,7 +134,7 @@ namespace DNS.Server {
                 request = Request.FromArray(data);
                 OnRequested(request);
 
-                IResponse response = await ResolveLocal(request);
+                IResponse response = await resolver.Request(request); //await ResolveLocal(request);
 
                 OnResponded(request, response);
                 await udp
@@ -176,9 +164,22 @@ namespace DNS.Server {
             }
         }
 
-        private static void Merge<T>(IList<T> l1, IList<T> l2) {
-            foreach (T obj in l2) {
-                l1.Add(obj);
+        private class FallbackRequestResolver : IRequestResolver {
+            private IRequestResolver[] resolvers;
+
+            public FallbackRequestResolver(params IRequestResolver[] resolvers) {
+                this.resolvers = resolvers;
+            }
+
+            public async Task<IResponse> Request(IRequest request) {
+                IResponse response = null;
+
+                foreach (IRequestResolver resolver in resolvers) {
+                    response = await resolver.Request(request);
+                    if (response.AnswerRecords.Count > 0) break;
+                }
+
+                return response;
             }
         }
     }

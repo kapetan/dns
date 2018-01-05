@@ -170,7 +170,17 @@ namespace DNS.Protocol {
         }
 
         public override int GetHashCode() {
-            return ToString().GetHashCode();
+            unchecked {
+                int hash = 17;
+
+                foreach (byte[] label in labels) {
+                    foreach (byte b in label) {
+                        hash = hash * 31 + (IsASCIIAlphabet(b) ? b & ASCII_UPPERCASE_MASK : b);
+                    }
+                }
+
+                return hash;
+            }
         }
     }
 }

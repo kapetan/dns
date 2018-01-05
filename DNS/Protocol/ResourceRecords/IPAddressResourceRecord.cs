@@ -10,8 +10,7 @@ namespace DNS.Protocol.ResourceRecords {
             return new ResourceRecord(domain, data, type, RecordClass.IN, ttl);
         }
 
-        public IPAddressResourceRecord(IResourceRecord record)
-            : base(record) {
+        public IPAddressResourceRecord(IResourceRecord record) : base(record) {
             IPAddress = new IPAddress(Data);
         }
 

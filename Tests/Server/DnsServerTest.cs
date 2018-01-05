@@ -37,21 +37,61 @@ namespace DNS.Tests.Server {
                 };
 
                 IRequest clientRequest = new Request();
-                Question question = new Question(new Domain("google.com"), RecordType.A);
+                Question clientRequestQuestion = new Question(new Domain("google.com"), RecordType.A);
 
                 clientRequest.Id = 1;
-                clientRequest.Questions.Add(question);
+                clientRequest.Questions.Add(clientRequestQuestion);
                 clientRequest.OperationCode = OperationCode.Query;
 
                 IResponse clientResponse = await Resolve(clientRequest);
 
                 Assert.Equal(1, clientResponse.Id);
+                Assert.Equal(1, clientResponse.Questions.Count);
+                Assert.Equal(1, clientResponse.AnswerRecords.Count);
+                Assert.Equal(0, clientResponse.AuthorityRecords.Count);
+                Assert.Equal(0, clientResponse.AdditionalRecords.Count);
+
+                Question clientResponseQuestion = clientResponse.Questions[0];
+
+                Assert.Equal(RecordType.A, clientResponseQuestion.Type);
+                Assert.Equal("google.com", clientResponseQuestion.Name.ToString());
+
+                IResourceRecord clientResponseRecord = clientResponse.AnswerRecords[0];
+
+                Assert.Equal("google.com", clientResponseRecord.Name.ToString());
+                Assert.Equal(Helper.GetArray<byte>(192, 168, 0, 1), clientResponseRecord.Data);
+                Assert.Equal(RecordType.A, clientResponseRecord.Type);
 
                 Assert.NotNull(requestedRequest);
 
-                Assert.NotNull(respondedRequest);
+                Assert.Equal(1, requestedRequest.Id);
+                Assert.Equal(1, requestedRequest.Questions.Count);
+
+                Question requestedRequestQuestion = requestedRequest.Questions[0];
+
+                Assert.Equal(RecordType.A, requestedRequestQuestion.Type);
+                Assert.Equal("google.com", requestedRequestQuestion.Name.ToString());
+
+                Assert.Equal(requestedRequest, respondedRequest);
 
                 Assert.NotNull(respondedResponse);
+
+                Assert.Equal(1, respondedResponse.Id);
+                Assert.Equal(1, respondedResponse.Questions.Count);
+                Assert.Equal(1, respondedResponse.AnswerRecords.Count);
+                Assert.Equal(0, respondedResponse.AuthorityRecords.Count);
+                Assert.Equal(0, respondedResponse.AdditionalRecords.Count);
+
+                Question respondedResponseQuestion = respondedResponse.Questions[0];
+
+                Assert.Equal(RecordType.A, respondedResponseQuestion.Type);
+                Assert.Equal("google.com", respondedResponseQuestion.Name.ToString());
+
+                IResourceRecord respondedResponseRecord = respondedResponse.AnswerRecords[0];
+
+                Assert.Equal("google.com", respondedResponseRecord.Name.ToString());
+                Assert.Equal(Helper.GetArray<byte>(192, 168, 0, 1), respondedResponseRecord.Data);
+                Assert.Equal(RecordType.A, respondedResponseRecord.Type);
 
                 Assert.Null(erroredException);
             });

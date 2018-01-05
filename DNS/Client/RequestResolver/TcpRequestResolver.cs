@@ -13,7 +13,7 @@ namespace DNS.Client.RequestResolver {
             this.dns = dns;
         }
 
-        public async Task<IResponse> Request(IRequest request) {
+        public async Task<IResponse> Resolve(IRequest request) {
             using(TcpClient tcp = new TcpClient()) {
                 await tcp.ConnectAsync(dns.Address, dns.Port);
 

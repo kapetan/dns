@@ -134,7 +134,7 @@ namespace DNS.Server {
                 request = Request.FromArray(data);
                 OnRequested(request);
 
-                IResponse response = await resolver.Request(request); //await ResolveLocal(request);
+                IResponse response = await resolver.Resolve(request);
 
                 OnResponded(request, response);
                 await udp
@@ -171,11 +171,11 @@ namespace DNS.Server {
                 this.resolvers = resolvers;
             }
 
-            public async Task<IResponse> Request(IRequest request) {
+            public async Task<IResponse> Resolve(IRequest request) {
                 IResponse response = null;
 
                 foreach (IRequestResolver resolver in resolvers) {
-                    response = await resolver.Request(request);
+                    response = await resolver.Resolve(request);
                     if (response.AnswerRecords.Count > 0) break;
                 }
 

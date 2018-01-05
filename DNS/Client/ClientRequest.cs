@@ -68,7 +68,7 @@ namespace DNS.Client {
         /// <returns>The response received from server</returns>
         public async Task<IResponse> Resolve() {
             try {
-                IResponse response = await resolver.Request(this);
+                IResponse response = await resolver.Resolve(this);
 
                 if (response.Id != this.Id) {
                     throw new ResponseException(response, "Mismatching request/response IDs");

@@ -23,7 +23,7 @@ namespace DNS.Client.RequestResolver {
             this.timeout = timeout;
         }
 
-        public async Task<IResponse> Request(IRequest request) {
+        public async Task<IResponse> Resolve(IRequest request) {
             using(UdpClient udp = new UdpClient()) {
                 await udp
                     .SendAsync(request.ToArray(), request.Size, dns)
@@ -35,7 +35,7 @@ namespace DNS.Client.RequestResolver {
                 Response response = Response.FromArray(buffer);
 
                 if (response.Truncated) {
-                    return await fallback.Request(request);
+                    return await fallback.Resolve(request);
                 }
 
                 return new ClientResponse(request, response, buffer);

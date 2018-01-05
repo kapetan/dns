@@ -88,7 +88,7 @@ namespace DNS.Server {
             Add(new TextResourceRecord(new Domain(domain), attributeName, attributeValue, ttl));
         }
 
-        public Task<IResponse> Request(IRequest request) {
+        public Task<IResponse> Resolve(IRequest request) {
             IResponse response = Response.FromRequest(request);
 
             foreach (Question question in request.Questions) {

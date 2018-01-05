@@ -38,7 +38,7 @@ namespace DNS.Tests.Client {
         }
 
         private class IPAddressRequestResolver : IRequestResolver {
-            public Task<IResponse> Request(IRequest request) {
+            public Task<IResponse> Resolve(IRequest request) {
                 IResponse response = Response.FromRequest(request);
                 IResourceRecord record = new IPAddressResourceRecord(
                     new Domain("google.com"),
@@ -51,7 +51,7 @@ namespace DNS.Tests.Client {
         }
 
         private class PointerRequestResolver : IRequestResolver {
-            public Task<IResponse> Request(IRequest request) {
+            public Task<IResponse> Resolve(IRequest request) {
                 IResponse response = Response.FromRequest(request);
                 IResourceRecord record = new PointerResourceRecord(
                     IPAddress.Parse("192.168.0.1"),
@@ -64,7 +64,7 @@ namespace DNS.Tests.Client {
         }
 
         private class NameErrorRequestResolver : IRequestResolver {
-            public Task<IResponse> Request(IRequest request) {
+            public Task<IResponse> Resolve(IRequest request) {
                 IResponse response = Response.FromRequest(request);
                 response.ResponseCode = ResponseCode.NameError;
                 return Task.FromResult(response);

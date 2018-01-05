@@ -86,7 +86,7 @@ namespace DNS.Tests.Server {
         }
 
         private class IPAddressRequestResolver : IRequestResolver {
-            public Task<IResponse> Request(IRequest request) {
+            public Task<IResponse> Resolve(IRequest request) {
                 IResponse response = Response.FromRequest(request);
                 IResourceRecord record = new IPAddressResourceRecord(
                     new Domain("google.com"),

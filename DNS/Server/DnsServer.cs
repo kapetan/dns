@@ -61,6 +61,18 @@ namespace DNS.Server {
             if (run) {
                 try {
                     udp = new UdpClient(ip);
+
+                    // Configure UdpClient to ignore PORT_UNREACHABLE ICMP messages.
+                    //
+                    // This safeguards our server from ICMP-triggered exceptions in a scenario
+                    // where requester unbinds its socket prior to receiving our response.
+                    const int SIO_UDP_CONNRESET = unchecked((int)0x9800000C);
+                    // In-value: false (disable PORT_UNREACHABLE reporting)
+                    var inValue  = new byte[] { 0, 0, 0, 0 };
+                    var outValue = new byte[] { 0, 0, 0, 0 };
+
+                    udp.Client.IOControl(SIO_UDP_CONNRESET, inValue, outValue);
+
                 } catch (SocketException e) {
                     OnErrored(e);
                     return;

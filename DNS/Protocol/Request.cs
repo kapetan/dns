@@ -14,7 +14,7 @@ namespace DNS.Protocol {
             Header header = Header.FromArray(message);
 
             if (header.Response || header.QuestionCount == 0 ||
-                    header.AdditionalRecordCount + header.AnswerRecordCount + header.AuthorityRecordCount > 0 || 
+                    header.AnswerRecordCount + header.AuthorityRecordCount > 0 || 
                     header.ResponseCode != ResponseCode.NoError) {
 
                 throw new ArgumentException("Invalid request message");

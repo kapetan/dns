@@ -62,5 +62,24 @@ namespace DNS.Tests.Protocol {
             Assert.Equal(RecordClass.ANY, question.Class);
             Assert.Equal("dr.dk", question.Name.ToString());
         }
+        [Fact]
+        public void RequestWithAdditionalRecords()
+        {
+            byte[] content = Helper.ReadFixture("Request", "edns-test");
+
+            Request request = Request.FromArray(content);
+
+            Assert.Equal(11772, request.Id);
+            Assert.Equal(true, request.RecursionDesired);
+            Assert.Equal(28, request.Size);
+            Assert.Equal(1, request.Questions.Count);
+
+            Question question = request.Questions[0];
+
+            Assert.Equal(RecordType.A, question.Type);
+            Assert.Equal(RecordClass.IN, question.Class);
+            Assert.Equal("google.com", question.Name.ToString());
+            
+        }
     }
 }

@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Net;
+using System.Threading.Tasks;
 using DNS.Protocol;
 using DNS.Client.RequestResolver;
-using System.Threading.Tasks;
+using DNS.Protocol.ResourceRecords;
 
 namespace DNS.Client {
     public class ClientRequest : IRequest {
@@ -29,6 +31,10 @@ namespace DNS.Client {
         public int Id {
             get { return request.Id; }
             set { request.Id = value; }
+        }
+
+        public IList<IResourceRecord> AdditionalRecords {
+            get { return new ReadOnlyCollection<IResourceRecord>(request.AdditionalRecords); }
         }
 
         public OperationCode OperationCode {

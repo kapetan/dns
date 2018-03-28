@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using DNS.Protocol.Utils;
+using DNS.Protocol.ResourceRecords;
 
 namespace DNS.Protocol {
     public class Request : IRequest {
@@ -9,28 +10,34 @@ namespace DNS.Protocol {
 
         private IList<Question> questions;
         private Header header;
+        private IList<IResourceRecord> additional;
 
         public static Request FromArray(byte[] message) {
             Header header = Header.FromArray(message);
+            int offset = header.Size;
 
             if (header.Response || header.QuestionCount == 0 ||
-                    header.AdditionalRecordCount + header.AnswerRecordCount + header.AuthorityRecordCount > 0 || 
+                    header.AnswerRecordCount + header.AuthorityRecordCount > 0 ||
                     header.ResponseCode != ResponseCode.NoError) {
 
                 throw new ArgumentException("Invalid request message");
             }
 
-            return new Request(header, Question.GetAllFromArray(message, header.Size, header.QuestionCount));
+            return new Request(header,
+                Question.GetAllFromArray(message, offset, header.QuestionCount, out offset),
+                ResourceRecordFactory.GetAllFromArray(message, offset, header.AdditionalRecordCount, out offset));
         }
 
-        public Request(Header header, IList<Question> questions) {
+        public Request(Header header, IList<Question> questions, IList<IResourceRecord> additional) {
             this.header = header;
             this.questions = questions;
+            this.additional = additional;
         }
 
         public Request() {
             this.questions = new List<Question>();
             this.header = new Header();
+            this.additional = new List<IResourceRecord>();
 
             this.header.OperationCode = OperationCode.Query;
             this.header.Response = false;
@@ -40,6 +47,7 @@ namespace DNS.Protocol {
         public Request(IRequest request) {
             this.header = new Header();
             this.questions = new List<Question>(request.Questions);
+            this.additional = new List<IResourceRecord>(request.AdditionalRecords);
 
             this.header.Response = false;
 
@@ -52,8 +60,16 @@ namespace DNS.Protocol {
             get { return questions; }
         }
 
+        public IList<IResourceRecord> AdditionalRecords {
+            get { return additional; }
+        }
+
         public int Size {
-            get { return header.Size + questions.Sum(q => q.Size); }
+            get {
+                return header.Size +
+                    questions.Sum(q => q.Size) +
+                    additional.Sum(a => a.Size);
+            }
         }
 
         public int Id {
@@ -77,7 +93,8 @@ namespace DNS.Protocol {
 
             result
                 .Append(header.ToArray())
-                .Append(questions.Select(q => q.ToArray()));
+                .Append(questions.Select(q => q.ToArray()))
+                .Append(additional.Select(a => a.ToArray()));
 
             return result.ToArray();
         }
@@ -87,12 +104,13 @@ namespace DNS.Protocol {
 
             return ObjectStringifier.New(this)
                 .Add("Header", header)
-                .Add("Questions")
+                .Add("Questions", "AdditionalRecords")
                 .ToString();
         }
 
         private void UpdateHeader() {
             header.QuestionCount = questions.Count;
+            header.AdditionalRecordCount = additional.Count;
         }
     }
 }

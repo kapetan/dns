@@ -2,7 +2,7 @@
 using DNS.Protocol;
 
 namespace DNS.Tests.Protocol {
-    
+
     public class SerializeHeaderTest {
         [Fact]
         public void EmptyHeader() {
@@ -76,6 +76,24 @@ namespace DNS.Tests.Protocol {
         }
 
         [Fact]
+        public void HeaderWithAuthenticDataFlag() {
+            Header header = new Header();
+            header.AuthenticData = true;
+            byte[] content = Helper.ReadFixture("Header", "ad");
+
+            Assert.Equal(content, header.ToArray());
+        }
+
+        [Fact]
+        public void HeaderWithCheckingDisabledFlag() {
+            Header header = new Header();
+            header.CheckingDisabled = true;
+            byte[] content = Helper.ReadFixture("Header", "cd");
+
+            Assert.Equal(content, header.ToArray());
+        }
+
+        [Fact]
         public void HeaderWithResponseCode() {
             Header header = new Header();
             header.ResponseCode = ResponseCode.ServerFailure;
@@ -130,6 +148,8 @@ namespace DNS.Tests.Protocol {
             header.Truncated = true;
             header.RecursionDesired = true;
             header.RecursionAvailable = true;
+            header.AuthenticData = true;
+            header.CheckingDisabled = true;
             header.ResponseCode = ResponseCode.ServerFailure;
             header.QuestionCount = 1;
             header.AnswerRecordCount = 1;

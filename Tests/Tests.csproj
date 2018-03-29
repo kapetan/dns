@@ -109,6 +109,12 @@
     <Content Include="Fixtures\Header\ra">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="Fixtures\Header\ad">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Fixtures\Header\cd">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Fixtures\Header\rcode">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

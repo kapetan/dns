@@ -54,6 +54,16 @@ namespace DNS.Client {
             set { }
         }
 
+        public bool AuthenticData {
+            get { return response.AuthenticData; }
+            set { }
+        }
+
+        public bool CheckingDisabled {
+            get { return response.CheckingDisabled; }
+            set { }
+        }
+
         public bool AuthorativeServer {
             get { return response.AuthorativeServer; }
             set { }

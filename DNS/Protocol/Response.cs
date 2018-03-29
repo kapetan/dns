@@ -111,6 +111,16 @@ namespace DNS.Protocol {
             set { header.RecursionAvailable = value; }
         }
 
+        public bool AuthenticData {
+            get { return header.AuthenticData; }
+            set { header.AuthenticData = value; }
+        }
+
+        public bool CheckingDisabled {
+            get { return header.CheckingDisabled; }
+            set { header.CheckingDisabled = value; }
+        }
+
         public bool AuthorativeServer {
             get { return header.AuthorativeServer; }
             set { header.AuthorativeServer = value; }

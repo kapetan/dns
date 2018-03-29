@@ -8,6 +8,8 @@ namespace DNS.Protocol {
         IList<IResourceRecord> AuthorityRecords { get; }
         IList<IResourceRecord> AdditionalRecords { get; }
         bool RecursionAvailable { get; set; }
+        bool AuthenticData { get; set; }
+        bool CheckingDisabled { get; set; }
         bool AuthorativeServer { get; set; }
         bool Truncated { get; set; }
         OperationCode OperationCode { get; set; }

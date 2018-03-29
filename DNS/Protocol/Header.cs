@@ -89,6 +89,16 @@ namespace DNS.Protocol {
             set { Ra = Convert.ToByte(value); }
         }
 
+        public bool AuthenticData {
+            get { return Ad == 1; }
+            set { Ad = Convert.ToByte(value); }
+        }
+
+        public bool CheckingDisabled {
+            get { return Cd == 1; }
+            set { Cd = Convert.ToByte(value); }
+        }
+
         public ResponseCode ResponseCode {
             get { return (ResponseCode) RCode; }
             set { RCode = (byte) value; }
@@ -147,8 +157,20 @@ namespace DNS.Protocol {
 
         // Zero (Reserved)
         private byte Z {
-            get { return Flag1.GetBitValueAt(4, 3); }
+            get { return Flag1.GetBitValueAt(6, 1); }
             set { }
+        }
+
+        // Authentic Data
+        private byte Ad {
+            get { return Flag1.GetBitValueAt(5, 1); }
+            set { Flag1 = Flag1.SetBitValueAt(5, 1, value); }
+        }
+
+        // Checking Disabled
+        private byte Cd {
+            get { return Flag1.GetBitValueAt(4, 1); }
+            set { Flag1 = Flag1.SetBitValueAt(4, 1, value); }
         }
 
         // Response Code

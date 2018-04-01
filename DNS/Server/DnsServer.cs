@@ -143,6 +143,7 @@ namespace DNS.Server {
             }
             catch (SocketException e) { OnErrored(e); }
             catch (ArgumentException e) { OnErrored(e); }
+            catch (IndexOutOfRangeException e) { OnErrored(e); }
             catch (OperationCanceledException e) { OnErrored(e); }
             catch (IOException e) { OnErrored(e); }
             catch (ObjectDisposedException e) { OnErrored(e); }

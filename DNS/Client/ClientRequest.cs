@@ -86,6 +86,8 @@ namespace DNS.Client {
                 return response;
             } catch (ArgumentException e) {
                 throw new ResponseException("Invalid response", e);
+            } catch (IndexOutOfRangeException e) {
+                throw new ResponseException("Invalid response", e);
             }
         }
     }

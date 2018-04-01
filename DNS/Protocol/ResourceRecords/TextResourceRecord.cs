@@ -40,9 +40,9 @@ namespace DNS.Protocol.ResourceRecords {
             return CharacterString.FromString($"{Escape(attributeName)}={attributeValue}");
         }
 
-        public TextResourceRecord(IResourceRecord record, byte[] message, int dataOffset) :
+        public TextResourceRecord(IResourceRecord record) :
             base(record) {
-            TextData = CharacterString.GetAllFromArray(message, dataOffset);
+            TextData = CharacterString.GetAllFromArray(Data, 0);
         }
 
         public TextResourceRecord(Domain domain, IList<CharacterString> characterStrings,
@@ -81,6 +81,10 @@ namespace DNS.Protocol.ResourceRecords {
 
         public string ToStringTextData(Encoding encoding) {
             return String.Join(string.Empty, TextData.Select(c => c.ToString(encoding)));
+        }
+
+        public override string ToString() {
+            return Stringify().Add("TextData", (object) ToStringTextData()).ToString();
         }
     }
 }

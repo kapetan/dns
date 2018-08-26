@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using DNS.Protocol.Utils;
 using DNS.Protocol.ResourceRecords;
 
@@ -11,6 +12,7 @@ namespace DNS.Protocol {
         private IList<Question> questions;
         private Header header;
         private IList<IResourceRecord> additional;
+        private IPAddress remoteAddress;
 
         public static Request FromArray(byte[] message) {
             Header header = Header.FromArray(message);
@@ -32,6 +34,7 @@ namespace DNS.Protocol {
             this.header = header;
             this.questions = questions;
             this.additional = additional;
+            this.remoteAddress = null;
         }
 
         public Request() {
@@ -42,12 +45,15 @@ namespace DNS.Protocol {
             this.header.OperationCode = OperationCode.Query;
             this.header.Response = false;
             this.header.Id = RANDOM.Next(UInt16.MaxValue);
+
+            this.remoteAddress = null;
         }
 
         public Request(IRequest request) {
             this.header = new Header();
             this.questions = new List<Question>(request.Questions);
             this.additional = new List<IResourceRecord>(request.AdditionalRecords);
+            this.remoteAddress = request.RemoteAddress;
 
             this.header.Response = false;
 
@@ -85,6 +91,11 @@ namespace DNS.Protocol {
         public bool RecursionDesired {
             get { return header.RecursionDesired; }
             set { header.RecursionDesired = value; }
+        }
+
+        public IPAddress RemoteAddress {
+            get { return remoteAddress; }
+            set { remoteAddress = value; }
         }
 
         public byte[] ToArray() {

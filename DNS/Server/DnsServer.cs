@@ -132,6 +132,8 @@ namespace DNS.Server {
 
             try {
                 request = Request.FromArray(data);
+                request.RemoteAddress = remote.Address;
+
                 OnRequested(request);
 
                 IResponse response = await resolver.Resolve(request);

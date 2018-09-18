@@ -53,7 +53,7 @@ namespace DNS.Server {
         }
 
         // maintain existing signature
-        public async Task Listen(int port) { return Listen(IPAddress.Any, port); }
+        public Task Listen(int port) { return Listen(IPAddress.Any, port); }
         public async Task Listen(IPAddress ipAddress = null, int port = DEFAULT_PORT) {
             await Task.Yield();
 

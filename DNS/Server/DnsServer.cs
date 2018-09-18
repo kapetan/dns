@@ -52,11 +52,15 @@ namespace DNS.Server {
             this.resolver = resolver;
         }
 
-        public async Task Listen(int port = DEFAULT_PORT) {
+        // maintain existing signature
+        public Task Listen(int port) { return Listen(IPAddress.Any, port); }
+        public async Task Listen(IPAddress ipAddress = null, int port = DEFAULT_PORT) {
             await Task.Yield();
 
             TaskCompletionSource<object> tcs = new TaskCompletionSource<object>();
-            IPEndPoint ip = new IPEndPoint(IPAddress.Any, port);
+            if (ipAddress == null)
+                ipAddress = IPAddress.Any;
+            IPEndPoint ip = new IPEndPoint(ipAddress, port);
 
             if (run) {
                 try {

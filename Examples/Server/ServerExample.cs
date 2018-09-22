@@ -18,11 +18,11 @@ namespace Examples.Server {
                 masterFile.AddIPAddressResourceRecord(domain, "127.0.0.1");
             }
 
-            server.Responded += (request, response) => Console.WriteLine("{0} => {1}", request, response);
-            server.Listening += () => Console.WriteLine("Listening");
-            server.Errored += (e) => {
-                Console.WriteLine("Errored: {0}", e);
-                ResponseException responseError = e as ResponseException;
+            server.Responded += (sender, e) => Console.WriteLine("{0} => {1}", e.Request, e.Response);
+            server.Listening += (sender, e) => Console.WriteLine("Listening");
+            server.Errored += (sender, e) => {
+                Console.WriteLine("Errored: {0}", e.Exception);
+                ResponseException responseError = e.Exception as ResponseException;
                 if(responseError != null) Console.WriteLine(responseError.Response);
             };
 

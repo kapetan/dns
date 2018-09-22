@@ -23,17 +23,17 @@ namespace DNS.Tests.Server {
                 IResponse respondedResponse = null;
                 Exception erroredException = null;
 
-                server.Requested += (serverRequest) => {
-                    requestedRequest = serverRequest;
+                server.Requested += (sender, e) => {
+                    requestedRequest = e.Request;
                 };
 
-                server.Responded += (serverRequest, serverResponse) => {
-                    respondedRequest = serverRequest;
-                    respondedResponse = serverResponse;
+                server.Responded += (sender, e) => {
+                    respondedRequest = e.Request;
+                    respondedResponse = e.Response;
                 };
 
-                server.Errored += (e) => {
-                    erroredException = e;
+                server.Errored += (sender, e) => {
+                    erroredException = e.Exception;
                 };
 
                 IRequest clientRequest = new Request();
@@ -101,7 +101,7 @@ namespace DNS.Tests.Server {
             TaskCompletionSource<object> tcs = new TaskCompletionSource<object>();
             DnsServer server = new DnsServer(requestResolver);
 
-            server.Listening += async () => {
+            server.Listening += async (sender, _) => {
                 try {
                     await action(server);
                     tcs.SetResult(null);

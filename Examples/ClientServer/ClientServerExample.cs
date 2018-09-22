@@ -17,12 +17,12 @@ namespace Examples.ClientServer {
 
             masterFile.AddIPAddressResourceRecord("google.com", "127.0.0.1");
 
-            server.Requested += (request) => Console.WriteLine("Requested: {0}", request);
-            server.Responded += (request, response) => Console.WriteLine("Responded: {0} => {1}", request, response);
-            server.Errored += (e) => Console.WriteLine("Errored: {0}", e.Message);
-            server.Listening += () => Console.WriteLine("Listening");
+            server.Requested += (sender, e) => Console.WriteLine("Requested: {0}", e.Request);
+            server.Responded += (sender, e) => Console.WriteLine("Responded: {0} => {1}", e.Request, e.Response);
+            server.Errored += (sender, e) => Console.WriteLine("Errored: {0}", e.Exception.Message);
+            server.Listening += (sender, e) => Console.WriteLine("Listening");
 
-            server.Listening += async () => {
+            server.Listening += async (sender, e) => {
                 DnsClient client = new DnsClient("127.0.0.1", PORT);
 
                 await client.Lookup("google.com");

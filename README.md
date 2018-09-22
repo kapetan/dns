@@ -83,11 +83,11 @@ masterFile.AddIPAddressResourceRecord("google.com", "127.0.0.1");
 masterFile.AddIPAddressResourceRecord("github.com", "127.0.0.1");
 
 // Log every request
-server.Requested += (request) => Console.WriteLine(request);
+server.Requested += (sender, e) => Console.WriteLine(e.Request);
 // On every successful request log the request and the response
-server.Responded += (request, response) => Console.WriteLine("{0} => {1}", request, response);
+server.Responded += (sender, e) => Console.WriteLine("{0} => {1}", e.Request, e.Response);
 // Log errors
-server.Errored += (e) => Console.WriteLine(e.Message);
+server.Errored += (sender, e) => Console.WriteLine(e.Exception.Message);
 
 // Start the server (by default it listents on port 53)
 await server.Listen();
@@ -129,7 +129,7 @@ await server.Listen();
 
 **This software is licensed under "MIT"**
 
-> Copyright (c) 2012 Mirza Kapetanovic
+> Copyright (c) 2018 Mirza Kapetanovic
 >
 > Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the 'Software'), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 >

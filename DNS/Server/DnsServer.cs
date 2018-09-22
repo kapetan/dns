@@ -11,7 +11,7 @@ using DNS.Client;
 using DNS.Client.RequestResolver;
 
 namespace DNS.Server {
-    public class DnsServer: IDisposable {
+    public class DnsServer : IDisposable {
         private const int DEFAULT_PORT = 53;
         private const int UDP_TIMEOUT = 2000;
 
@@ -52,15 +52,18 @@ namespace DNS.Server {
             this.resolver = resolver;
         }
 
-        public async Task Listen(int port = DEFAULT_PORT) {
+        public Task Listen(int port = DEFAULT_PORT, IPAddress ip = null) {
+            return Listen(new IPEndPoint(ip ?? IPAddress.Any, port));
+        }
+
+        public async Task Listen(IPEndPoint endpoint) {
             await Task.Yield();
 
             TaskCompletionSource<object> tcs = new TaskCompletionSource<object>();
-            IPEndPoint ip = new IPEndPoint(IPAddress.Any, port);
 
             if (run) {
                 try {
-                    udp = new UdpClient(ip);
+                    udp = new UdpClient(endpoint);
                 } catch (SocketException e) {
                     OnErrored(e);
                     return;
@@ -72,8 +75,9 @@ namespace DNS.Server {
                 byte[] data;
 
                 try {
-                    data = udp.EndReceive(result, ref ip);
-                    HandleRequest(data, ip);
+                    IPEndPoint remote = new IPEndPoint(0, 0);
+                    data = udp.EndReceive(result, ref remote);
+                    HandleRequest(data, remote);
                 }
                 catch (ObjectDisposedException) {
                     // run should already be false

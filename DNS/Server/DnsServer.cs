@@ -15,15 +15,10 @@ namespace DNS.Server {
         private const int DEFAULT_PORT = 53;
         private const int UDP_TIMEOUT = 2000;
 
-        public delegate void RequestedEventHandler(IRequest request);
-        public delegate void RespondedEventHandler(IRequest request, IResponse response);
-        public delegate void ListeningEventHandler();
-        public delegate void ErroredEventHandler(Exception e);
-
-        public event RequestedEventHandler Requested;
-        public event RespondedEventHandler Responded;
-        public event ListeningEventHandler Listening;
-        public event ErroredEventHandler Errored;
+        public event EventHandler<RequestedEventArgs> Requested;
+        public event EventHandler<RespondedEventArgs> Responded;
+        public event EventHandler<EventArgs> Listening;
+        public event EventHandler<ErroredEventArgs> Errored;
 
         private bool run = true;
         private bool disposed = false;
@@ -65,7 +60,7 @@ namespace DNS.Server {
                 try {
                     udp = new UdpClient(endpoint);
                 } catch (SocketException e) {
-                    OnErrored(e);
+                    OnError(e);
                     return;
                 }
             }
@@ -84,7 +79,7 @@ namespace DNS.Server {
                     run = false;
                 }
                 catch (SocketException e) {
-                    OnErrored(e);
+                    OnError(e);
                 }
 
                 if (run) udp.BeginReceive(receiveCallback, null);
@@ -92,7 +87,7 @@ namespace DNS.Server {
             };
 
             udp.BeginReceive(receiveCallback, null);
-            OnListening();
+            OnEvent(Listening, EventArgs.Empty);
             await tcs.Task;
         }
 
@@ -100,24 +95,8 @@ namespace DNS.Server {
             Dispose(true);
         }
 
-        protected virtual void OnRequested(IRequest request) {
-            RequestedEventHandler handlers = Requested;
-            if (handlers != null) handlers(request);
-        }
-
-        protected virtual void OnResponded(IRequest request, IResponse response) {
-            RespondedEventHandler handlers = Responded;
-            if (handlers != null) handlers(request, response);
-        }
-
-        protected virtual void OnListening() {
-            ListeningEventHandler handlers = Listening;
-            if (handlers != null) handlers();
-        }
-
-        protected virtual void OnErrored(Exception e) {
-            ErroredEventHandler handlers = Errored;
-            if (handlers != null) handlers(e);
+        protected virtual void OnEvent<T>(EventHandler<T> handler, T args) {
+            if (handler != null) handler(this, args);
         }
 
         protected virtual void Dispose(bool disposing) {
@@ -131,26 +110,30 @@ namespace DNS.Server {
             }
         }
 
+        private void OnError(Exception e) {
+            OnEvent(Errored, new ErroredEventArgs(e));
+        }
+
         private async void HandleRequest(byte[] data, IPEndPoint remote) {
             Request request = null;
 
             try {
                 request = Request.FromArray(data);
-                OnRequested(request);
+                OnEvent(Requested, new RequestedEventArgs(request, data, remote));
 
                 IResponse response = await resolver.Resolve(request);
 
-                OnResponded(request, response);
+                OnEvent(Responded, new RespondedEventArgs(request, response, data, remote));
                 await udp
                     .SendAsync(response.ToArray(), response.Size, remote)
                     .WithCancellationTimeout(UDP_TIMEOUT);
             }
-            catch (SocketException e) { OnErrored(e); }
-            catch (ArgumentException e) { OnErrored(e); }
-            catch (IndexOutOfRangeException e) { OnErrored(e); }
-            catch (OperationCanceledException e) { OnErrored(e); }
-            catch (IOException e) { OnErrored(e); }
-            catch (ObjectDisposedException e) { OnErrored(e); }
+            catch (SocketException e) { OnError(e); }
+            catch (ArgumentException e) { OnError(e); }
+            catch (IndexOutOfRangeException e) { OnError(e); }
+            catch (OperationCanceledException e) { OnError(e); }
+            catch (IOException e) { OnError(e); }
+            catch (ObjectDisposedException e) { OnError(e); }
             catch (ResponseException e) {
                 IResponse response = e.Response;
 
@@ -165,7 +148,70 @@ namespace DNS.Server {
                 }
                 catch (SocketException) {}
                 catch (OperationCanceledException) {}
-                finally { OnErrored(e); }
+                finally { OnError(e); }
+            }
+        }
+
+        public class RequestedEventArgs : EventArgs {
+            public RequestedEventArgs(IRequest request, byte[] data, IPEndPoint remote) {
+                Request = request;
+                Data = data;
+                Remote = remote;
+            }
+
+            public IRequest Request {
+                get;
+                private set;
+            }
+
+            public byte[] Data {
+                get;
+                private set;
+            }
+
+            public IPEndPoint Remote {
+                get;
+                private set;
+            }
+        }
+
+        public class RespondedEventArgs : EventArgs {
+            public RespondedEventArgs(IRequest request, IResponse response, byte[] data, IPEndPoint remote) {
+                Request = request;
+                Response = response;
+                Data = data;
+                Remote = remote;
+            }
+
+            public IRequest Request {
+                get;
+                private set;
+            }
+
+            public IResponse Response {
+                get;
+                private set;
+            }
+
+            public byte[] Data {
+                get;
+                private set;
+            }
+
+            public IPEndPoint Remote {
+                get;
+                private set;
+            }
+        }
+
+        public class ErroredEventArgs : EventArgs {
+            public ErroredEventArgs(Exception e) {
+                Exception = e;
+            }
+
+            public Exception Exception {
+                get;
+                private set;
             }
         }
 

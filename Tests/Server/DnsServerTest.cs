@@ -18,22 +18,20 @@ namespace DNS.Tests.Server {
         [Fact]
         public async Task ServerLookup() {
             await Create(new IPAddressRequestResolver(), async server => {
-                IRequest requestedRequest = null;
-                IRequest respondedRequest = null;
-                IResponse respondedResponse = null;
-                Exception erroredException = null;
+                DnsServer.RequestedEventArgs requestedEvent = null;
+                DnsServer.RespondedEventArgs respondedEvent = null;
+                DnsServer.ErroredEventArgs erroredEvent = null;
 
                 server.Requested += (sender, e) => {
-                    requestedRequest = e.Request;
+                    requestedEvent = e;
                 };
 
                 server.Responded += (sender, e) => {
-                    respondedRequest = e.Request;
-                    respondedResponse = e.Response;
+                    respondedEvent = e;
                 };
 
                 server.Errored += (sender, e) => {
-                    erroredException = e.Exception;
+                    erroredEvent = e;
                 };
 
                 IRequest clientRequest = new Request();
@@ -62,38 +60,40 @@ namespace DNS.Tests.Server {
                 Assert.Equal(Helper.GetArray<byte>(192, 168, 0, 1), clientResponseRecord.Data);
                 Assert.Equal(RecordType.A, clientResponseRecord.Type);
 
-                Assert.NotNull(requestedRequest);
+                Assert.NotNull(requestedEvent);
 
-                Assert.Equal(1, requestedRequest.Id);
-                Assert.Equal(1, requestedRequest.Questions.Count);
+                Assert.NotNull(requestedEvent.Request);
+                Assert.Equal(1, requestedEvent.Request.Id);
+                Assert.Equal(1, requestedEvent.Request.Questions.Count);
 
-                Question requestedRequestQuestion = requestedRequest.Questions[0];
+                Question requestedRequestQuestion = requestedEvent.Request.Questions[0];
 
                 Assert.Equal(RecordType.A, requestedRequestQuestion.Type);
                 Assert.Equal("google.com", requestedRequestQuestion.Name.ToString());
 
-                Assert.Equal(requestedRequest, respondedRequest);
+                Assert.NotNull(respondedEvent);
+                Assert.Equal(requestedEvent.Request, respondedEvent.Request);
 
-                Assert.NotNull(respondedResponse);
+                Assert.NotNull(respondedEvent.Response);
 
-                Assert.Equal(1, respondedResponse.Id);
-                Assert.Equal(1, respondedResponse.Questions.Count);
-                Assert.Equal(1, respondedResponse.AnswerRecords.Count);
-                Assert.Equal(0, respondedResponse.AuthorityRecords.Count);
-                Assert.Equal(0, respondedResponse.AdditionalRecords.Count);
+                Assert.Equal(1, respondedEvent.Response.Id);
+                Assert.Equal(1, respondedEvent.Response.Questions.Count);
+                Assert.Equal(1, respondedEvent.Response.AnswerRecords.Count);
+                Assert.Equal(0, respondedEvent.Response.AuthorityRecords.Count);
+                Assert.Equal(0, respondedEvent.Response.AdditionalRecords.Count);
 
-                Question respondedResponseQuestion = respondedResponse.Questions[0];
+                Question respondedResponseQuestion = respondedEvent.Response.Questions[0];
 
                 Assert.Equal(RecordType.A, respondedResponseQuestion.Type);
                 Assert.Equal("google.com", respondedResponseQuestion.Name.ToString());
 
-                IResourceRecord respondedResponseRecord = respondedResponse.AnswerRecords[0];
+                IResourceRecord respondedResponseRecord = respondedEvent.Response.AnswerRecords[0];
 
                 Assert.Equal("google.com", respondedResponseRecord.Name.ToString());
                 Assert.Equal(Helper.GetArray<byte>(192, 168, 0, 1), respondedResponseRecord.Data);
                 Assert.Equal(RecordType.A, respondedResponseRecord.Type);
 
-                Assert.Null(erroredException);
+                Assert.Null(erroredEvent);
             });
         }
 

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Net;
 using DNS.Protocol.ResourceRecords;
 
 namespace DNS.Protocol {
@@ -7,5 +8,6 @@ namespace DNS.Protocol {
         IList<IResourceRecord> AdditionalRecords { get; }
         OperationCode OperationCode { get; set; }
         bool RecursionDesired { get; set; }
+        IPAddress RemoteAddress { get; set; }
     }
 }

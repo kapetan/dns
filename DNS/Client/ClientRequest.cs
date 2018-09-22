@@ -14,6 +14,8 @@ namespace DNS.Client {
         private IRequestResolver resolver;
         private IRequest request;
 
+        private IPAddress remoteAddress;
+
         public ClientRequest(IPEndPoint dns, IRequest request = null) :
             this(new UdpRequestResolver(dns), request) { }
 
@@ -61,6 +63,12 @@ namespace DNS.Client {
 
         public override string ToString() {
             return request.ToString();
+        }
+
+        public IPAddress RemoteAddress
+        {
+            get { return remoteAddress; }
+            set { remoteAddress = value; }
         }
 
         /// <summary>

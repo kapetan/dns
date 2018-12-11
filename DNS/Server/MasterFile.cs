@@ -18,7 +18,10 @@ namespace DNS.Server {
 
             for (int i = 0; i < labels.Length; i++) {
                 string label = labels[i];
-                patterns[i] = label == "*" ? "(\\w+)" : Regex.Escape(label);
+                // note: support hyphens '-' in domain name
+                //       don't support underline '_' in name
+                patterns[i] = label == "*" ? "([a-zA-Z0-9]+(-[a-zA-Z0-9]+)*)" : Regex.Escape(label);
+                //patterns[i] = label == "*" ? "(\\w+)" : Regex.Escape(label);
             }
 
             Regex re = new Regex("^" + string.Join("\\.", patterns) + "$");

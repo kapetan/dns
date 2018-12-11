@@ -10,6 +10,6 @@
     <ProjectReference Include="..\DNS\DNS.csproj" />
   </ItemGroup>
   <PropertyGroup>
-    <StartupObject>Examples.ClientServer.ClientServerExample</StartupObject>
+    <StartupObject>Examples.Server.ServerExample</StartupObject>
   </PropertyGroup>
 </Project>

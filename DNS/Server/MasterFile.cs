@@ -12,7 +12,7 @@ namespace DNS.Server {
     public class MasterFile : IRequestResolver {
         private static readonly TimeSpan DEFAULT_TTL = new TimeSpan(0);
 
-        private static bool Matches(Domain domain, Domain entry) {
+        protected static bool Matches(Domain domain, Domain entry) {
             string[] labels = entry.ToString().Split('.');
             string[] patterns = new string[labels.Length];
 
@@ -25,23 +25,23 @@ namespace DNS.Server {
             return re.IsMatch(domain.ToString());
         }
 
-        private static void Merge<T>(IList<T> l1, IList<T> l2) {
+        protected static void Merge<T>(IList<T> l1, IList<T> l2) {
             foreach (T obj in l2) {
                 l1.Add(obj);
             }
         }
 
-        private IList<IResourceRecord> entries = new List<IResourceRecord>();
-        private TimeSpan ttl = DEFAULT_TTL;
+        protected IList<IResourceRecord> Entries { get; set; } = new List<IResourceRecord>();
+        protected TimeSpan Ttl { get; set; } = DEFAULT_TTL;
 
         public MasterFile(TimeSpan ttl) {
-            this.ttl = ttl;
+            this.Ttl = ttl;
         }
 
         public MasterFile() {}
 
         public void Add(IResourceRecord entry) {
-            entries.Add(entry);
+            Entries.Add(entry);
         }
 
         public void AddIPAddressResourceRecord(string domain, string ip) {
@@ -49,7 +49,7 @@ namespace DNS.Server {
         }
 
         public void AddIPAddressResourceRecord(Domain domain, IPAddress ip) {
-            Add(new IPAddressResourceRecord(domain, ip, ttl));
+            Add(new IPAddressResourceRecord(domain, ip, Ttl));
         }
 
         public void AddNameServerResourceRecord(string domain, string nsDomain) {
@@ -57,7 +57,7 @@ namespace DNS.Server {
         }
 
         public void AddNameServerResourceRecord(Domain domain, Domain nsDomain) {
-            Add(new NameServerResourceRecord(domain, nsDomain, ttl));
+            Add(new NameServerResourceRecord(domain, nsDomain, Ttl));
         }
 
         public void AddCanonicalNameResourceRecord(string domain, string cname) {
@@ -65,7 +65,7 @@ namespace DNS.Server {
         }
 
         public void AddCanonicalNameResourceRecord(Domain domain, Domain cname) {
-            Add(new CanonicalNameResourceRecord(domain, cname, ttl));
+            Add(new CanonicalNameResourceRecord(domain, cname, Ttl));
         }
 
         public void AddPointerResourceRecord(string ip, string pointer) {
@@ -73,7 +73,7 @@ namespace DNS.Server {
         }
 
         public void AddPointerResourceRecord(IPAddress ip, Domain pointer) {
-            Add(new PointerResourceRecord(ip, pointer, ttl));
+            Add(new PointerResourceRecord(ip, pointer, Ttl));
         }
 
         public void AddMailExchangeResourceRecord(string domain, int preference, string exchange) {
@@ -85,7 +85,7 @@ namespace DNS.Server {
         }
 
         public void AddTextResourceRecord(string domain, string attributeName, string attributeValue) {
-            Add(new TextResourceRecord(new Domain(domain), attributeName, attributeValue, ttl));
+            Add(new TextResourceRecord(new Domain(domain), attributeName, attributeValue, Ttl));
         }
 
         public Task<IResponse> Resolve(IRequest request) {
@@ -104,11 +104,11 @@ namespace DNS.Server {
             return Task.FromResult(response);
         }
 
-        private IList<IResourceRecord> Get(Domain domain, RecordType type) {
-            return entries.Where(e => Matches(domain, e.Name) && e.Type == type).ToList();
+        protected IList<IResourceRecord> Get(Domain domain, RecordType type) {
+            return Entries.Where(e => Matches(domain, e.Name) && e.Type == type).ToList();
         }
 
-        private IList<IResourceRecord> Get(Question question) {
+        protected IList<IResourceRecord> Get(Question question) {
             return Get(question.Name, question.Type);
         }
     }

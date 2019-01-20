@@ -51,6 +51,11 @@ namespace DNS.Server {
             return Listen(new IPEndPoint(ip ?? IPAddress.Any, port));
         }
 
+        public void Close()
+        {
+            udp.Close();
+        }
+
         public async Task Listen(IPEndPoint endpoint) {
             await Task.Yield();
 

@@ -44,10 +44,8 @@ namespace DNS.Server {
             entries.Add(entry);
         }
 
-		public void AddSrvRecord(string service, string target, int port, int priority, int weight)
-        {
-            Add(new SrvResourceRecord(Domain.FromString(service), priority, weight, port, Domain.FromString(target),
-                ttl));
+		public void AddSrvRecord(string service, string target, int port, int priority, int weight) {
+            Add(new SrvResourceRecord(Domain.FromString(service), priority, weight, port, Domain.FromString(target), ttl));
         }
 
         public void AddIPAddressResourceRecord(string domain, string ip) {

@@ -85,21 +85,13 @@ namespace DNS.Protocol {
             ResponseCode = response.ResponseCode;
         }
 
-        public IList<Question> Questions {
-            get { return questions; }
-        }
+        public IList<Question> Questions => questions; 
 
-        public IList<IResourceRecord> AnswerRecords {
-            get { return answers; }
-        }
+        public IList<IResourceRecord> AnswerRecords => answers; 
 
-        public IList<IResourceRecord> AuthorityRecords {
-            get { return authority; }
-        }
+        public IList<IResourceRecord> AuthorityRecords => authority; 
 
-        public IList<IResourceRecord> AdditionalRecords {
-            get { return additional; }
-        }
+        public IList<IResourceRecord> AdditionalRecords => additional;
 
         public int Id {
             get { return header.Id; }

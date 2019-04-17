@@ -3,39 +3,25 @@ using DNS.Protocol.Utils;
 
 namespace DNS.Protocol.ResourceRecords {
     public abstract class BaseResourceRecord : IResourceRecord {
-        private IResourceRecord record;
+        private readonly IResourceRecord record;
 
         public BaseResourceRecord(IResourceRecord record) {
             this.record = record;
         }
 
-        public Domain Name {
-            get { return record.Name; }
-        }
+        public Domain Name => record.Name; 
 
-        public RecordType Type {
-            get { return record.Type; }
-        }
+        public RecordType Type => record.Type; 
 
-        public RecordClass Class {
-            get { return record.Class; }
-        }
+        public RecordClass Class => record.Class; 
 
-        public TimeSpan TimeToLive {
-            get { return record.TimeToLive; }
-        }
+        public TimeSpan TimeToLive => record.TimeToLive;
 
-        public int DataLength {
-            get { return record.DataLength; }
-        }
+        public int DataLength => record.DataLength;
 
-        public byte[] Data {
-            get { return record.Data; }
-        }
+        public byte[] Data => record.Data; 
 
-        public int Size {
-            get { return record.Size; }
-        }
+        public int Size => record.Size;
 
         public byte[] ToArray() {
             return record.ToArray();

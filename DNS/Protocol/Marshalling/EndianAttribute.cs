@@ -7,9 +7,6 @@ namespace DNS.Protocol.Marshalling {
             this.Endianness = endianness;
         }
 
-        public Endianness Endianness {
-            get;
-            private set;
-        }
+        public Endianness Endianness { get; }
     }
 }

@@ -4,7 +4,7 @@ using System.IO;
 
 namespace DNS.Protocol.Utils {
     public class ByteStream : Stream {
-        private byte[] buffer;
+        private readonly byte[] buffer;
         private int offset = 0;
 
         public ByteStream(int capacity) {
@@ -32,13 +32,9 @@ namespace DNS.Protocol.Utils {
             this.offset = 0;
         }
 
-        public override bool CanRead {
-            get { return false; }
-        }
+        public override bool CanRead => false;
 
-        public override bool CanSeek {
-            get { return false; }
-        }
+        public override bool CanSeek => false;
 
         public override bool CanWrite {
             get { return buffer.Length > 0 && offset < buffer.Length; }
@@ -46,9 +42,7 @@ namespace DNS.Protocol.Utils {
 
         public override void Flush() { }
 
-        public override long Length {
-            get { return offset; }
-        }
+        public override long Length => offset;
 
         public override long Position {
             get { throw new NotImplementedException(); }

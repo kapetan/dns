@@ -57,33 +57,19 @@ namespace DNS.Protocol.ResourceRecords {
             this.data = data;
         }
 
-        public Domain Name {
-            get { return domain; }
-        }
+        public Domain Name => domain; 
 
-        public RecordType Type {
-            get { return type; }
-        }
+        public RecordType Type => type; 
 
-        public RecordClass Class {
-            get { return klass; }
-        }
+        public RecordClass Class => klass; 
 
-        public TimeSpan TimeToLive {
-            get { return ttl; }
-        }
+        public TimeSpan TimeToLive => ttl;
 
-        public int DataLength {
-            get { return data.Length; }
-        }
+        public int DataLength => data.Length;
 
-        public byte[] Data {
-            get { return data; }
-        }
+        public byte[] Data => data;
 
-        public int Size {
-            get { return domain.Size + Tail.SIZE + data.Length; }
-        }
+        public int Size => domain.Size + Tail.SIZE + data.Length;
 
         public byte[] ToArray() {
             ByteStream result = new ByteStream(Size);

@@ -42,21 +42,13 @@ namespace DNS.Protocol {
             this.klass = klass;
         }
 
-        public Domain Name {
-            get { return domain; }
-        }
+        public Domain Name => domain;
 
-        public RecordType Type {
-            get { return type; }
-        }
+        public RecordType Type => type;
 
-        public RecordClass Class {
-            get { return klass; }
-        }
+        public RecordClass Class => klass;
 
-        public int Size {
-            get { return domain.Size + Tail.SIZE; }
-        }
+        public int Size => domain.Size + Tail.SIZE;
 
         public byte[] ToArray() {
             ByteStream result = new ByteStream(Size);

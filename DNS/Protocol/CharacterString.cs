@@ -75,9 +75,7 @@ namespace DNS.Protocol {
 
         public CharacterString(string data) : this(data, Encoding.ASCII) {}
 
-        public int Size {
-            get { return data.Length + 1; }
-        }
+        public int Size => data.Length + 1;
 
         public byte[] ToArray() {
             byte[] result = new byte[Size];

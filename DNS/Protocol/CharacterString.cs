@@ -14,7 +14,7 @@ namespace DNS.Protocol {
     public class CharacterString {
         private const int MAX_SIZE = byte.MaxValue;
 
-        private byte[] data;
+        private readonly byte[] data;
 
         public static IList<CharacterString> GetAllFromArray(byte[] message, int offset) {
             return GetAllFromArray(message, offset, out offset);

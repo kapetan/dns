@@ -9,10 +9,10 @@ namespace DNS.Protocol {
         private static readonly Random RANDOM = new Random();
 
         private Header header;
-        private IList<Question> questions;
-        private IList<IResourceRecord> answers;
-        private IList<IResourceRecord> authority;
-        private IList<IResourceRecord> additional;
+        private readonly IList<Question> questions;
+        private readonly IList<IResourceRecord> answers;
+        private readonly IList<IResourceRecord> authority;
+        private readonly IList<IResourceRecord> additional;
 
         public static Response FromRequest(IRequest request) {
             Response response = new Response();

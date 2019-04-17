@@ -5,11 +5,11 @@ using DNS.Protocol.Utils;
 
 namespace DNS.Protocol.ResourceRecords {
     public class ResourceRecord : IResourceRecord {
-        private Domain domain;
-        private RecordType type;
-        private RecordClass klass;
-        private TimeSpan ttl;
-        private byte[] data;
+        private readonly Domain domain;
+        private readonly RecordType type;
+        private readonly RecordClass klass;
+        private readonly TimeSpan ttl;
+        private readonly byte[] data;
 
         public static IList<ResourceRecord> GetAllFromArray(byte[] message, int offset, int count) {
             return GetAllFromArray(message, offset, count, out offset);

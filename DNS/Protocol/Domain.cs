@@ -6,14 +6,14 @@ using System.Net;
 using DNS.Protocol.Utils;
 
 namespace DNS.Protocol {
-    public class Domain : IComparable<Domain> {
+    public sealed class Domain : IComparable<Domain> {
         private const byte ASCII_UPPERCASE_FIRST = 65;
         private const byte ASCII_UPPERCASE_LAST = 90;
         private const byte ASCII_LOWERCASE_FIRST = 97;
         private const byte ASCII_LOWERCASE_LAST = 122;
         private const byte ASCII_UPPERCASE_MASK = 223;
 
-        private byte[][] labels;
+        private readonly byte[][] labels;
 
         public static Domain FromString(string domain) {
             return new Domain(domain);

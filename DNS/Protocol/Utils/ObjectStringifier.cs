@@ -51,8 +51,8 @@ namespace DNS.Protocol.Utils {
             return result.Append("}").ToString();
         }
 
-        private object obj;
-        private Dictionary<string, string> pairs;
+        private readonly object obj;
+        private readonly Dictionary<string, string> pairs;
 
         public ObjectStringifier(object obj) {
             this.obj = obj;

@@ -32,9 +32,9 @@ namespace DNS.Protocol {
             return new Question(domain, tail.Type, tail.Class);
         }
 
-        private Domain domain;
-        private RecordType type;
-        private RecordClass klass;
+        private readonly Domain domain;
+        private readonly RecordType type;
+        private readonly RecordClass klass;
 
         public Question(Domain domain, RecordType type = RecordType.A, RecordClass klass = RecordClass.IN) {
             this.domain = domain;

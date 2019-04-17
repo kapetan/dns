@@ -31,8 +31,8 @@ namespace DNS.Server {
             }
         }
 
-        private IList<IResourceRecord> entries = new List<IResourceRecord>();
-        private TimeSpan ttl = DEFAULT_TTL;
+        private readonly IList<IResourceRecord> entries = new List<IResourceRecord>();
+        private readonly TimeSpan ttl = DEFAULT_TTL;
 
         public MasterFile(TimeSpan ttl) {
             this.ttl = ttl;

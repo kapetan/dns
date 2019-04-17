@@ -8,7 +8,7 @@ namespace DNS.Protocol {
     public class Request : IRequest {
         private static readonly Random RANDOM = new Random();
 
-        private IList<Question> questions;
+        private readonly IList<Question> questions;
         private Header header;
         private IList<IResourceRecord> additional;
 

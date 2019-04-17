@@ -12,7 +12,7 @@ namespace DNS.Tests.Protocol {
             Response response = Response.FromArray(content);
 
             Assert.Equal(0, response.Id);
-            Assert.Equal(false, response.RecursionAvailable);
+            Assert.False(response.RecursionAvailable);
             Assert.Equal(62, response.Size);
             Assert.Equal(1, response.Questions.Count);
             Assert.Equal(1, response.AnswerRecords.Count);
@@ -56,7 +56,7 @@ namespace DNS.Tests.Protocol {
             Response response = Response.FromArray(content);
 
             Assert.Equal(1, response.Id);
-            Assert.Equal(true, response.RecursionAvailable);
+            Assert.True(response.RecursionAvailable);
             Assert.Equal(101, response.Size);
             Assert.Equal(1, response.Questions.Count);
             Assert.Equal(1, response.AnswerRecords.Count);

@@ -1,16 +1,16 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
-using System.IO;
-using DNS.Protocol;
-using DNS.Protocol.ResourceRecords;
-using DNS.Protocol.Utils;
+
 using DNS.Client;
 using DNS.Client.RequestResolver;
+using DNS.Protocol;
+using DNS.Protocol.Utils;
 
-namespace DNS.Server {
+namespace DNS.Server
+{
     public class DnsServer : IDisposable {
         private const int DEFAULT_PORT = 53;
         private const int UDP_TIMEOUT = 2000;
@@ -23,7 +23,7 @@ namespace DNS.Server {
         private bool run = true;
         private bool disposed = false;
         private UdpClient udp;
-        private IRequestResolver resolver;
+        private readonly IRequestResolver resolver;
 
         public DnsServer(MasterFile masterFile, IPEndPoint endServer) :
             this(new FallbackRequestResolver(masterFile, new UdpRequestResolver(endServer))) {}
@@ -65,12 +65,12 @@ namespace DNS.Server {
                 }
             }
 
-            AsyncCallback receiveCallback = null;
-            receiveCallback = result => {
+            void receiveCallback(IAsyncResult result)
+            {
                 byte[] data;
 
                 try {
-                    IPEndPoint remote = new IPEndPoint(0, 0);
+                    var remote = new IPEndPoint(0, 0);
                     data = udp.EndReceive(result, ref remote);
                     HandleRequest(data, remote);
                 }
@@ -84,7 +84,7 @@ namespace DNS.Server {
 
                 if (run) udp.BeginReceive(receiveCallback, null);
                 else tcs.SetResult(null);
-            };
+            }
 
             udp.BeginReceive(receiveCallback, null);
             OnEvent(Listening, EventArgs.Empty);
@@ -96,7 +96,7 @@ namespace DNS.Server {
         }
 
         protected virtual void OnEvent<T>(EventHandler<T> handler, T args) {
-            if (handler != null) handler(this, args);
+            handler?.Invoke(this, args);
         }
 
         protected virtual void Dispose(bool disposing) {
@@ -216,7 +216,7 @@ namespace DNS.Server {
         }
 
         private class FallbackRequestResolver : IRequestResolver {
-            private IRequestResolver[] resolvers;
+            private readonly IRequestResolver[] resolvers;
 
             public FallbackRequestResolver(params IRequestResolver[] resolvers) {
                 this.resolvers = resolvers;

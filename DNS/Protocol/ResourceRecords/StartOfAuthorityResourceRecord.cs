@@ -94,6 +94,11 @@ namespace DNS.Protocol.ResourceRecords {
             return Stringify().Add("MasterDomainName", "ResponsibleDomainName", "SerialNumber").ToString();
         }
 
+        public void IncreaseSerialNumber()
+        {
+            SerialNumber++;
+        }
+
         [Marshalling.Endian(Marshalling.Endianness.Big)]
         [StructLayout(LayoutKind.Sequential, Pack = 4)]
         public struct Options {

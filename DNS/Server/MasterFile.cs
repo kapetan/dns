@@ -88,6 +88,38 @@ namespace DNS.Server {
             Add(new TextResourceRecord(new Domain(domain), attributeName, attributeValue, ttl));
         }
 
+        public void UpdateIPAddressResourceRecord(string domain, string ipOld, string ipNew)
+        {
+            UpdateIPAddressResourceRecord(new Domain(domain), IPAddress.Parse(ipOld), IPAddress.Parse(ipNew));
+        }
+
+        public void UpdateIPAddressResourceRecord(Domain domain, IPAddress ipOld, IPAddress ipNew)
+        {
+            for (int i = 0; i < entries.Count; i++)
+            {
+                if (entries[i] is IPAddressResourceRecord e && e.Name.Equals(domain) && e.IPAddress.Equals(ipOld))
+                {
+                    entries[i] = new IPAddressResourceRecord(domain, ipNew);
+                }
+            }
+        }
+
+        public void IncreaseSoaSerialNumber(string domain)
+        {
+            IncreaseSoaSerialNumber(new Domain(domain));
+        }
+
+        public void IncreaseSoaSerialNumber(Domain domain)
+        {
+            foreach (var entry in entries)
+            {
+                if (entry is StartOfAuthorityResourceRecord e && e.Name.Equals(domain))
+                {
+                    e.IncreaseSerialNumber();
+                }
+            }
+        }
+
         public Task<IResponse> Resolve(IRequest request) {
             IResponse response = Response.FromRequest(request);
 

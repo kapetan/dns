@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 using DNS.Client;
@@ -38,33 +39,31 @@ namespace DNS.Tests.Client {
         }
 
         private class IPAddressRequestResolver : IRequestResolver {
-            public Task<IResponse> Resolve(IRequest request) {
+            public Task<IResponse> Resolve(IRequest request, CancellationToken cancellationToken = default(CancellationToken)) {
                 IResponse response = Response.FromRequest(request);
                 IResourceRecord record = new IPAddressResourceRecord(
                     new Domain("google.com"),
                     IPAddress.Parse("192.168.0.1"));
 
                 response.AnswerRecords.Add(record);
-
                 return Task.FromResult(response);
             }
         }
 
         private class PointerRequestResolver : IRequestResolver {
-            public Task<IResponse> Resolve(IRequest request) {
+            public Task<IResponse> Resolve(IRequest request, CancellationToken cancellationToken = default(CancellationToken)) {
                 IResponse response = Response.FromRequest(request);
                 IResourceRecord record = new PointerResourceRecord(
                     IPAddress.Parse("192.168.0.1"),
                     new Domain("google.com"));
 
                 response.AnswerRecords.Add(record);
-
                 return Task.FromResult(response);
             }
         }
 
         private class NameErrorRequestResolver : IRequestResolver {
-            public Task<IResponse> Resolve(IRequest request) {
+            public Task<IResponse> Resolve(IRequest request, CancellationToken cancellationToken = default(CancellationToken)) {
                 IResponse response = Response.FromRequest(request);
                 response.ResponseCode = ResponseCode.NameError;
                 return Task.FromResult(response);

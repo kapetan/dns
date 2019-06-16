@@ -1,11 +1,10 @@
 using System;
-using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Net;
 using System.Net.Sockets;
 using Xunit;
 using DNS.Server;
-using DNS.Client;
 using DNS.Client.RequestResolver;
 using DNS.Protocol;
 using DNS.Protocol.ResourceRecords;
@@ -126,7 +125,7 @@ namespace DNS.Tests.Server {
         }
 
         private class IPAddressRequestResolver : IRequestResolver {
-            public Task<IResponse> Resolve(IRequest request) {
+            public Task<IResponse> Resolve(IRequest request, CancellationToken cancellationToken = default(CancellationToken)) {
                 IResponse response = Response.FromRequest(request);
                 IResourceRecord record = new IPAddressResourceRecord(
                     new Domain("google.com"),

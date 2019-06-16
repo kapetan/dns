@@ -1,11 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading;
 using System.Threading.Tasks;
 using System.IO;
 using DNS.Protocol;
-using DNS.Protocol.ResourceRecords;
 using DNS.Protocol.Utils;
 using DNS.Client;
 using DNS.Client.RequestResolver;
@@ -222,11 +221,11 @@ namespace DNS.Server {
                 this.resolvers = resolvers;
             }
 
-            public async Task<IResponse> Resolve(IRequest request) {
+            public async Task<IResponse> Resolve(IRequest request, CancellationToken cancellationToken = default(CancellationToken)) {
                 IResponse response = null;
 
                 foreach (IRequestResolver resolver in resolvers) {
-                    response = await resolver.Resolve(request);
+                    response = await resolver.Resolve(request, cancellationToken);
                     if (response.AnswerRecords.Count > 0) break;
                 }
 

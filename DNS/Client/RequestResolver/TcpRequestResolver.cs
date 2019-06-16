@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Net.Sockets;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Net;
 using DNS.Protocol;
@@ -13,7 +14,7 @@ namespace DNS.Client.RequestResolver {
             this.dns = dns;
         }
 
-        public async Task<IResponse> Resolve(IRequest request) {
+        public async Task<IResponse> Resolve(IRequest request, CancellationToken cancellationToken = default(CancellationToken)) {
             using(TcpClient tcp = new TcpClient()) {
                 await tcp.ConnectAsync(dns.Address, dns.Port);
 
@@ -25,30 +26,30 @@ namespace DNS.Client.RequestResolver {
                     Array.Reverse(length);
                 }
 
-                await stream.WriteAsync(length, 0, length.Length);
-                await stream.WriteAsync(buffer, 0, buffer.Length);
+                await stream.WriteAsync(length, 0, length.Length, cancellationToken);
+                await stream.WriteAsync(buffer, 0, buffer.Length, cancellationToken);
 
                 buffer = new byte[2];
-                await Read(stream, buffer);
+                await Read(stream, buffer, cancellationToken);
 
                 if (BitConverter.IsLittleEndian) {
                     Array.Reverse(buffer);
                 }
 
                 buffer = new byte[BitConverter.ToUInt16(buffer, 0)];
-                await Read(stream, buffer);
+                await Read(stream, buffer, cancellationToken);
 
                 IResponse response = Response.FromArray(buffer);
                 return new ClientResponse(request, response, buffer);
             }
         }
 
-        private static async Task Read(Stream stream, byte[] buffer) {
+        private static async Task Read(Stream stream, byte[] buffer, CancellationToken cancellationToken) {
             int length = buffer.Length;
             int offset = 0;
             int size = 0;
 
-            while (length > 0 && (size = await stream.ReadAsync(buffer, offset, length)) > 0) {
+            while (length > 0 && (size = await stream.ReadAsync(buffer, offset, length, cancellationToken)) > 0) {
                 offset += size;
                 length -= size;
             }

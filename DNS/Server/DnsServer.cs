@@ -1,11 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading;
 using System.Threading.Tasks;
 using System.IO;
 using DNS.Protocol;
-using DNS.Protocol.ResourceRecords;
 using DNS.Protocol.Utils;
 using DNS.Client;
 using DNS.Client.RequestResolver;
@@ -126,7 +125,7 @@ namespace DNS.Server {
                 OnEvent(Responded, new RespondedEventArgs(request, response, data, remote));
                 await udp
                     .SendAsync(response.ToArray(), response.Size, remote)
-                    .WithCancellationTimeout(UDP_TIMEOUT);
+                    .WithCancellationTimeout(TimeSpan.FromMilliseconds(UDP_TIMEOUT));
             }
             catch (SocketException e) { OnError(e); }
             catch (ArgumentException e) { OnError(e); }
@@ -144,7 +143,7 @@ namespace DNS.Server {
                 try {
                     await udp
                         .SendAsync(response.ToArray(), response.Size, remote)
-                        .WithCancellationTimeout(UDP_TIMEOUT);
+                        .WithCancellationTimeout(TimeSpan.FromMilliseconds(UDP_TIMEOUT));
                 }
                 catch (SocketException) {}
                 catch (OperationCanceledException) {}
@@ -222,11 +221,11 @@ namespace DNS.Server {
                 this.resolvers = resolvers;
             }
 
-            public async Task<IResponse> Resolve(IRequest request) {
+            public async Task<IResponse> Resolve(IRequest request, CancellationToken cancellationToken = default(CancellationToken)) {
                 IResponse response = null;
 
                 foreach (IRequestResolver resolver in resolvers) {
-                    response = await resolver.Resolve(request);
+                    response = await resolver.Resolve(request, cancellationToken);
                     if (response.AnswerRecords.Count > 0) break;
                 }
 

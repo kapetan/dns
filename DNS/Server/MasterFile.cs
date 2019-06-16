@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using DNS.Protocol;
 using DNS.Protocol.ResourceRecords;
@@ -88,7 +89,7 @@ namespace DNS.Server {
             Add(new TextResourceRecord(new Domain(domain), attributeName, attributeValue, ttl));
         }
 
-        public Task<IResponse> Resolve(IRequest request) {
+        public Task<IResponse> Resolve(IRequest request, CancellationToken cancellationToken = default(CancellationToken)) {
             IResponse response = Response.FromRequest(request);
 
             foreach (Question question in request.Questions) {

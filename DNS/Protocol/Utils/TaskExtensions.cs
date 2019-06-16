@@ -10,8 +10,8 @@ namespace DNS.Protocol.Utils {
                 ((TaskCompletionSource<bool>) src).TrySetResult(true);
             }, tcs);
 
-            using(registration) {
-                if(await Task.WhenAny(task, tcs.Task) != task) {
+            using (registration) {
+                if (await Task.WhenAny(task, tcs.Task) != task) {
                     throw new OperationCanceledException(token);
                 }
             }
@@ -19,9 +19,10 @@ namespace DNS.Protocol.Utils {
             return await task;
         }
 
-        public static async Task<T> WithCancellationTimeout<T>(this Task<T> task, int timeout) {
-            using(CancellationTokenSource cts = new CancellationTokenSource(timeout)) {
-                return await task.WithCancellation(cts.Token);
+        public static async Task<T> WithCancellationTimeout<T>(this Task<T> task, TimeSpan timeout, CancellationToken cancellationToken = default(CancellationToken)) {
+            using (CancellationTokenSource timeoutSource = new CancellationTokenSource(timeout))
+            using (CancellationTokenSource linkSource = CancellationTokenSource.CreateLinkedTokenSource(timeoutSource.Token, cancellationToken)) {
+                return await task.WithCancellation(linkSource.Token);
             }
         }
     }

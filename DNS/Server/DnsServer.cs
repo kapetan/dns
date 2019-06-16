@@ -3,6 +3,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Runtime.InteropServices;
 using System.IO;
 using DNS.Protocol;
 using DNS.Protocol.Utils;
@@ -11,6 +12,7 @@ using DNS.Client.RequestResolver;
 
 namespace DNS.Server {
     public class DnsServer : IDisposable {
+        private const int SIO_UDP_CONNRESET = unchecked((int) 0x9800000C);
         private const int DEFAULT_PORT = 53;
         private const int UDP_TIMEOUT = 2000;
 
@@ -58,6 +60,10 @@ namespace DNS.Server {
             if (run) {
                 try {
                     udp = new UdpClient(endpoint);
+
+                    if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) {
+                        udp.Client.IOControl(SIO_UDP_CONNRESET, new byte[4], new byte[4]);
+                    }
                 } catch (SocketException e) {
                     OnError(e);
                     return;

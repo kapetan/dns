@@ -125,7 +125,7 @@ namespace DNS.Server {
                 OnEvent(Responded, new RespondedEventArgs(request, response, data, remote));
                 await udp
                     .SendAsync(response.ToArray(), response.Size, remote)
-                    .WithCancellationTimeout(UDP_TIMEOUT);
+                    .WithCancellationTimeout(TimeSpan.FromMilliseconds(UDP_TIMEOUT));
             }
             catch (SocketException e) { OnError(e); }
             catch (ArgumentException e) { OnError(e); }
@@ -143,7 +143,7 @@ namespace DNS.Server {
                 try {
                     await udp
                         .SendAsync(response.ToArray(), response.Size, remote)
-                        .WithCancellationTimeout(UDP_TIMEOUT);
+                        .WithCancellationTimeout(TimeSpan.FromMilliseconds(UDP_TIMEOUT));
                 }
                 catch (SocketException) {}
                 catch (OperationCanceledException) {}

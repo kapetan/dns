@@ -19,16 +19,10 @@ namespace DNS.Protocol.Utils {
             return await task;
         }
 
-        public static async Task<T> WithCancellationOrTimeout<T>(this Task<T> task, CancellationToken cancellationToken, TimeSpan timeout) {
-            using (CancellationTokenSource cts = new CancellationTokenSource(timeout))
-            using (CancellationTokenSource mergedSource = CancellationTokenSource.CreateLinkedTokenSource(cts.Token, cancellationToken)) {
-                return await task.WithCancellation(mergedSource.Token);
-            }
-        }
-
-        public static async Task<T> WithCancellationTimeout<T>(this Task<T> task, int timeout) {
-            using (CancellationTokenSource cts = new CancellationTokenSource(timeout)) {
-                return await task.WithCancellation(cts.Token);
+        public static async Task<T> WithCancellationTimeout<T>(this Task<T> task, TimeSpan timeout, CancellationToken cancellationToken = default(CancellationToken)) {
+            using (CancellationTokenSource timeoutSource = new CancellationTokenSource(timeout))
+            using (CancellationTokenSource linkSource = CancellationTokenSource.CreateLinkedTokenSource(timeoutSource.Token, cancellationToken)) {
+                return await task.WithCancellation(linkSource.Token);
             }
         }
     }

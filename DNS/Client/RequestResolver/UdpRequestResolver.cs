@@ -29,11 +29,11 @@ namespace DNS.Client.RequestResolver {
             using(UdpClient udp = new UdpClient()) {
                 await udp
                     .SendAsync(request.ToArray(), request.Size, dns)
-                    .WithCancellationOrTimeout(cancellationToken, TimeSpan.FromMilliseconds(timeout));
+                    .WithCancellationTimeout(TimeSpan.FromMilliseconds(timeout), cancellationToken);
 
                 UdpReceiveResult result = await udp
                     .ReceiveAsync()
-                    .WithCancellationOrTimeout(cancellationToken, TimeSpan.FromMilliseconds(timeout));
+                    .WithCancellationTimeout(TimeSpan.FromMilliseconds(timeout), cancellationToken);
 
                 if(!result.RemoteEndPoint.Equals(dns)) throw new IOException("Remote endpoint mismatch");
                 byte[] buffer = result.Buffer;

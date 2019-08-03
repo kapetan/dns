@@ -65,7 +65,7 @@ namespace DNS.Server {
                         udp.Client.IOControl(SIO_UDP_CONNRESET, new byte[4], new byte[4]);
                     }
                 } catch (SocketException e) {
-                    OnError(e);
+                    OnError(e, endpoint);
                     return;
                 }
             }
@@ -73,9 +73,10 @@ namespace DNS.Server {
             AsyncCallback receiveCallback = null;
             receiveCallback = result => {
                 byte[] data;
+                IPEndPoint remote = null;
 
                 try {
-                    IPEndPoint remote = new IPEndPoint(0, 0);
+                    remote = new IPEndPoint(0, 0);
                     data = udp.EndReceive(result, ref remote);
                     HandleRequest(data, remote);
                 }
@@ -84,7 +85,7 @@ namespace DNS.Server {
                     run = false;
                 }
                 catch (SocketException e) {
-                    OnError(e);
+                    OnError(e, remote);
                 }
 
                 if (run) udp.BeginReceive(receiveCallback, null);
@@ -115,8 +116,8 @@ namespace DNS.Server {
             }
         }
 
-        private void OnError(Exception e) {
-            OnEvent(Errored, new ErroredEventArgs(e));
+        private void OnError(Exception e, IPEndPoint remote) {
+            OnEvent(Errored, new ErroredEventArgs(e, remote));
         }
 
         private async void HandleRequest(byte[] data, IPEndPoint remote) {
@@ -133,12 +134,12 @@ namespace DNS.Server {
                     .SendAsync(response.ToArray(), response.Size, remote)
                     .WithCancellationTimeout(TimeSpan.FromMilliseconds(UDP_TIMEOUT));
             }
-            catch (SocketException e) { OnError(e); }
-            catch (ArgumentException e) { OnError(e); }
-            catch (IndexOutOfRangeException e) { OnError(e); }
-            catch (OperationCanceledException e) { OnError(e); }
-            catch (IOException e) { OnError(e); }
-            catch (ObjectDisposedException e) { OnError(e); }
+            catch (SocketException e) { OnError(e, remote); }
+            catch (ArgumentException e) { OnError(e, remote); }
+            catch (IndexOutOfRangeException e) { OnError(e, remote); }
+            catch (OperationCanceledException e) { OnError(e, remote); }
+            catch (IOException e) { OnError(e, remote); }
+            catch (ObjectDisposedException e) { OnError(e, remote); }
             catch (ResponseException e) {
                 IResponse response = e.Response;
 
@@ -153,7 +154,7 @@ namespace DNS.Server {
                 }
                 catch (SocketException) {}
                 catch (OperationCanceledException) {}
-                finally { OnError(e); }
+                finally { OnError(e, remote); }
             }
         }
 
@@ -210,11 +211,17 @@ namespace DNS.Server {
         }
 
         public class ErroredEventArgs : EventArgs {
-            public ErroredEventArgs(Exception e) {
+            public ErroredEventArgs(Exception e, IPEndPoint remote) {
                 Exception = e;
+                Remote = remote;
             }
 
             public Exception Exception {
+                get;
+                private set;
+            }
+
+            public IPEndPoint Remote {
                 get;
                 private set;
             }

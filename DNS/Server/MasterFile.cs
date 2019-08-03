@@ -11,9 +11,9 @@ using DNS.Client.RequestResolver;
 
 namespace DNS.Server {
     public class MasterFile : IRequestResolver {
-        private static readonly TimeSpan DEFAULT_TTL = new TimeSpan(0);
+        protected static readonly TimeSpan DEFAULT_TTL = new TimeSpan(0);
 
-        private static bool Matches(Domain domain, Domain entry) {
+        protected static bool Matches(Domain domain, Domain entry) {
             string[] labels = entry.ToString().Split('.');
             string[] patterns = new string[labels.Length];
 
@@ -26,14 +26,14 @@ namespace DNS.Server {
             return re.IsMatch(domain.ToString());
         }
 
-        private static void Merge<T>(IList<T> l1, IList<T> l2) {
+        protected static void Merge<T>(IList<T> l1, IList<T> l2) {
             foreach (T obj in l2) {
                 l1.Add(obj);
             }
         }
 
-        private IList<IResourceRecord> entries = new List<IResourceRecord>();
-        private TimeSpan ttl = DEFAULT_TTL;
+        protected IList<IResourceRecord> entries = new List<IResourceRecord>();
+        protected TimeSpan ttl = DEFAULT_TTL;
 
         public MasterFile(TimeSpan ttl) {
             this.ttl = ttl;
@@ -105,11 +105,11 @@ namespace DNS.Server {
             return Task.FromResult(response);
         }
 
-        private IList<IResourceRecord> Get(Domain domain, RecordType type) {
+        protected IList<IResourceRecord> Get(Domain domain, RecordType type) {
             return entries.Where(e => Matches(domain, e.Name) && e.Type == type).ToList();
         }
 
-        private IList<IResourceRecord> Get(Question question) {
+        protected IList<IResourceRecord> Get(Question question) {
             return Get(question.Name, question.Type);
         }
     }

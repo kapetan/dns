@@ -4,10 +4,12 @@ using DNS.Protocol;
 using DNS.Protocol.ResourceRecords;
 
 namespace DNS.Tests.Protocol {
-    
-    public class ParseResponseTest {
+
+    public class ParseResponseTest
+    {
         [Fact]
-        public void BasicQuestionResponseWithEmptyHeader() {
+        public void BasicQuestionResponseWithEmptyHeader()
+        {
             byte[] content = Helper.ReadFixture("Response", "empty-header_basic");
             Response response = Response.FromArray(content);
 
@@ -51,7 +53,8 @@ namespace DNS.Tests.Protocol {
         }
 
         [Fact]
-        public void RequestWithHeaderAndResourceRecords() {
+        public void RequestWithHeaderAndResourceRecords()
+        {
             byte[] content = Helper.ReadFixture("Response", "id-ra_all");
             Response response = Response.FromArray(content);
 
@@ -92,6 +95,18 @@ namespace DNS.Tests.Protocol {
             Assert.Equal(RecordType.CNAME, record.Type);
             Assert.Equal(RecordClass.ANY, record.Class);
             Assert.Equal(TimeSpan.FromSeconds(1), record.TimeToLive);
+        }
+
+        [Fact]
+        public void ResponseWithoutQuestion()
+        {
+            byte[] content = Helper.ReadFixture("Response", "no-question");
+            Response response = Response.FromArray(content);
+
+            Assert.Equal(5, response.AnswerRecords.Count);
+
+            var answer = response.AnswerRecords[0];
+            Assert.Equal(new Domain("_services._dns-sd._udp.local"), response.AnswerRecords[0].Name);
         }
     }
 }

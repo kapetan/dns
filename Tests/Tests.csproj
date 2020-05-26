@@ -46,6 +46,7 @@
     <None Remove="Fixtures\ResourceRecord\www.google.com_basic" />
     <None Remove="Fixtures\Response\empty-header_basic" />
     <None Remove="Fixtures\Response\id-ra_all" />
+    <None Remove="Fixtures\Response\no-question" />
     <None Remove="Fixtures\CharacterString\empty-string" />
     <None Remove="Fixtures\CharacterString\www-string" />
     <None Remove="Fixtures\CharacterString\www.google.com-string" />
@@ -179,6 +180,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Fixtures\Response\id-ra_all">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Fixtures\Response\no-question">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Fixtures\CharacterString\empty-string">

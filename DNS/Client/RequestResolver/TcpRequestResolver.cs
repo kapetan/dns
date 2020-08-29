@@ -15,7 +15,7 @@ namespace DNS.Client.RequestResolver {
         }
 
         public async Task<IResponse> Resolve(IRequest request, CancellationToken cancellationToken = default(CancellationToken)) {
-            using(TcpClient tcp = new TcpClient()) {
+            using(TcpClient tcp = new TcpClient(dns.AddressFamily)) {
                 await tcp.ConnectAsync(dns.Address, dns.Port);
 
                 Stream stream = tcp.GetStream();

@@ -5,9 +5,9 @@
     <Description>Library for parsing and serializing DNS messages. Includes a basic DNS client and server.</Description>
     <Company>Mirza Kapetanovic</Company>
     <Authors>Mirza Kapetanovic</Authors>
-    <AssemblyVersion>6.0.0.0</AssemblyVersion>
-    <FileVersion>6.0.0.0</FileVersion>
-    <Version>6.0.0</Version>
+    <AssemblyVersion>6.0.1.0</AssemblyVersion>
+    <FileVersion>6.0.1.0</FileVersion>
+    <Version>6.0.1</Version>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <PackageTags>dns request response client server</PackageTags>
     <PackageProjectUrl>https://github.com/kapetan/dns</PackageProjectUrl>

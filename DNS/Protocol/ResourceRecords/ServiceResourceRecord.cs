@@ -41,6 +41,10 @@ namespace DNS.Protocol.ResourceRecords {
         public ushort Port { get; }
         public Domain Target { get; }
 
+        public override string ToString() {
+            return Stringify().Add("Priority", "Weight", "Port", "Target").ToString();
+        }
+
         [Marshalling.Endian(Marshalling.Endianness.Big)]
         [StructLayout(LayoutKind.Sequential, Pack = 4)]
         private struct Head {

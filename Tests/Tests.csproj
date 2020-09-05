@@ -38,6 +38,7 @@
     <None Remove="Fixtures\Request\multiple-questions" />
     <None Remove="Fixtures\ResourceRecord\empty-domain_any" />
     <None Remove="Fixtures\ResourceRecord\empty-domain_basic" />
+    <None Remove="Fixtures\ResourceRecord\empty-domain_srv" />
     <None Remove="Fixtures\ResourceRecord\empty-domain_cname" />
     <None Remove="Fixtures\ResourceRecord\empty-domain_data" />
     <None Remove="Fixtures\ResourceRecord\empty-domain_ttl" />
@@ -156,6 +157,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Fixtures\ResourceRecord\empty-domain_basic">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Fixtures\ResourceRecord\empty-domain_srv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Fixtures\ResourceRecord\empty-domain_cname">

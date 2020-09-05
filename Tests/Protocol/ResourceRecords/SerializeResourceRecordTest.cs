@@ -4,14 +4,14 @@ using DNS.Protocol;
 using DNS.Protocol.ResourceRecords;
 
 namespace DNS.Tests.Protocol.ResourceRecords {
-    
+
     public class SerializeResourceRecordTest {
         [Fact]
         public void BasicResourceRecordWithEmptyDomain() {
             byte[] content = Helper.ReadFixture("ResourceRecord", "empty-domain_basic");
 
             Domain domain = new Domain(Helper.GetArray<string>());
-            ResourceRecord record = new ResourceRecord(domain, Helper.GetArray<byte>(), 
+            ResourceRecord record = new ResourceRecord(domain, Helper.GetArray<byte>(),
                 RecordType.A, RecordClass.IN, new TimeSpan(0));
 
             Assert.Equal(content, record.ToArray());
@@ -83,6 +83,17 @@ namespace DNS.Tests.Protocol.ResourceRecords {
                 RecordType.CNAME, RecordClass.ANY, TimeSpan.FromSeconds(1));
 
             Assert.Equal(content, record.ToArray());
+        }
+
+        [Fact]
+        public void SrvResourceRecordWithEmptyDomain() {
+            byte[] content = Helper.ReadFixture("ResourceRecord", "empty-domain_srv");
+
+            Domain domain = new Domain(Helper.GetArray<string>());
+            Domain target = new Domain(Helper.GetArray("example", "com"));
+            ServiceResourceRecord srv = new ServiceResourceRecord(domain, 10, 60, 8080, target, new TimeSpan(0));
+
+            Assert.Equal(content, srv.ToArray());
         }
     }
 }

@@ -26,14 +26,14 @@ namespace DNS.Server {
         private UdpClient udp;
         private IRequestResolver resolver;
 
-        public DnsServer(MasterFile masterFile, IPEndPoint endServer) :
-            this(new FallbackRequestResolver(masterFile, new UdpRequestResolver(endServer))) {}
+        public DnsServer(IRequestResolver resolver, IPEndPoint endServer) :
+            this(new FallbackRequestResolver(resolver, new UdpRequestResolver(endServer))) {}
 
-        public DnsServer(MasterFile masterFile, IPAddress endServer, int port = DEFAULT_PORT) :
-            this(masterFile, new IPEndPoint(endServer, port)) {}
+        public DnsServer(IRequestResolver resolver, IPAddress endServer, int port = DEFAULT_PORT) :
+            this(resolver, new IPEndPoint(endServer, port)) {}
 
-        public DnsServer(MasterFile masterFile, string endServer, int port = DEFAULT_PORT) :
-            this(masterFile, IPAddress.Parse(endServer), port) {}
+        public DnsServer(IRequestResolver resolver, string endServer, int port = DEFAULT_PORT) :
+            this(resolver, IPAddress.Parse(endServer), port) {}
 
         public DnsServer(IPEndPoint endServer) :
             this(new UdpRequestResolver(endServer)) {}

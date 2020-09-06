@@ -19,10 +19,7 @@ namespace DNS.Protocol.ResourceRecords {
             IPAddress = ip;
         }
 
-        public IPAddress IPAddress {
-            get;
-            private set;
-        }
+        public IPAddress IPAddress { get; }
 
         public override string ToString() {
             return Stringify().Add("IPAddress").ToString();

@@ -62,10 +62,7 @@ namespace DNS.Tests.Protocol.ResourceRecords {
                 get { return Data.Length; }
             }
 
-            public byte[] Data {
-                get;
-                private set;
-            }
+            public byte[] Data { get; }
 
             public Domain Name {
                 get { return Domain.FromString(""); }

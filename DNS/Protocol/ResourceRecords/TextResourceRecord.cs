@@ -54,10 +54,7 @@ namespace DNS.Protocol.ResourceRecords {
                 TimeSpan ttl = default(TimeSpan)) :
                 this(domain, FormatAttributeNameValue(attributeName, attributeValue), ttl) {}
 
-        public IList<CharacterString> TextData {
-            get;
-            private set;
-        }
+        public IList<CharacterString> TextData { get; }
 
         public KeyValuePair<string, string> Attribute {
             get {

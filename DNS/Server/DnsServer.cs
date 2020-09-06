@@ -164,20 +164,9 @@ namespace DNS.Server {
                 Remote = remote;
             }
 
-            public IRequest Request {
-                get;
-                private set;
-            }
-
-            public byte[] Data {
-                get;
-                private set;
-            }
-
-            public IPEndPoint Remote {
-                get;
-                private set;
-            }
+            public IRequest Request { get; }
+            public byte[] Data { get; }
+            public IPEndPoint Remote { get; }
         }
 
         public class RespondedEventArgs : EventArgs {
@@ -188,25 +177,10 @@ namespace DNS.Server {
                 Remote = remote;
             }
 
-            public IRequest Request {
-                get;
-                private set;
-            }
-
-            public IResponse Response {
-                get;
-                private set;
-            }
-
-            public byte[] Data {
-                get;
-                private set;
-            }
-
-            public IPEndPoint Remote {
-                get;
-                private set;
-            }
+            public IRequest Request { get; }
+            public IResponse Response { get; }
+            public byte[] Data { get; }
+            public IPEndPoint Remote { get; }
         }
 
         public class ErroredEventArgs : EventArgs {
@@ -214,10 +188,7 @@ namespace DNS.Server {
                 Exception = e;
             }
 
-            public Exception Exception {
-                get;
-                private set;
-            }
+            public Exception Exception { get; }
         }
 
         private class FallbackRequestResolver : IRequestResolver {

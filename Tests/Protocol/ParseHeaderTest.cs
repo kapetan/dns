@@ -10,14 +10,14 @@ namespace DNS.Tests.Protocol {
             Header header = Header.FromArray(content);
 
             Assert.Equal(0, header.Id);
-            Assert.Equal(false, header.Response);
+            Assert.False(header.Response);
             Assert.Equal(OperationCode.Query, header.OperationCode);
-            Assert.Equal(false, header.AuthorativeServer);
-            Assert.Equal(false, header.Truncated);
-            Assert.Equal(false, header.RecursionDesired);
-            Assert.Equal(false, header.RecursionAvailable);
-            Assert.Equal(false, header.AuthenticData);
-            Assert.Equal(false, header.CheckingDisabled);
+            Assert.False(header.AuthorativeServer);
+            Assert.False(header.Truncated);
+            Assert.False(header.RecursionDesired);
+            Assert.False(header.RecursionAvailable);
+            Assert.False(header.AuthenticData);
+            Assert.False(header.CheckingDisabled);
             Assert.Equal(ResponseCode.NoError, header.ResponseCode);
             Assert.Equal(0, header.QuestionCount);
             Assert.Equal(0, header.AnswerRecordCount);
@@ -32,14 +32,14 @@ namespace DNS.Tests.Protocol {
 
             Assert.Equal(1, header.Id);
 
-            Assert.Equal(false, header.Response);
+            Assert.False(header.Response);
             Assert.Equal(OperationCode.Query, header.OperationCode);
-            Assert.Equal(false, header.AuthorativeServer);
-            Assert.Equal(false, header.Truncated);
-            Assert.Equal(false, header.RecursionDesired);
-            Assert.Equal(false, header.RecursionAvailable);
-            Assert.Equal(false, header.AuthenticData);
-            Assert.Equal(false, header.CheckingDisabled);
+            Assert.False(header.AuthorativeServer);
+            Assert.False(header.Truncated);
+            Assert.False(header.RecursionDesired);
+            Assert.False(header.RecursionAvailable);
+            Assert.False(header.AuthenticData);
+            Assert.False(header.CheckingDisabled);
             Assert.Equal(ResponseCode.NoError, header.ResponseCode);
             Assert.Equal(0, header.QuestionCount);
             Assert.Equal(0, header.AnswerRecordCount);
@@ -54,15 +54,15 @@ namespace DNS.Tests.Protocol {
 
             Assert.Equal(0, header.Id);
 
-            Assert.Equal(true, header.Response);
+            Assert.True(header.Response);
 
             Assert.Equal(OperationCode.Query, header.OperationCode);
-            Assert.Equal(false, header.AuthorativeServer);
-            Assert.Equal(false, header.Truncated);
-            Assert.Equal(false, header.RecursionDesired);
-            Assert.Equal(false, header.RecursionAvailable);
-            Assert.Equal(false, header.AuthenticData);
-            Assert.Equal(false, header.CheckingDisabled);
+            Assert.False(header.AuthorativeServer);
+            Assert.False(header.Truncated);
+            Assert.False(header.RecursionDesired);
+            Assert.False(header.RecursionAvailable);
+            Assert.False(header.AuthenticData);
+            Assert.False(header.CheckingDisabled);
             Assert.Equal(ResponseCode.NoError, header.ResponseCode);
             Assert.Equal(0, header.QuestionCount);
             Assert.Equal(0, header.AnswerRecordCount);
@@ -76,16 +76,16 @@ namespace DNS.Tests.Protocol {
             Header header = Header.FromArray(content);
 
             Assert.Equal(0, header.Id);
-            Assert.Equal(false, header.Response);
+            Assert.False(header.Response);
 
             Assert.Equal(OperationCode.Status, header.OperationCode);
 
-            Assert.Equal(false, header.AuthorativeServer);
-            Assert.Equal(false, header.Truncated);
-            Assert.Equal(false, header.RecursionDesired);
-            Assert.Equal(false, header.RecursionAvailable);
-            Assert.Equal(false, header.AuthenticData);
-            Assert.Equal(false, header.CheckingDisabled);
+            Assert.False(header.AuthorativeServer);
+            Assert.False(header.Truncated);
+            Assert.False(header.RecursionDesired);
+            Assert.False(header.RecursionAvailable);
+            Assert.False(header.AuthenticData);
+            Assert.False(header.CheckingDisabled);
             Assert.Equal(ResponseCode.NoError, header.ResponseCode);
             Assert.Equal(0, header.QuestionCount);
             Assert.Equal(0, header.AnswerRecordCount);
@@ -99,16 +99,16 @@ namespace DNS.Tests.Protocol {
             Header header = Header.FromArray(content);
 
             Assert.Equal(0, header.Id);
-            Assert.Equal(false, header.Response);
+            Assert.False(header.Response);
             Assert.Equal(OperationCode.Query, header.OperationCode);
 
-            Assert.Equal(true, header.AuthorativeServer);
+            Assert.True(header.AuthorativeServer);
 
-            Assert.Equal(false, header.Truncated);
-            Assert.Equal(false, header.RecursionDesired);
-            Assert.Equal(false, header.RecursionAvailable);
-            Assert.Equal(false, header.AuthenticData);
-            Assert.Equal(false, header.CheckingDisabled);
+            Assert.False(header.Truncated);
+            Assert.False(header.RecursionDesired);
+            Assert.False(header.RecursionAvailable);
+            Assert.False(header.AuthenticData);
+            Assert.False(header.CheckingDisabled);
             Assert.Equal(ResponseCode.NoError, header.ResponseCode);
             Assert.Equal(0, header.QuestionCount);
             Assert.Equal(0, header.AnswerRecordCount);
@@ -122,16 +122,16 @@ namespace DNS.Tests.Protocol {
             Header header = Header.FromArray(content);
 
             Assert.Equal(0, header.Id);
-            Assert.Equal(false, header.Response);
+            Assert.False(header.Response);
             Assert.Equal(OperationCode.Query, header.OperationCode);
-            Assert.Equal(false, header.AuthorativeServer);
+            Assert.False(header.AuthorativeServer);
 
-            Assert.Equal(true, header.Truncated);
+            Assert.True(header.Truncated);
 
-            Assert.Equal(false, header.RecursionDesired);
-            Assert.Equal(false, header.RecursionAvailable);
-            Assert.Equal(false, header.AuthenticData);
-            Assert.Equal(false, header.CheckingDisabled);
+            Assert.False(header.RecursionDesired);
+            Assert.False(header.RecursionAvailable);
+            Assert.False(header.AuthenticData);
+            Assert.False(header.CheckingDisabled);
             Assert.Equal(ResponseCode.NoError, header.ResponseCode);
             Assert.Equal(0, header.QuestionCount);
             Assert.Equal(0, header.AnswerRecordCount);
@@ -145,16 +145,16 @@ namespace DNS.Tests.Protocol {
             Header header = Header.FromArray(content);
 
             Assert.Equal(0, header.Id);
-            Assert.Equal(false, header.Response);
+            Assert.False(header.Response);
             Assert.Equal(OperationCode.Query, header.OperationCode);
-            Assert.Equal(false, header.AuthorativeServer);
-            Assert.Equal(false, header.Truncated);
+            Assert.False(header.AuthorativeServer);
+            Assert.False(header.Truncated);
 
-            Assert.Equal(true, header.RecursionDesired);
+            Assert.True(header.RecursionDesired);
 
-            Assert.Equal(false, header.RecursionAvailable);
-            Assert.Equal(false, header.AuthenticData);
-            Assert.Equal(false, header.CheckingDisabled);
+            Assert.False(header.RecursionAvailable);
+            Assert.False(header.AuthenticData);
+            Assert.False(header.CheckingDisabled);
             Assert.Equal(ResponseCode.NoError, header.ResponseCode);
             Assert.Equal(0, header.QuestionCount);
             Assert.Equal(0, header.AnswerRecordCount);
@@ -168,16 +168,16 @@ namespace DNS.Tests.Protocol {
             Header header = Header.FromArray(content);
 
             Assert.Equal(0, header.Id);
-            Assert.Equal(false, header.Response);
+            Assert.False(header.Response);
             Assert.Equal(OperationCode.Query, header.OperationCode);
-            Assert.Equal(false, header.AuthorativeServer);
-            Assert.Equal(false, header.Truncated);
-            Assert.Equal(false, header.RecursionDesired);
+            Assert.False(header.AuthorativeServer);
+            Assert.False(header.Truncated);
+            Assert.False(header.RecursionDesired);
 
-            Assert.Equal(true, header.RecursionAvailable);
+            Assert.True(header.RecursionAvailable);
 
-            Assert.Equal(false, header.AuthenticData);
-            Assert.Equal(false, header.CheckingDisabled);
+            Assert.False(header.AuthenticData);
+            Assert.False(header.CheckingDisabled);
             Assert.Equal(ResponseCode.NoError, header.ResponseCode);
             Assert.Equal(0, header.QuestionCount);
             Assert.Equal(0, header.AnswerRecordCount);
@@ -191,16 +191,16 @@ namespace DNS.Tests.Protocol {
             Header header = Header.FromArray(content);
 
             Assert.Equal(0, header.Id);
-            Assert.Equal(false, header.Response);
+            Assert.False(header.Response);
             Assert.Equal(OperationCode.Query, header.OperationCode);
-            Assert.Equal(false, header.AuthorativeServer);
-            Assert.Equal(false, header.Truncated);
-            Assert.Equal(false, header.RecursionDesired);
-            Assert.Equal(false, header.RecursionAvailable);
+            Assert.False(header.AuthorativeServer);
+            Assert.False(header.Truncated);
+            Assert.False(header.RecursionDesired);
+            Assert.False(header.RecursionAvailable);
 
-            Assert.Equal(true, header.AuthenticData);
+            Assert.True(header.AuthenticData);
 
-            Assert.Equal(false, header.CheckingDisabled);
+            Assert.False(header.CheckingDisabled);
             Assert.Equal(ResponseCode.NoError, header.ResponseCode);
             Assert.Equal(0, header.QuestionCount);
             Assert.Equal(0, header.AnswerRecordCount);
@@ -214,15 +214,15 @@ namespace DNS.Tests.Protocol {
             Header header = Header.FromArray(content);
 
             Assert.Equal(0, header.Id);
-            Assert.Equal(false, header.Response);
+            Assert.False(header.Response);
             Assert.Equal(OperationCode.Query, header.OperationCode);
-            Assert.Equal(false, header.AuthorativeServer);
-            Assert.Equal(false, header.Truncated);
-            Assert.Equal(false, header.RecursionDesired);
-            Assert.Equal(false, header.RecursionAvailable);
-            Assert.Equal(false, header.AuthenticData);
+            Assert.False(header.AuthorativeServer);
+            Assert.False(header.Truncated);
+            Assert.False(header.RecursionDesired);
+            Assert.False(header.RecursionAvailable);
+            Assert.False(header.AuthenticData);
 
-            Assert.Equal(true, header.CheckingDisabled);
+            Assert.True(header.CheckingDisabled);
 
             Assert.Equal(ResponseCode.NoError, header.ResponseCode);
             Assert.Equal(0, header.QuestionCount);
@@ -237,14 +237,14 @@ namespace DNS.Tests.Protocol {
             Header header = Header.FromArray(content);
 
             Assert.Equal(0, header.Id);
-            Assert.Equal(false, header.Response);
+            Assert.False(header.Response);
             Assert.Equal(OperationCode.Query, header.OperationCode);
-            Assert.Equal(false, header.AuthorativeServer);
-            Assert.Equal(false, header.Truncated);
-            Assert.Equal(false, header.RecursionDesired);
-            Assert.Equal(false, header.RecursionAvailable);
-            Assert.Equal(false, header.AuthenticData);
-            Assert.Equal(false, header.CheckingDisabled);
+            Assert.False(header.AuthorativeServer);
+            Assert.False(header.Truncated);
+            Assert.False(header.RecursionDesired);
+            Assert.False(header.RecursionAvailable);
+            Assert.False(header.AuthenticData);
+            Assert.False(header.CheckingDisabled);
 
             Assert.Equal(ResponseCode.ServerFailure, header.ResponseCode);
 
@@ -260,14 +260,14 @@ namespace DNS.Tests.Protocol {
             Header header = Header.FromArray(content);
 
             Assert.Equal(0, header.Id);
-            Assert.Equal(false, header.Response);
+            Assert.False(header.Response);
             Assert.Equal(OperationCode.Query, header.OperationCode);
-            Assert.Equal(false, header.AuthorativeServer);
-            Assert.Equal(false, header.Truncated);
-            Assert.Equal(false, header.RecursionDesired);
-            Assert.Equal(false, header.RecursionAvailable);
-            Assert.Equal(false, header.AuthenticData);
-            Assert.Equal(false, header.CheckingDisabled);
+            Assert.False(header.AuthorativeServer);
+            Assert.False(header.Truncated);
+            Assert.False(header.RecursionDesired);
+            Assert.False(header.RecursionAvailable);
+            Assert.False(header.AuthenticData);
+            Assert.False(header.CheckingDisabled);
             Assert.Equal(ResponseCode.NoError, header.ResponseCode);
 
             Assert.Equal(1, header.QuestionCount);
@@ -283,14 +283,14 @@ namespace DNS.Tests.Protocol {
             Header header = Header.FromArray(content);
 
             Assert.Equal(0, header.Id);
-            Assert.Equal(false, header.Response);
+            Assert.False(header.Response);
             Assert.Equal(OperationCode.Query, header.OperationCode);
-            Assert.Equal(false, header.AuthorativeServer);
-            Assert.Equal(false, header.Truncated);
-            Assert.Equal(false, header.RecursionDesired);
-            Assert.Equal(false, header.RecursionAvailable);
-            Assert.Equal(false, header.AuthenticData);
-            Assert.Equal(false, header.CheckingDisabled);
+            Assert.False(header.AuthorativeServer);
+            Assert.False(header.Truncated);
+            Assert.False(header.RecursionDesired);
+            Assert.False(header.RecursionAvailable);
+            Assert.False(header.AuthenticData);
+            Assert.False(header.CheckingDisabled);
             Assert.Equal(ResponseCode.NoError, header.ResponseCode);
             Assert.Equal(0, header.QuestionCount);
 
@@ -306,14 +306,14 @@ namespace DNS.Tests.Protocol {
             Header header = Header.FromArray(content);
 
             Assert.Equal(0, header.Id);
-            Assert.Equal(false, header.Response);
+            Assert.False(header.Response);
             Assert.Equal(OperationCode.Query, header.OperationCode);
-            Assert.Equal(false, header.AuthorativeServer);
-            Assert.Equal(false, header.Truncated);
-            Assert.Equal(false, header.RecursionDesired);
-            Assert.Equal(false, header.RecursionAvailable);
-            Assert.Equal(false, header.AuthenticData);
-            Assert.Equal(false, header.CheckingDisabled);
+            Assert.False(header.AuthorativeServer);
+            Assert.False(header.Truncated);
+            Assert.False(header.RecursionDesired);
+            Assert.False(header.RecursionAvailable);
+            Assert.False(header.AuthenticData);
+            Assert.False(header.CheckingDisabled);
             Assert.Equal(ResponseCode.NoError, header.ResponseCode);
             Assert.Equal(0, header.QuestionCount);
             Assert.Equal(0, header.AnswerRecordCount);
@@ -329,14 +329,14 @@ namespace DNS.Tests.Protocol {
             Header header = Header.FromArray(content);
 
             Assert.Equal(0, header.Id);
-            Assert.Equal(false, header.Response);
+            Assert.False(header.Response);
             Assert.Equal(OperationCode.Query, header.OperationCode);
-            Assert.Equal(false, header.AuthorativeServer);
-            Assert.Equal(false, header.Truncated);
-            Assert.Equal(false, header.RecursionDesired);
-            Assert.Equal(false, header.RecursionAvailable);
-            Assert.Equal(false, header.AuthenticData);
-            Assert.Equal(false, header.CheckingDisabled);
+            Assert.False(header.AuthorativeServer);
+            Assert.False(header.Truncated);
+            Assert.False(header.RecursionDesired);
+            Assert.False(header.RecursionAvailable);
+            Assert.False(header.AuthenticData);
+            Assert.False(header.CheckingDisabled);
             Assert.Equal(ResponseCode.NoError, header.ResponseCode);
             Assert.Equal(0, header.QuestionCount);
             Assert.Equal(0, header.AnswerRecordCount);
@@ -351,14 +351,14 @@ namespace DNS.Tests.Protocol {
             Header header = Header.FromArray(content);
 
             Assert.Equal(1, header.Id);
-            Assert.Equal(true, header.Response);
+            Assert.True(header.Response);
             Assert.Equal(OperationCode.Status, header.OperationCode);
-            Assert.Equal(true, header.AuthorativeServer);
-            Assert.Equal(true, header.Truncated);
-            Assert.Equal(true, header.RecursionDesired);
-            Assert.Equal(true, header.RecursionAvailable);
-            Assert.Equal(true, header.AuthenticData);
-            Assert.Equal(true, header.CheckingDisabled);
+            Assert.True(header.AuthorativeServer);
+            Assert.True(header.Truncated);
+            Assert.True(header.RecursionDesired);
+            Assert.True(header.RecursionAvailable);
+            Assert.True(header.AuthenticData);
+            Assert.True(header.CheckingDisabled);
             Assert.Equal(ResponseCode.ServerFailure, header.ResponseCode);
             Assert.Equal(1, header.QuestionCount);
             Assert.Equal(1, header.AnswerRecordCount);

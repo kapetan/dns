@@ -70,8 +70,7 @@ namespace DNS.Server {
                 }
             }
 
-            AsyncCallback receiveCallback = null;
-            receiveCallback = result => {
+            void ReceiveCallback(IAsyncResult result) {
                 byte[] data;
 
                 try {
@@ -87,11 +86,11 @@ namespace DNS.Server {
                     OnError(e);
                 }
 
-                if (run) udp.BeginReceive(receiveCallback, null);
+                if (run) udp.BeginReceive(ReceiveCallback, null);
                 else tcs.SetResult(null);
-            };
+            }
 
-            udp.BeginReceive(receiveCallback, null);
+            udp.BeginReceive(ReceiveCallback, null);
             OnEvent(Listening, EventArgs.Empty);
             await tcs.Task;
         }

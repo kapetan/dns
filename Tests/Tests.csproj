@@ -1,227 +1,51 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.0</TargetFramework>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Fixtures\Domain\empty-header_www.google.com-label" />
-    <None Remove="Fixtures\Domain\empty-header_www.google.com-pointer" />
-    <None Remove="Fixtures\Domain\empty-label" />
-    <None Remove="Fixtures\Domain\empty-pointer" />
-    <None Remove="Fixtures\Domain\www-label" />
-    <None Remove="Fixtures\Domain\www-pointer" />
-    <None Remove="Fixtures\Domain\www.google.com-label" />
-    <None Remove="Fixtures\Domain\www.google.com-pointer" />
-    <None Remove="Fixtures\Header\aa" />
-    <None Remove="Fixtures\Header\all" />
-    <None Remove="Fixtures\Header\ancount" />
-    <None Remove="Fixtures\Header\arcount" />
-    <None Remove="Fixtures\Header\empty" />
-    <None Remove="Fixtures\Header\id" />
-    <None Remove="Fixtures\Header\nscount" />
-    <None Remove="Fixtures\Header\opcode" />
-    <None Remove="Fixtures\Header\qdcount" />
-    <None Remove="Fixtures\Header\qr" />
-    <None Remove="Fixtures\Header\ra" />
-    <None Remove="Fixtures\Header\rcode" />
-    <None Remove="Fixtures\Header\rd" />
-    <None Remove="Fixtures\Header\tc" />
-    <None Remove="Fixtures\Question\empty-domain_any" />
-    <None Remove="Fixtures\Question\empty-domain_basic" />
-    <None Remove="Fixtures\Question\empty-domain_cname" />
-    <None Remove="Fixtures\Question\multiple" />
-    <None Remove="Fixtures\Question\www.google.com_all" />
-    <None Remove="Fixtures\Question\www.google.com_basic" />
-    <None Remove="Fixtures\Request\empty-header_basic-question" />
-    <None Remove="Fixtures\Request\id-rd_www.google.com-cname" />
-    <None Remove="Fixtures\Request\multiple-questions" />
-    <None Remove="Fixtures\ResourceRecord\empty-domain_any" />
-    <None Remove="Fixtures\ResourceRecord\empty-domain_basic" />
-    <None Remove="Fixtures\ResourceRecord\empty-domain_srv" />
-    <None Remove="Fixtures\ResourceRecord\empty-domain_cname" />
-    <None Remove="Fixtures\ResourceRecord\empty-domain_data" />
-    <None Remove="Fixtures\ResourceRecord\empty-domain_ttl" />
-    <None Remove="Fixtures\ResourceRecord\multiple" />
-    <None Remove="Fixtures\ResourceRecord\www.google.com_all" />
-    <None Remove="Fixtures\ResourceRecord\www.google.com_basic" />
-    <None Remove="Fixtures\Response\empty-header_basic" />
-    <None Remove="Fixtures\Response\id-ra_all" />
-    <None Remove="Fixtures\Response\no-question" />
-    <None Remove="Fixtures\CharacterString\empty-string" />
-    <None Remove="Fixtures\CharacterString\www-string" />
-    <None Remove="Fixtures\CharacterString\www.google.com-string" />
+    <None Remove="Fixtures\Domain\*" />
+    <None Remove="Fixtures\Header\*" />
+    <None Remove="Fixtures\Question\*" />
+    <None Remove="Fixtures\Request\*" />
+    <None Remove="Fixtures\ResourceRecord\*" />
+    <None Remove="Fixtures\Response\*" />
+    <None Remove="Fixtures\CharacterString\*" />
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="Fixtures\Domain\empty-header_www.google.com-label">
+    <Content Include="Fixtures\Domain\*">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Fixtures\Domain\empty-header_www.google.com-pointer">
+    <Content Include="Fixtures\Header\*">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Fixtures\Domain\empty-label">
+    <Content Include="Fixtures\Question\*">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Fixtures\Domain\empty-pointer">
+    <Content Include="Fixtures\Request\*">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Fixtures\Domain\www-label">
+    <Content Include="Fixtures\ResourceRecord\*">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Fixtures\Domain\www-pointer">
+    <Content Include="Fixtures\Response\*">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Fixtures\Domain\www.google.com-label">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Fixtures\Domain\www.google.com-pointer">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Fixtures\Header\aa">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Fixtures\Header\all">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Fixtures\Header\ancount">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Fixtures\Header\arcount">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Fixtures\Header\empty">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Fixtures\Header\id">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Fixtures\Header\nscount">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Fixtures\Header\opcode">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Fixtures\Header\qdcount">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Fixtures\Header\qr">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Fixtures\Header\ra">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Fixtures\Header\ad">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Fixtures\Header\cd">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Fixtures\Header\rcode">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Fixtures\Header\rd">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Fixtures\Header\tc">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Fixtures\Question\empty-domain_any">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Fixtures\Question\empty-domain_basic">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Fixtures\Question\empty-domain_cname">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Fixtures\Question\multiple">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Fixtures\Question\www.google.com_all">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Fixtures\Question\www.google.com_basic">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Fixtures\Request\empty-header_basic-question">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Fixtures\Request\id-rd_www.google.com-cname">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Fixtures\Request\multiple-questions">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Fixtures\ResourceRecord\empty-domain_any">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Fixtures\ResourceRecord\empty-domain_basic">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Fixtures\ResourceRecord\empty-domain_srv">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Fixtures\ResourceRecord\empty-domain_cname">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Fixtures\ResourceRecord\empty-domain_data">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Fixtures\ResourceRecord\empty-domain_ttl">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Fixtures\ResourceRecord\multiple">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Fixtures\ResourceRecord\www.google.com_all">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Fixtures\ResourceRecord\www.google.com_basic">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Fixtures\Response\empty-header_basic">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Fixtures\Response\id-ra_all">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Fixtures\Response\no-question">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Fixtures\CharacterString\empty-string">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Fixtures\CharacterString\www-string">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Fixtures\CharacterString\www.google.com-string">
+    <Content Include="Fixtures\CharacterString\*">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.0.0" />
-    <PackageReference Include="xunit" Version="2.2.0" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.2.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.7.1" />
+    <PackageReference Include="xunit" Version="2.4.1" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\DNS\DNS.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Properties\" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Service Include="{82a7f48d-3b50-4b1e-b82e-3ada8210c358}" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Update="Fixtures\Request\edns-test">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
 
 </Project>

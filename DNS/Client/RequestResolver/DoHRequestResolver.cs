@@ -91,8 +91,6 @@ namespace DNS.Client.RequestResolver
                         HttpRequestMessage reqMsg = new HttpRequestMessage(HttpMethod.Post, dns);
                         reqMsg.Headers.Clear();
                         reqMsg.Headers.Add("Accept", mime);
-                        reqMsg.Headers.Add("Content-Type", mime);
-                        reqMsg.Headers.Add("Content-Length", reqByte.Length.ToString());
                         reqMsg.Content = new ByteArrayContent(reqByte);
 
                         HttpResponseMessage hrm = await http.SendAsync(reqMsg, cancellationToken);
@@ -156,6 +154,7 @@ namespace DNS.Client.RequestResolver
         public bool RA;
         public bool AD;
         public bool CD;
+        // TODO: some (aliyun) doh server use single question entry...
         public List<DoHCloudflareJsonResponseQuestion> Question;
         public List<DoHCloudflareJsonResponseAnswer> Answer;
         public List<DoHCloudflareJsonResponseAnswer> Authority;
@@ -171,22 +170,27 @@ namespace DNS.Client.RequestResolver
                 AuthenticData = AD,
                 CheckingDisabled = CD,
             };
+
             foreach (DoHCloudflareJsonResponseQuestion q in Question)
             {
                 resp.Questions.Add(q.GetQuestion());
             }
-            foreach (DoHCloudflareJsonResponseAnswer a in Answer)
-            {
-                resp.AnswerRecords.Add(a.GetResourceRecord());
-            }
-            foreach (DoHCloudflareJsonResponseAnswer a in Authority)
-            {
-                resp.AuthorityRecords.Add(a.GetResourceRecord());
-            }
-            foreach (DoHCloudflareJsonResponseAnswer a in Additional)
-            {
-                resp.AdditionalRecords.Add(a.GetResourceRecord());
-            }
+            if (Answer != null)
+                foreach (DoHCloudflareJsonResponseAnswer a in Answer)
+                {
+                    resp.AnswerRecords.Add(a.GetResourceRecord());
+                }
+            if (Authority != null)
+                foreach (DoHCloudflareJsonResponseAnswer a in Authority)
+                {
+                    resp.AuthorityRecords.Add(a.GetResourceRecord());
+                }
+            if (Additional != null)
+
+                foreach (DoHCloudflareJsonResponseAnswer a in Additional)
+                {
+                    resp.AdditionalRecords.Add(a.GetResourceRecord());
+                }
             return resp;
         }
     }

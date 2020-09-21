@@ -18,6 +18,10 @@ namespace DNS.Client.RequestResolver
         {
             this.dns = dns;
             this.tls = tls;
+            if (!tls && dns.Port == 853)
+            {
+                throw new NotSupportedException("DNS clients and servers MUST NOT use port 853 to transport cleartext DNS messages");
+            }
         }
 
         public async Task<IResponse> Resolve(IRequest request, CancellationToken cancellationToken = default(CancellationToken))

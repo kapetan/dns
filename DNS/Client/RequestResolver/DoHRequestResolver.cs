@@ -23,6 +23,7 @@ namespace DNS.Client.RequestResolver
     public class DoHRequestResolver : IRequestResolver
     {
         private const string mime = "application/dns-message";
+        private const string json_mime = "application/dns-json";
         private static readonly HttpClient http = new HttpClient();
         private readonly Uri dns;
         private readonly DoHProtocolMode mode;
@@ -36,6 +37,17 @@ namespace DNS.Client.RequestResolver
         {
             this.dns = dns;
             this.mode = mode;
+            switch (dns.Scheme) {
+                case "https":
+                    // we're safe
+                    break;
+                case "http":
+                    // not safe, warning
+                    Console.Error.WriteLine("DNS over plain HTTP is unsafe");
+                    break;
+                default:
+                    throw new NotSupportedException($"DoH can't running over {dns.Scheme} protocol");
+            }    
         }
 
         public async Task<IResponse> Resolve(IRequest request, CancellationToken cancellationToken = default)
@@ -119,12 +131,12 @@ namespace DNS.Client.RequestResolver
                         query["type"] = q.Type.ToString();
 
                         ub.Query = query.ToString();
-                        // GET /dns-query?dns={base64url(query)} HTTP/2
-                        // Accept: application/dns-message
+                        // GET /dns-query?name={qname}&type={qtype} HTTP/2
+                        // Accept: application/dns-json
                         //
                         HttpRequestMessage reqMsg = new HttpRequestMessage(HttpMethod.Get, ub.Uri);
                         reqMsg.Headers.Clear();
-                        reqMsg.Headers.Add("Accept", "application/dns-json");
+                        reqMsg.Headers.Add("Accept", json_mime);
                         HttpResponseMessage hrm = await http.SendAsync(reqMsg, cancellationToken);
                         if (!hrm.IsSuccessStatusCode)
                         {

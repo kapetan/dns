@@ -10,6 +10,7 @@ using System.Web;
 using DNS.Protocol;
 using DNS.Protocol.ResourceRecords;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace DNS.Client.RequestResolver
 {
@@ -37,7 +38,8 @@ namespace DNS.Client.RequestResolver
         {
             this.dns = dns;
             this.mode = mode;
-            switch (dns.Scheme) {
+            switch (dns.Scheme)
+            {
                 case "https":
                     // we're safe
                     break;
@@ -47,7 +49,7 @@ namespace DNS.Client.RequestResolver
                     break;
                 default:
                     throw new NotSupportedException($"DoH can't running over {dns.Scheme} protocol");
-            }    
+            }
         }
 
         public async Task<IResponse> Resolve(IRequest request, CancellationToken cancellationToken = default)
@@ -143,7 +145,15 @@ namespace DNS.Client.RequestResolver
                             throw new WebException($"DoH server return code {hrm.StatusCode}");
                         }
                         string responseText = await hrm.Content.ReadAsStringAsync();
-                        DoHCloudflareJsonResponse responseJson = JsonConvert.DeserializeObject<DoHCloudflareJsonResponse>(responseText);
+
+                        // for server return questions in object not in array
+                        JObject r = JObject.Parse(responseText);
+                        var responseQ = r.GetValue("Question", StringComparison.OrdinalIgnoreCase);
+                        if (responseQ is JObject)
+                        {
+                            r["Question"] = new JArray(responseQ);
+                        }
+                        DoHCloudflareJsonResponse responseJson = r.ToObject<DoHCloudflareJsonResponse>();
                         response = responseJson.GetResponse();
                         break;
                     }
@@ -166,7 +176,6 @@ namespace DNS.Client.RequestResolver
         public bool RA;
         public bool AD;
         public bool CD;
-        // TODO: some (aliyun) doh server use single question entry...
         public List<DoHCloudflareJsonResponseQuestion> Question;
         public List<DoHCloudflareJsonResponseAnswer> Answer;
         public List<DoHCloudflareJsonResponseAnswer> Authority;

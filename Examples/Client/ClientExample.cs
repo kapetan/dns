@@ -15,7 +15,7 @@ namespace Examples.Client
             DnsClient client = new DnsClient("8.8.8.8");
 
             foreach (string domain in args) {
-                IList<IPAddress> ips = await client.Lookup(domain);
+                IList<IPAddress> ips = await client.Lookup(domain).ConfigureAwait(false);
                 Console.WriteLine("{0} => {1}", domain, string.Join(", ", ips));
             }
         }

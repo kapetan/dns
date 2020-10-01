@@ -26,7 +26,7 @@ namespace Examples.Server {
                 if(responseError != null) Console.WriteLine(responseError.Response);
             };
 
-            await server.Listen();
+            await server.Listen().ConfigureAwait(false);
         }
     }
 }

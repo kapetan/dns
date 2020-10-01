@@ -75,7 +75,7 @@ namespace DNS.Client {
         /// <returns>The response received from server</returns>
         public async Task<IResponse> Resolve(CancellationToken cancellationToken = default(CancellationToken)) {
             try {
-                IResponse response = await resolver.Resolve(this, cancellationToken);
+                IResponse response = await resolver.Resolve(this, cancellationToken).ConfigureAwait(false);
 
                 if (response.Id != this.Id) {
                     throw new ResponseException(response, "Mismatching request/response IDs");

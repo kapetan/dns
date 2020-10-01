@@ -16,7 +16,7 @@ namespace DNS.Client.RequestResolver {
 
         public async Task<IResponse> Resolve(IRequest request, CancellationToken cancellationToken = default(CancellationToken)) {
             using(TcpClient tcp = new TcpClient(dns.AddressFamily)) {
-                await tcp.ConnectAsync(dns.Address, dns.Port);
+                await tcp.ConnectAsync(dns.Address, dns.Port).ConfigureAwait(false);
 
                 Stream stream = tcp.GetStream();
                 byte[] buffer = request.ToArray();
@@ -26,18 +26,18 @@ namespace DNS.Client.RequestResolver {
                     Array.Reverse(length);
                 }
 
-                await stream.WriteAsync(length, 0, length.Length, cancellationToken);
-                await stream.WriteAsync(buffer, 0, buffer.Length, cancellationToken);
+                await stream.WriteAsync(length, 0, length.Length, cancellationToken).ConfigureAwait(false);
+                await stream.WriteAsync(buffer, 0, buffer.Length, cancellationToken).ConfigureAwait(false);
 
                 buffer = new byte[2];
-                await Read(stream, buffer, cancellationToken);
+                await Read(stream, buffer, cancellationToken).ConfigureAwait(false);
 
                 if (BitConverter.IsLittleEndian) {
                     Array.Reverse(buffer);
                 }
 
                 buffer = new byte[BitConverter.ToUInt16(buffer, 0)];
-                await Read(stream, buffer, cancellationToken);
+                await Read(stream, buffer, cancellationToken).ConfigureAwait(false);
 
                 IResponse response = Response.FromArray(buffer);
                 return new ClientResponse(request, response, buffer);
@@ -49,7 +49,7 @@ namespace DNS.Client.RequestResolver {
             int offset = 0;
             int size = 0;
 
-            while (length > 0 && (size = await stream.ReadAsync(buffer, offset, length, cancellationToken)) > 0) {
+            while (length > 0 && (size = await stream.ReadAsync(buffer, offset, length, cancellationToken).ConfigureAwait(false)) > 0) {
                 offset += size;
                 length -= size;
             }

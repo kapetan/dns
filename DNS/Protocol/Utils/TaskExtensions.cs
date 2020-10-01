@@ -11,18 +11,18 @@ namespace DNS.Protocol.Utils {
             }, tcs);
 
             using (registration) {
-                if (await Task.WhenAny(task, tcs.Task) != task) {
+                if (await Task.WhenAny(task, tcs.Task).ConfigureAwait(false) != task) {
                     throw new OperationCanceledException(token);
                 }
             }
 
-            return await task;
+            return await task.ConfigureAwait(false);
         }
 
         public static async Task<T> WithCancellationTimeout<T>(this Task<T> task, TimeSpan timeout, CancellationToken cancellationToken = default(CancellationToken)) {
             using (CancellationTokenSource timeoutSource = new CancellationTokenSource(timeout))
             using (CancellationTokenSource linkSource = CancellationTokenSource.CreateLinkedTokenSource(timeoutSource.Token, cancellationToken)) {
-                return await task.WithCancellation(linkSource.Token);
+                return await task.WithCancellation(linkSource.Token).ConfigureAwait(false);
             }
         }
     }

@@ -92,7 +92,7 @@ namespace DNS.Server {
 
             udp.BeginReceive(ReceiveCallback, null);
             OnEvent(Listening, EventArgs.Empty);
-            await tcs.Task;
+            await tcs.Task.ConfigureAwait(false);
         }
 
         public void Dispose() {
@@ -125,12 +125,12 @@ namespace DNS.Server {
                 request = Request.FromArray(data);
                 OnEvent(Requested, new RequestedEventArgs(request, data, remote));
 
-                IResponse response = await resolver.Resolve(request);
+                IResponse response = await resolver.Resolve(request).ConfigureAwait(false);
 
                 OnEvent(Responded, new RespondedEventArgs(request, response, data, remote));
                 await udp
                     .SendAsync(response.ToArray(), response.Size, remote)
-                    .WithCancellationTimeout(TimeSpan.FromMilliseconds(UDP_TIMEOUT));
+                    .WithCancellationTimeout(TimeSpan.FromMilliseconds(UDP_TIMEOUT)).ConfigureAwait(false);
             }
             catch (SocketException e) { OnError(e); }
             catch (ArgumentException e) { OnError(e); }
@@ -148,7 +148,7 @@ namespace DNS.Server {
                 try {
                     await udp
                         .SendAsync(response.ToArray(), response.Size, remote)
-                        .WithCancellationTimeout(TimeSpan.FromMilliseconds(UDP_TIMEOUT));
+                        .WithCancellationTimeout(TimeSpan.FromMilliseconds(UDP_TIMEOUT)).ConfigureAwait(false);
                 }
                 catch (SocketException) {}
                 catch (OperationCanceledException) {}
@@ -201,7 +201,7 @@ namespace DNS.Server {
                 IResponse response = null;
 
                 foreach (IRequestResolver resolver in resolvers) {
-                    response = await resolver.Resolve(request, cancellationToken);
+                    response = await resolver.Resolve(request, cancellationToken).ConfigureAwait(false);
                     if (response.AnswerRecords.Count > 0) break;
                 }
 

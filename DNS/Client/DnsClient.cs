@@ -42,7 +42,7 @@ namespace DNS.Client {
                 throw new ArgumentException("Invalid record type " + type);
             }
 
-            IResponse response = await Resolve(domain, type, cancellationToken);
+            IResponse response = await Resolve(domain, type, cancellationToken).ConfigureAwait(false);
             IList<IPAddress> ips = response.AnswerRecords
                 .Where(r => r.Type == type)
                 .Cast<IPAddressResourceRecord>()
@@ -61,7 +61,7 @@ namespace DNS.Client {
         }
 
         public async Task<string> Reverse(IPAddress ip, CancellationToken cancellationToken = default(CancellationToken)) {
-            IResponse response = await Resolve(Domain.PointerName(ip), RecordType.PTR, cancellationToken);
+            IResponse response = await Resolve(Domain.PointerName(ip), RecordType.PTR, cancellationToken).ConfigureAwait(false);
             IResourceRecord ptr = response.AnswerRecords.FirstOrDefault(r => r.Type == RecordType.PTR);
 
             if (ptr == null) {

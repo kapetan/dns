@@ -15,7 +15,7 @@ namespace DNS.Tests.Client {
         [Fact]
         public async Task ClientLookup() {
             DnsClient client = new DnsClient(new IPAddressRequestResolver());
-            IList<IPAddress> ips = await client.Lookup("google.com");
+            IList<IPAddress> ips = await client.Lookup("google.com").ConfigureAwait(false);
 
             Assert.Equal(1, ips.Count);
             Assert.Equal("192.168.0.1", ips[0].ToString());
@@ -24,7 +24,7 @@ namespace DNS.Tests.Client {
         [Fact]
         public async Task ClientReverse() {
             DnsClient client = new DnsClient(new PointerRequestResolver());
-            string domain = await client.Reverse("192.168.0.1");
+            string domain = await client.Reverse("192.168.0.1").ConfigureAwait(false);
 
             Assert.Equal("google.com", domain);
         }
@@ -35,7 +35,7 @@ namespace DNS.Tests.Client {
 
             await Assert.ThrowsAsync<ResponseException>(() => {
                 return client.Lookup("google.com");
-            });
+            }).ConfigureAwait(false);
         }
 
         private class IPAddressRequestResolver : IRequestResolver {

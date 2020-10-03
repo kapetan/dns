@@ -89,7 +89,7 @@ server.Responded += (sender, e) => Console.WriteLine("{0} => {1}", e.Request, e.
 // Log errors
 server.Errored += (sender, e) => Console.WriteLine(e.Exception.Message);
 
-// Start the server (by default it listents on port 53)
+// Start the server (by default it listens on port 53)
 await server.Listen();
 ```
 

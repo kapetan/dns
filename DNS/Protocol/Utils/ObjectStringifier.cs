@@ -72,6 +72,9 @@ namespace DNS.Protocol.Utils {
 
             foreach (string name in names) {
                 PropertyInfo property = type.GetProperty(name, BindingFlags.Public | BindingFlags.Instance);
+                if (property == null) {
+                    continue;
+                }
                 object value = property.GetValue(obj, new object[] { });
 
                 pairs.Add(name, StringifyObject(value));

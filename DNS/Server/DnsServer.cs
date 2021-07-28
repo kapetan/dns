@@ -137,7 +137,7 @@ namespace DNS.Server {
             catch (IndexOutOfRangeException e) { OnError(e); }
             catch (OperationCanceledException e) { OnError(e); }
             catch (IOException e) { OnError(e); }
-            catch (ObjectDisposedException e) { OnError(e); }
+            catch (ObjectDisposedException) { /* Ignore: During shutdown, udp is just disposed */ }
             catch (ResponseException e) {
                 IResponse response = e.Response;
 

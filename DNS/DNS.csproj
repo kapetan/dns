@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>net5.0</TargetFrameworks>
     <Description>Library for parsing and serializing DNS messages. Includes a basic DNS client and server.</Description>
     <Company>Mirza Kapetanovic</Company>
     <Authors>Mirza Kapetanovic</Authors>

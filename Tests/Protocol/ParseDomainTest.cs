@@ -1,8 +1,9 @@
-﻿using Xunit;
+﻿using System;
+using Xunit;
 using DNS.Protocol;
 
 namespace DNS.Tests.Protocol {
-    
+
     public class ParseDomainTest {
         [Fact]
         public void EmptyDomain() {
@@ -90,6 +91,13 @@ namespace DNS.Tests.Protocol {
             Assert.Equal("www.google.com", domain.ToString());
             Assert.Equal(16, domain.Size);
             Assert.Equal(30, endOffset);
+        }
+
+        [Fact]
+        public void PointerDomainLoopDetection() {
+            int endOffset = 0;
+            byte[] content = Helper.ReadFixture("Domain", "pointer-loop");
+            Assert.Throws<ArgumentException>(() => Domain.FromArray(content, 16, out endOffset));
         }
     }
 }

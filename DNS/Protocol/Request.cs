@@ -115,7 +115,7 @@ namespace DNS.Protocol {
         }
 
         private ushort NextRandomId() {
-            var buffer = new byte[sizeof(ushort)];
+            byte[] buffer = new byte[sizeof(ushort)];
             RANDOM.GetBytes(buffer);
             return BitConverter.ToUInt16(buffer, 0);
         }

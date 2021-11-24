@@ -28,9 +28,10 @@ namespace DNS.Protocol {
             bool endOffsetAssigned = false;
             endOffset = 0;
             byte lengthOrPointer;
+            HashSet<int> visitedOffsetPointers = new HashSet<int>();
 
             while ((lengthOrPointer = message[offset++]) > 0) {
-                // Two heighest bits are set (pointer)
+                // Two highest bits are set (pointer)
                 if (lengthOrPointer.GetBitValueAt(6, 2) == 3) {
                     if (!endOffsetAssigned) {
                         endOffsetAssigned = true;
@@ -40,8 +41,15 @@ namespace DNS.Protocol {
                     ushort pointer = lengthOrPointer.GetBitValueAt(0, 6);
                     offset = (pointer << 8) | message[offset];
 
+                    if (visitedOffsetPointers.Contains(offset)) {
+                        throw new ArgumentException("Compression pointer loop detected");
+                    }
+                    visitedOffsetPointers.Add(offset);
+
                     continue;
-                } else if (lengthOrPointer.GetBitValueAt(6, 2) != 0) {
+                }
+
+                if (lengthOrPointer.GetBitValueAt(6, 2) != 0) {
                     throw new ArgumentException("Unexpected bit pattern in label length");
                 }
 

@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using DNS.Protocol.Utils;
 using DNS.Protocol.ResourceRecords;
 
 namespace DNS.Protocol {
     public class Request : IRequest {
-        private static readonly Random RANDOM = new Random();
+        private static readonly RandomNumberGenerator RANDOM = new RNGCryptoServiceProvider();
 
         private IList<Question> questions;
         private Header header;
@@ -41,7 +42,7 @@ namespace DNS.Protocol {
 
             this.header.OperationCode = OperationCode.Query;
             this.header.Response = false;
-            this.header.Id = RANDOM.Next(UInt16.MaxValue);
+            this.header.Id = NextRandomId();
         }
 
         public Request(IRequest request) {
@@ -111,6 +112,12 @@ namespace DNS.Protocol {
         private void UpdateHeader() {
             header.QuestionCount = questions.Count;
             header.AdditionalRecordCount = additional.Count;
+        }
+
+        private ushort NextRandomId() {
+            byte[] buffer = new byte[sizeof(ushort)];
+            RANDOM.GetBytes(buffer);
+            return BitConverter.ToUInt16(buffer, 0);
         }
     }
 }

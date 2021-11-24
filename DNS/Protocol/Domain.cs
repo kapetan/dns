@@ -28,7 +28,7 @@ namespace DNS.Protocol {
             bool endOffsetAssigned = false;
             endOffset = 0;
             byte lengthOrPointer;
-            var visitedOffsetPointers = new HashSet<int>();
+            HashSet<int> visitedOffsetPointers = new HashSet<int>();
 
             while ((lengthOrPointer = message[offset++]) > 0) {
                 // Two highest bits are set (pointer)

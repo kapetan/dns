@@ -9,43 +9,41 @@ using DNS.Server;
 using Xunit;
 
 namespace DNS.Tests.Server {
-	public class MasterFileTest {
-		[Fact]
-		public async Task TestResolveMatchingCase() {
-			MasterFile masterFile = new MasterFile();
-			masterFile.AddIPAddressResourceRecord("google.com", "192.168.0.1");
-			await AssertGoogleResult(RecordType.A, "google.com");
-			await AssertGoogleResult(RecordType.A, "gooGLE.com");
-			await AssertGoogleResult(RecordType.ANY, "google.com");
-			await AssertGoogleResult(RecordType.ANY, "gooGLE.com");
 
-			async Task AssertGoogleResult(RecordType requestType, string question) {
-				//Test matching case.
-				IRequest clientRequest = new Request();
-				Question clientRequestQuestion = new Question(new Domain(question), requestType);
+    public class MasterFileTest {
+        [Theory]
+        [InlineData(RecordType.A, "google.com")]
+        [InlineData(RecordType.A, "gooGLE.com")]
+        [InlineData(RecordType.ANY, "google.com")]
+        [InlineData(RecordType.ANY, "gooGLE.com")]
+        public async Task TestResolveMatchingCase(RecordType recordType, string domain) {
+            MasterFile masterFile = new MasterFile();
+            masterFile.AddIPAddressResourceRecord("google.com", "192.168.0.1");
 
-				clientRequest.Id = 1;
-				clientRequest.Questions.Add(clientRequestQuestion);
-				clientRequest.OperationCode = OperationCode.Query;
+            IRequest clientRequest = new Request();
+            Question clientRequestQuestion = new Question(new Domain(domain), recordType);
 
-				IResponse clientResponse = await masterFile.Resolve(clientRequest);
+            clientRequest.Id = 1;
+            clientRequest.Questions.Add(clientRequestQuestion);
+            clientRequest.OperationCode = OperationCode.Query;
 
-				Assert.Equal(1, clientResponse.Id);
-				Assert.Equal(1, clientResponse.Questions.Count);
-				Assert.Equal(1, clientResponse.AnswerRecords.Count);
-				Assert.Equal(0, clientResponse.AuthorityRecords.Count);
-				Assert.Equal(0, clientResponse.AdditionalRecords.Count);
+            IResponse clientResponse = await masterFile.Resolve(clientRequest);
 
-				Question clientResponseQuestion = clientResponse.Questions[0];
+            Assert.Equal(1, clientResponse.Id);
+            Assert.Equal(1, clientResponse.Questions.Count);
+            Assert.Equal(1, clientResponse.AnswerRecords.Count);
+            Assert.Equal(0, clientResponse.AuthorityRecords.Count);
+            Assert.Equal(0, clientResponse.AdditionalRecords.Count);
 
-				Assert.Equal(requestType, clientResponseQuestion.Type);
-				Assert.Equal(question, clientResponseQuestion.Name.ToString());
+            Question clientResponseQuestion = clientResponse.Questions[0];
 
-				var clientResponseAnswer = clientResponse.AnswerRecords[0];
-				Assert.Equal(RecordType.A, clientResponseAnswer.Type);
-				Assert.Equal("google.com", clientResponseAnswer.Name.ToString());
-				Assert.Equal("192.168.0.1", ((IPAddressResourceRecord)clientResponseAnswer).IPAddress.ToString());
-			}
-		}
-	}
+            Assert.Equal(recordType, clientResponseQuestion.Type);
+            Assert.Equal(domain, clientResponseQuestion.Name.ToString());
+
+            IResourceRecord clientResponseAnswer = clientResponse.AnswerRecords[0];
+            Assert.Equal(RecordType.A, clientResponseAnswer.Type);
+            Assert.Equal("google.com", clientResponseAnswer.Name.ToString());
+            Assert.Equal("192.168.0.1", ((IPAddressResourceRecord) clientResponseAnswer).IPAddress.ToString());
+        }
+    }
 }

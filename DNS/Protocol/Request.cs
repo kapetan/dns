@@ -104,8 +104,8 @@ namespace DNS.Protocol {
             UpdateHeader();
 
             return ObjectStringifier.New(this)
-                .Add("Header", header)
-                .Add("Questions", "AdditionalRecords")
+                .Add(nameof(Header), header)
+                .Add(nameof(Questions), nameof(AdditionalRecords))
                 .ToString();
         }
 

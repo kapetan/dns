@@ -70,7 +70,7 @@ namespace DNS.Protocol {
 
         public override string ToString() {
             return ObjectStringifier.New(this)
-                .Add("Name", "Type", "Class")
+                .Add(nameof(Name), nameof(Type), nameof(Class))
                 .ToString();
         }
 

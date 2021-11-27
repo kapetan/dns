@@ -115,7 +115,7 @@ namespace DNS.Protocol {
         public override string ToString() {
             return ObjectStringifier.New(this)
                 .AddAll()
-                .Remove("Size")
+                .Remove(nameof(Size))
                 .ToString();
         }
 

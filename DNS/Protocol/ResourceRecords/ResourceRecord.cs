@@ -103,7 +103,7 @@ namespace DNS.Protocol.ResourceRecords {
 
         public override string ToString() {
             return ObjectStringifier.New(this)
-                .Add("Name", "Type", "Class", "TimeToLive", "DataLength")
+                .Add(nameof(Name), nameof(Type), nameof(Class), nameof(TimeToLive), nameof(DataLength))
                 .ToString();
         }
 

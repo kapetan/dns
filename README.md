@@ -6,7 +6,7 @@ Available through NuGet.
 
 	Install-Package DNS
 
-[![Build Status](https://travis-ci.org/kapetan/dns.svg?branch=master)](https://travis-ci.org/kapetan/dns)
+[![Test](https://github.com/kapetan/dns/actions/workflows/test.yml/badge.svg)](https://github.com/kapetan/dns/actions/workflows/test.yml)
 
 # Usage
 

@@ -16,7 +16,7 @@ namespace DNS.Tests.Server {
         [InlineData(RecordType.A, "gooGLE.com")]
         [InlineData(RecordType.ANY, "google.com")]
         [InlineData(RecordType.ANY, "gooGLE.com")]
-        public async Task TestResolveMatchingCase(RecordType recordType, string domain) {
+        public async Task ResolveRecord(RecordType recordType, string domain) {
             MasterFile masterFile = new MasterFile();
             masterFile.AddIPAddressResourceRecord("google.com", "192.168.0.1");
 

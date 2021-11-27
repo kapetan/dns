@@ -22,7 +22,7 @@ namespace DNS.Server {
                 patterns[i] = label == "*" ? "(\\w+)" : Regex.Escape(label);
             }
 
-            Regex re = new Regex("^" + string.Join("\\.", patterns) + "$");
+            Regex re = new Regex("^" + string.Join("\\.", patterns) + "$", RegexOptions.IgnoreCase);
             return re.IsMatch(domain.ToString());
         }
 
@@ -114,7 +114,7 @@ namespace DNS.Server {
         }
 
         private IList<IResourceRecord> Get(Domain domain, RecordType type) {
-            return entries.Where(e => Matches(domain, e.Name) && e.Type == type).ToList();
+            return entries.Where(e => Matches(domain, e.Name) && (e.Type == type || type == RecordType.ANY)).ToList();
         }
 
         private IList<IResourceRecord> Get(Question question) {

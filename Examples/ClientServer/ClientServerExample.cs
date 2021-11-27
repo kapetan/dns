@@ -25,13 +25,13 @@ namespace Examples.ClientServer {
             server.Listening += async (sender, e) => {
                 DnsClient client = new DnsClient("127.0.0.1", PORT);
 
-                await client.Lookup("google.com");
-                await client.Lookup("cnn.com");
+                await client.Lookup("google.com").ConfigureAwait(false);
+                await client.Lookup("cnn.com").ConfigureAwait(false);
 
                 server.Dispose();
             };
 
-            await server.Listen(PORT);
+            await server.Listen(PORT).ConfigureAwait(false);
         }
     }
 }

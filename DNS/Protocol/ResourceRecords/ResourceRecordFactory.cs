@@ -41,6 +41,8 @@ namespace DNS.Protocol.ResourceRecords {
                     return new MailExchangeResourceRecord(record, message, dataOffset);
                 case RecordType.TXT:
                     return new TextResourceRecord(record);
+                case RecordType.SRV:
+                    return new ServiceResourceRecord(record, message, dataOffset);
                 default:
                     return record;
             }

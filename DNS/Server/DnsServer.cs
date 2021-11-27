@@ -26,14 +26,14 @@ namespace DNS.Server {
         private UdpClient udp;
         private IRequestResolver resolver;
 
-        public DnsServer(MasterFile masterFile, IPEndPoint endServer) :
-            this(new FallbackRequestResolver(masterFile, new UdpRequestResolver(endServer))) {}
+        public DnsServer(IRequestResolver resolver, IPEndPoint endServer) :
+            this(new FallbackRequestResolver(resolver, new UdpRequestResolver(endServer))) {}
 
-        public DnsServer(MasterFile masterFile, IPAddress endServer, int port = DEFAULT_PORT) :
-            this(masterFile, new IPEndPoint(endServer, port)) {}
+        public DnsServer(IRequestResolver resolver, IPAddress endServer, int port = DEFAULT_PORT) :
+            this(resolver, new IPEndPoint(endServer, port)) {}
 
-        public DnsServer(MasterFile masterFile, string endServer, int port = DEFAULT_PORT) :
-            this(masterFile, IPAddress.Parse(endServer), port) {}
+        public DnsServer(IRequestResolver resolver, string endServer, int port = DEFAULT_PORT) :
+            this(resolver, IPAddress.Parse(endServer), port) {}
 
         public DnsServer(IPEndPoint endServer) :
             this(new UdpRequestResolver(endServer)) {}
@@ -70,8 +70,7 @@ namespace DNS.Server {
                 }
             }
 
-            AsyncCallback receiveCallback = null;
-            receiveCallback = result => {
+            void ReceiveCallback(IAsyncResult result) {
                 byte[] data;
 
                 try {
@@ -87,13 +86,13 @@ namespace DNS.Server {
                     OnError(e);
                 }
 
-                if (run) udp.BeginReceive(receiveCallback, null);
+                if (run) udp.BeginReceive(ReceiveCallback, null);
                 else tcs.SetResult(null);
-            };
+            }
 
-            udp.BeginReceive(receiveCallback, null);
+            udp.BeginReceive(ReceiveCallback, null);
             OnEvent(Listening, EventArgs.Empty);
-            await tcs.Task;
+            await tcs.Task.ConfigureAwait(false);
         }
 
         public void Dispose() {
@@ -126,12 +125,12 @@ namespace DNS.Server {
                 request = Request.FromArray(data);
                 OnEvent(Requested, new RequestedEventArgs(request, data, remote));
 
-                IResponse response = await resolver.Resolve(request);
+                IResponse response = await resolver.Resolve(request).ConfigureAwait(false);
 
                 OnEvent(Responded, new RespondedEventArgs(request, response, data, remote));
                 await udp
                     .SendAsync(response.ToArray(), response.Size, remote)
-                    .WithCancellationTimeout(TimeSpan.FromMilliseconds(UDP_TIMEOUT));
+                    .WithCancellationTimeout(TimeSpan.FromMilliseconds(UDP_TIMEOUT)).ConfigureAwait(false);
             }
             catch (SocketException e) { OnError(e); }
             catch (ArgumentException e) { OnError(e); }
@@ -149,7 +148,7 @@ namespace DNS.Server {
                 try {
                     await udp
                         .SendAsync(response.ToArray(), response.Size, remote)
-                        .WithCancellationTimeout(TimeSpan.FromMilliseconds(UDP_TIMEOUT));
+                        .WithCancellationTimeout(TimeSpan.FromMilliseconds(UDP_TIMEOUT)).ConfigureAwait(false);
                 }
                 catch (SocketException) {}
                 catch (OperationCanceledException) {}
@@ -164,20 +163,9 @@ namespace DNS.Server {
                 Remote = remote;
             }
 
-            public IRequest Request {
-                get;
-                private set;
-            }
-
-            public byte[] Data {
-                get;
-                private set;
-            }
-
-            public IPEndPoint Remote {
-                get;
-                private set;
-            }
+            public IRequest Request { get; }
+            public byte[] Data { get; }
+            public IPEndPoint Remote { get; }
         }
 
         public class RespondedEventArgs : EventArgs {
@@ -188,25 +176,10 @@ namespace DNS.Server {
                 Remote = remote;
             }
 
-            public IRequest Request {
-                get;
-                private set;
-            }
-
-            public IResponse Response {
-                get;
-                private set;
-            }
-
-            public byte[] Data {
-                get;
-                private set;
-            }
-
-            public IPEndPoint Remote {
-                get;
-                private set;
-            }
+            public IRequest Request { get; }
+            public IResponse Response { get; }
+            public byte[] Data { get; }
+            public IPEndPoint Remote { get; }
         }
 
         public class ErroredEventArgs : EventArgs {
@@ -214,10 +187,7 @@ namespace DNS.Server {
                 Exception = e;
             }
 
-            public Exception Exception {
-                get;
-                private set;
-            }
+            public Exception Exception { get; }
         }
 
         private class FallbackRequestResolver : IRequestResolver {
@@ -231,7 +201,7 @@ namespace DNS.Server {
                 IResponse response = null;
 
                 foreach (IRequestResolver resolver in resolvers) {
-                    response = await resolver.Resolve(request, cancellationToken);
+                    response = await resolver.Resolve(request, cancellationToken).ConfigureAwait(false);
                     if (response.AnswerRecords.Count > 0) break;
                 }
 

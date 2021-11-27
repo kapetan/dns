@@ -22,7 +22,7 @@ namespace DNS.Server {
                 patterns[i] = label == "*" ? "(\\w+)" : Regex.Escape(label);
             }
 
-            Regex re = new Regex("^" + string.Join("\\.", patterns) + "$");
+            Regex re = new Regex("^" + string.Join("\\.", patterns) + "$", RegexOptions.IgnoreCase);
             return re.IsMatch(domain.ToString());
         }
 
@@ -89,6 +89,14 @@ namespace DNS.Server {
             Add(new TextResourceRecord(new Domain(domain), attributeName, attributeValue, ttl));
         }
 
+        public void AddServiceResourceRecord(Domain domain, ushort priority, ushort weight, ushort port, Domain target) {
+            Add(new ServiceResourceRecord(domain, priority, weight, port, target, ttl));
+        }
+
+        public void AddServiceResourceRecord(string domain, ushort priority, ushort weight, ushort port, string target) {
+            AddServiceResourceRecord(new Domain(domain), priority, weight, port, new Domain(target));
+        }
+
         public Task<IResponse> Resolve(IRequest request, CancellationToken cancellationToken = default(CancellationToken)) {
             IResponse response = Response.FromRequest(request);
 
@@ -106,7 +114,7 @@ namespace DNS.Server {
         }
 
         protected IList<IResourceRecord> Get(Domain domain, RecordType type) {
-            return entries.Where(e => Matches(domain, e.Name) && e.Type == type).ToList();
+            return entries.Where(e => Matches(domain, e.Name) && (e.Type == type || type == RecordType.ANY)).ToList();
         }
 
         protected IList<IResourceRecord> Get(Question question) {

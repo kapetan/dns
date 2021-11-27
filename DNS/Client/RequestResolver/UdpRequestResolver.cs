@@ -26,21 +26,21 @@ namespace DNS.Client.RequestResolver {
         }
 
         public async Task<IResponse> Resolve(IRequest request, CancellationToken cancellationToken = default(CancellationToken)) {
-            using(UdpClient udp = new UdpClient()) {
+            using(UdpClient udp = new UdpClient(dns.AddressFamily)) {
                 await udp
                     .SendAsync(request.ToArray(), request.Size, dns)
-                    .WithCancellationTimeout(TimeSpan.FromMilliseconds(timeout), cancellationToken);
+                    .WithCancellationTimeout(TimeSpan.FromMilliseconds(timeout), cancellationToken).ConfigureAwait(false);
 
                 UdpReceiveResult result = await udp
                     .ReceiveAsync()
-                    .WithCancellationTimeout(TimeSpan.FromMilliseconds(timeout), cancellationToken);
+                    .WithCancellationTimeout(TimeSpan.FromMilliseconds(timeout), cancellationToken).ConfigureAwait(false);
 
                 if(!result.RemoteEndPoint.Equals(dns)) throw new IOException("Remote endpoint mismatch");
                 byte[] buffer = result.Buffer;
                 Response response = Response.FromArray(buffer);
 
                 if (response.Truncated) {
-                    return await fallback.Resolve(request, cancellationToken);
+                    return await fallback.Resolve(request, cancellationToken).ConfigureAwait(false);
                 }
 
                 return new ClientResponse(request, response, buffer);

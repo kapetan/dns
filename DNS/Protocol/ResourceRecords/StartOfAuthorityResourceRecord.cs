@@ -55,40 +55,13 @@ namespace DNS.Protocol.ResourceRecords {
             this(domain, master, responsible, options.SerialNumber, options.RefreshInterval, options.RetryInterval,
                     options.ExpireInterval, options.MinimumTimeToLive, ttl) { }
 
-        public Domain MasterDomainName {
-            get;
-            private set;
-        }
-
-        public Domain ResponsibleDomainName {
-            get;
-            private set;
-        }
-
-        public long SerialNumber {
-            get;
-            private set;
-        }
-
-        public TimeSpan RefreshInterval {
-            get;
-            private set;
-        }
-
-        public TimeSpan RetryInterval {
-            get;
-            private set;
-        }
-
-        public TimeSpan ExpireInterval {
-            get;
-            private set;
-        }
-
-        public TimeSpan MinimumTimeToLive {
-            get;
-            private set;
-        }
+        public Domain MasterDomainName { get; }
+        public Domain ResponsibleDomainName { get; }
+        public long SerialNumber { get; }
+        public TimeSpan RefreshInterval { get; }
+        public TimeSpan RetryInterval { get; }
+        public TimeSpan ExpireInterval { get; }
+        public TimeSpan MinimumTimeToLive { get; }
 
         public override string ToString() {
             return Stringify().Add("MasterDomainName", "ResponsibleDomainName", "SerialNumber").ToString();

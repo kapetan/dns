@@ -27,10 +27,7 @@ namespace DNS.Client {
             this.response = response;
         }
 
-        public IRequest Request {
-            get;
-            private set;
-        }
+        public IRequest Request { get; }
 
         public int Id {
             get { return response.Id; }

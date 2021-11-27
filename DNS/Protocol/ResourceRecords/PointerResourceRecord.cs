@@ -13,10 +13,7 @@ namespace DNS.Protocol.ResourceRecords {
             PointerDomainName = pointer;
         }
 
-        public Domain PointerDomainName {
-            get;
-            private set;
-        }
+        public Domain PointerDomainName { get; }
 
         public override string ToString() {
             return Stringify().Add("PointerDomainName").ToString();

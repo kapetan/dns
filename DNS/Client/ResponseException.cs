@@ -23,9 +23,6 @@ namespace DNS.Client {
             Response = response;
         }
 
-        public IResponse Response {
-            get;
-            private set;
-        }
+        public IResponse Response { get; }
     }
 }

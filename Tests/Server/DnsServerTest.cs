@@ -40,7 +40,7 @@ namespace DNS.Tests.Server {
                 clientRequest.Questions.Add(clientRequestQuestion);
                 clientRequest.OperationCode = OperationCode.Query;
 
-                IResponse clientResponse = await Resolve(clientRequest);
+                IResponse clientResponse = await Resolve(clientRequest).ConfigureAwait(false);
 
                 Assert.Equal(1, clientResponse.Id);
                 Assert.Equal(1, clientResponse.Questions.Count);
@@ -93,7 +93,7 @@ namespace DNS.Tests.Server {
                 Assert.Equal(RecordType.A, respondedResponseRecord.Type);
 
                 Assert.Null(erroredEvent);
-            });
+            }).ConfigureAwait(false);
         }
 
         private async static Task Create(IRequestResolver requestResolver, Func<DnsServer, Task> action) {
@@ -102,7 +102,7 @@ namespace DNS.Tests.Server {
 
             server.Listening += async (sender, _) => {
                 try {
-                    await action(server);
+                    await action(server).ConfigureAwait(false);
                     tcs.SetResult(null);
                 } catch(Exception e) {
                     tcs.SetException(e);
@@ -111,15 +111,15 @@ namespace DNS.Tests.Server {
                 }
             };
 
-            await Task.WhenAll(server.Listen(PORT), tcs.Task);
+            await Task.WhenAll(server.Listen(PORT), tcs.Task).ConfigureAwait(false);
         }
 
         private async static Task<IResponse> Resolve(IRequest request) {
             using (UdpClient udp = new UdpClient()) {
                 IPEndPoint endPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), PORT);
 
-                await udp.SendAsync(request.ToArray(), request.Size, endPoint);
-                UdpReceiveResult result = await udp.ReceiveAsync();
+                await udp.SendAsync(request.ToArray(), request.Size, endPoint).ConfigureAwait(false);
+                UdpReceiveResult result = await udp.ReceiveAsync().ConfigureAwait(false);
                 return Response.FromArray(result.Buffer);
             }
         }

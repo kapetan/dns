@@ -4,7 +4,7 @@ using DNS.Protocol;
 using DNS.Protocol.ResourceRecords;
 
 namespace DNS.Tests.Protocol {
-    
+
     public class ParseResponseTest {
         [Fact]
         public void BasicQuestionResponseWithEmptyHeader() {
@@ -12,7 +12,7 @@ namespace DNS.Tests.Protocol {
             Response response = Response.FromArray(content);
 
             Assert.Equal(0, response.Id);
-            Assert.Equal(false, response.RecursionAvailable);
+            Assert.False(response.RecursionAvailable);
             Assert.Equal(62, response.Size);
             Assert.Equal(1, response.Questions.Count);
             Assert.Equal(1, response.AnswerRecords.Count);
@@ -56,7 +56,7 @@ namespace DNS.Tests.Protocol {
             Response response = Response.FromArray(content);
 
             Assert.Equal(1, response.Id);
-            Assert.Equal(true, response.RecursionAvailable);
+            Assert.True(response.RecursionAvailable);
             Assert.Equal(101, response.Size);
             Assert.Equal(1, response.Questions.Count);
             Assert.Equal(1, response.AnswerRecords.Count);
@@ -92,6 +92,19 @@ namespace DNS.Tests.Protocol {
             Assert.Equal(RecordType.CNAME, record.Type);
             Assert.Equal(RecordClass.ANY, record.Class);
             Assert.Equal(TimeSpan.FromSeconds(1), record.TimeToLive);
+        }
+
+        [Fact]
+        public void ResponseWithoutQuestion() {
+            byte[] content = Helper.ReadFixture("Response", "no-question");
+            Response response = Response.FromArray(content);
+
+            Assert.Equal(0, response.Id);
+            Assert.False(response.RecursionAvailable);
+            Assert.Empty(response.Questions);
+            Assert.Equal(5, response.AnswerRecords.Count);
+            Assert.Empty(response.AuthorityRecords);
+            Assert.Empty(response.AdditionalRecords);
         }
     }
 }

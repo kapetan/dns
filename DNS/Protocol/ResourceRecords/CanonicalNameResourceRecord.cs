@@ -12,10 +12,7 @@ namespace DNS.Protocol.ResourceRecords {
             CanonicalDomainName = cname;
         }
 
-        public Domain CanonicalDomainName {
-            get;
-            private set;
-        }
+        public Domain CanonicalDomainName { get; }
 
         public override string ToString() {
             return Stringify().Add("CanonicalDomainName").ToString();

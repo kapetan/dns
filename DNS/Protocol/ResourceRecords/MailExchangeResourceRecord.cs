@@ -39,15 +39,8 @@ namespace DNS.Protocol.ResourceRecords {
             ExchangeDomainName = exchange;
         }
 
-        public int Preference {
-            get;
-            private set;
-        }
-
-        public Domain ExchangeDomainName {
-            get;
-            private set;
-        }
+        public int Preference { get; }
+        public Domain ExchangeDomainName { get; }
 
         public override string ToString() {
             return Stringify().Add("Preference", "ExchangeDomainName").ToString();

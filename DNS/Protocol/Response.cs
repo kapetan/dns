@@ -30,7 +30,7 @@ namespace DNS.Protocol {
             Header header = Header.FromArray(message);
             int offset = header.Size;
 
-            if (!header.Response || header.QuestionCount == 0) {
+            if (!header.Response) {
                 throw new ArgumentException("Invalid response message");
             }
 

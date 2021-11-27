@@ -12,10 +12,7 @@ namespace DNS.Protocol.ResourceRecords {
             NSDomainName = nsDomain;
         }
 
-        public Domain NSDomainName {
-            get;
-            private set;
-        }
+        public Domain NSDomainName { get; }
 
         public override string ToString() {
             return Stringify().Add("NSDomainName").ToString();

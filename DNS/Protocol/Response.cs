@@ -6,8 +6,6 @@ using DNS.Protocol.Utils;
 
 namespace DNS.Protocol {
     public class Response : IResponse {
-        private static readonly Random RANDOM = new Random();
-
         private Header header;
         private IList<Question> questions;
         private IList<IResourceRecord> answers;
@@ -66,7 +64,6 @@ namespace DNS.Protocol {
             this.additional = new List<IResourceRecord>();
 
             this.header.Response = true;
-            this.header.Id = RANDOM.Next(UInt16.MaxValue);
         }
 
         public Response(IResponse response) {

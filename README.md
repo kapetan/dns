@@ -43,7 +43,7 @@ ClientRequest request = new ClientRequest("8.8.8.8");
 request.Questions.Add(new Question(Domain.FromString("foo.com"), RecordType.AAAA));
 request.RecursionDesired = true;
 
-ClientResponse response = await request.Resolve();
+IResponse response = await request.Resolve();
 
 // Get all the IPs for the foo.com domain
 IList<IPAddress> ips = response.AnswerRecords

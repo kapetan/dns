@@ -35,6 +35,10 @@ namespace DNS.Server {
         public DnsServer(IRequestResolver resolver, string endServer, int port = DEFAULT_PORT) :
             this(resolver, IPAddress.Parse(endServer), port) {}
 
+        public DnsServer(IRequestResolver resolver, Uri uri) :
+            this(new FallbackRequestResolver(resolver, new HttpsRequestResolver(uri)))
+        { }
+
         public DnsServer(IPEndPoint endServer) :
             this(new UdpRequestResolver(endServer)) {}
 
@@ -47,6 +51,9 @@ namespace DNS.Server {
         public DnsServer(IRequestResolver resolver) {
             this.resolver = resolver;
         }
+        public DnsServer(Uri uri) :
+            this(new HttpsRequestResolver(uri))
+        { }
 
         public Task Listen(int port = DEFAULT_PORT, IPAddress ip = null) {
             return Listen(new IPEndPoint(ip ?? IPAddress.Any, port));

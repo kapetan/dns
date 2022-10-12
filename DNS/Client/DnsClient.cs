@@ -26,6 +26,9 @@ namespace DNS.Client {
         public DnsClient(IRequestResolver resolver) {
             this.resolver = resolver;
         }
+        public DnsClient(Uri uri) :
+            this(new HttpsRequestResolver(uri))
+        { }
 
         public ClientRequest FromArray(byte[] message) {
             Request request = Request.FromArray(message);

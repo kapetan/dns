@@ -13,7 +13,8 @@ namespace Examples.ClientServer {
 
         public async static Task MainAsync() {
             MasterFile masterFile = new MasterFile();
-            DnsServer server = new DnsServer(masterFile, "8.8.8.8");
+            //Dns Proxy to Dns over https
+            DnsServer server = new DnsServer(masterFile, new Uri("https://1.1.1.1/dns-query"));
 
             masterFile.AddIPAddressResourceRecord("google.com", "127.0.0.1");
 

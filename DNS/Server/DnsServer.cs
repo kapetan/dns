@@ -76,7 +76,7 @@ namespace DNS.Server {
                 try {
                     IPEndPoint remote = new IPEndPoint(0, 0);
                     data = udp.EndReceive(result, ref remote);
-                    HandleRequest(data, remote);
+                    Task.Run(()=> HandleRequest(data, remote));
                 }
                 catch (ObjectDisposedException) {
                     // run should already be false

@@ -95,5 +95,14 @@ namespace DNS.Tests.Protocol.ResourceRecords {
 
             Assert.Equal(content, srv.ToArray());
         }
+
+        [Fact]
+        public void OptResourceRecordWithOptionPadding() {
+            byte[] content = Helper.ReadFixture("ResourceRecord", "edns-option-padding");
+
+            OptResourceRecord opt = new OptResourceRecord(512, new Option(12, new byte[16]));
+
+            Assert.Equal(content, opt.ToArray());
+        }
     }
 }

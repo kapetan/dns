@@ -13,7 +13,11 @@ namespace DNS.Protocol {
         private const byte ASCII_LOWERCASE_LAST = 122;
         private const byte ASCII_UPPERCASE_MASK = 223;
 
+        private static readonly char[] LabelSeparator = new[] { '.' };
+
         private byte[][] labels;
+
+        public static readonly Domain Empty = FromArray(new byte[] { 0 }, 0);
 
         public static Domain FromString(string domain) {
             return new Domain(domain);
@@ -98,7 +102,7 @@ namespace DNS.Protocol {
         }
 
         private static int CompareTo(byte a, byte b) {
-            if(IsASCIIAlphabet(a) && IsASCIIAlphabet(b)) {
+            if (IsASCIIAlphabet(a) && IsASCIIAlphabet(b)) {
                 a &= ASCII_UPPERCASE_MASK;
                 b &= ASCII_UPPERCASE_MASK;
             }
@@ -111,7 +115,7 @@ namespace DNS.Protocol {
 
             for (int i = 0; i < length; i++) {
                 int v = CompareTo(a[i], b[i]);
-                if(v != 0) return v;
+                if (v != 0) return v;
             }
 
             return a.Length - b.Length;
@@ -125,9 +129,9 @@ namespace DNS.Protocol {
             this.labels = labels.Select(label => encoding.GetBytes(label)).ToArray();
         }
 
-        public Domain(string domain) : this(domain.Split('.')) {}
+        public Domain(string domain) : this(domain.Split(LabelSeparator, StringSplitOptions.RemoveEmptyEntries)) { }
 
-        public Domain(string[] labels) : this(labels, Encoding.ASCII) {}
+        public Domain(string[] labels) : this(labels, Encoding.ASCII) { }
 
         public int Size {
             get { return labels.Sum(l => l.Length) + labels.Length + 1; }
@@ -138,7 +142,7 @@ namespace DNS.Protocol {
             int offset = 0;
 
             foreach (byte[] label in labels) {
-                result[offset++] = (byte) label.Length;
+                result[offset++] = (byte)label.Length;
                 label.CopyTo(result, offset);
                 offset += label.Length;
             }
@@ -160,7 +164,7 @@ namespace DNS.Protocol {
 
             for (int i = 0; i < length; i++) {
                 int v = CompareTo(this.labels[i], other.labels[i]);
-                if(v != 0) return v;
+                if (v != 0) return v;
             }
 
             return this.labels.Length - other.labels.Length;

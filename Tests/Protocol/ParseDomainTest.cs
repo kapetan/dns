@@ -14,6 +14,11 @@ namespace DNS.Tests.Protocol {
             Assert.Equal("", domain.ToString());
             Assert.Equal(1, domain.Size);
             Assert.Equal(1, endOffset);
+
+            domain = Domain.Empty;
+            Assert.Equal("", domain.ToString());
+            Assert.Equal(1, domain.Size);
+            Assert.Single(domain.ToArray());
         }
 
         [Fact]

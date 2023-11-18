@@ -43,6 +43,8 @@ namespace DNS.Protocol.ResourceRecords {
                     return new TextResourceRecord(record);
                 case RecordType.SRV:
                     return new ServiceResourceRecord(record, message, dataOffset);
+                case RecordType.OPT:
+                    return new OptResourceRecord(record);
                 default:
                     return record;
             }

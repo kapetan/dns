@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Xunit;
 using DNS.Protocol;
 using DNS.Protocol.ResourceRecords;
+using System.Linq;
 
 namespace DNS.Tests.Protocol.ResourceRecords {
 
@@ -177,6 +178,28 @@ namespace DNS.Tests.Protocol.ResourceRecords {
             Assert.Equal(60, srv.Weight);
             Assert.Equal(8080, srv.Port);
             Assert.Equal("example.com", srv.Target.ToString());
+        }
+
+        [Fact]
+        public void OptResourceRecordWithOptionPadding() {
+            byte[] content = Helper.ReadFixture("ResourceRecord", "edns-option-padding");
+
+            ResourceRecord record = ResourceRecord.FromArray(content, 0);
+
+            Assert.Equal("", record.Name.ToString());
+            Assert.Equal(RecordType.OPT, record.Type);
+            Assert.Equal(31, record.Size);
+
+            OptResourceRecord opt = new OptResourceRecord(record);
+
+            Assert.Equal(512, opt.UdpPayloadSize);
+            Assert.Equal(0, opt.ExtendedResponseCode);
+            Assert.Equal(0, opt.Version);
+            Assert.Equal(0, opt.Z);
+            Assert.Equal(1, opt.Options.Count);
+            Assert.Equal(12, opt.Options[0].Code);
+            Assert.Equal(16, opt.Options[0].Length);
+            Assert.True(opt.Options[0].Data.All(x => x == 0));
         }
     }
 }
